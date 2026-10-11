@@ -184,6 +184,10 @@ textarea{resize:vertical}
 .kv dt{color:var(--muted)}.kv dd{margin:0}
 .pill-row{display:flex;flex-wrap:wrap;gap:6px}
 .pill-row .btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.chk{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-size:13px;background:var(--surface)}
+.chk input{margin:0;accent-color:var(--accent)}
+.chk:has(input:checked){background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.tagline{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
 .setcard{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
 .setcard .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:flex-start}
 @media (prefers-reduced-motion:no-preference){.modal{animation:pop .14s ease-out}@keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}}
@@ -229,13 +233,15 @@ const lsSet=(k,v)=>{try{if(v==null)localStorage.removeItem(k);else localStorage.
 /* ===================== state ===================== */
 const state={
   db:null,user:null,downloads:null,uid:null,isOwner:false,canWrite:null,ready:false,loaded:{},dbError:null,
-  teachers:[],schools:[],assignments:[],lessons:[],monthly:[],sets:[],settings:null,
+  teachers:[],schools:[],assignments:[],lessons:[],monthly:[],sets:[],candidates:[],settings:null,
   session:null,
-  ui:{view:'overview',week:weekStartOf(todayISO()),month:monthKeyOf(todayISO()),fTeacher:'',fSchool:'',fStatus:'',fDistrict:'',setsLoc:'all',setsQ:''}
+  ui:{view:'overview',week:weekStartOf(todayISO()),month:monthKeyOf(todayISO()),fTeacher:'',fSchool:'',fStatus:'',fDistrict:'',setsLoc:'all',setsQ:'',poolQ:'',poolDistrict:'',poolDay:'',poolStatus:'',poolTag:''}
 };
 let IDX={lessons:{},sets:{}};
 let modalState=null;
-const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['sets','Setler'],['teachers','Öğretmenler'],['schools','Okullar'],['settings','Ayarlar']];
+const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
+const CAND_STATUS=[['aday','Aday'],['gorusuldu','Görüşüldü'],['deneme','Deneme dersi verdi'],['aktif','Aktif öğretmen'],['pasif','Pasif'],['uygun_degil','Uygun değil']];
+const CAND_TAGS=['Robotik kodlama','Drone','STEM','Yapay zekâ','Okul öncesi','İlkokul','Ortaokul','Lise','Scratch / blok kodlama','Python','Arduino / micro:bit','LEGO Education','3D tasarım','Maker / elektronik','İngilizce ders verebilir'];
 const TEACHER_NAV=[['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler']];
 const WEEKDAYS6=[1,2,3,4,5,6];
 const SET_STATUS=[['aktif','Aktif'],['arizali','Arızalı'],['eksik','Eksik parça'],['kayip','Kayıp']];
@@ -403,7 +409,7 @@ function localDb(seed){
 
 /* ===================== boot ===================== */
 function subscribeAll(db){
-  const cols=['teachers','schools','assignments','lessons','monthly','sets'];
+  const cols=['teachers','schools','assignments','lessons','monthly','sets','candidates'];
   for(const c of cols){
     db.collection(c).onSnapshot(snap=>{state[c]=snap.docs.map(d=>Object.assign({id:d.id},d.data()));state.loaded[c]=true;onData();},e=>{state.dbError=e;render();});
   }
@@ -422,7 +428,7 @@ async function boot(){
   subscribeAll(db);
 }
 function onData(){
-  const need=['teachers','schools','assignments','lessons','monthly','sets','settings'];
+  const need=['teachers','schools','assignments','lessons','monthly','sets','candidates','settings'];
   if(!state.ready&&need.every(k=>state.loaded[k])){state.ready=true;resolveSession();applyHash();}
   if(state.ready)render();
 }
@@ -533,6 +539,7 @@ function adminView(){
     case 'report':return reportView();
     case 'sets':return setsView(true);
     case 'teachers':return teachersView();
+    case 'pool':return poolView();
     case 'schools':return schoolsView();
     case 'settings':return settingsView();
     default:return overviewView();
@@ -661,11 +668,59 @@ function reportCSV(ym){
   for(const t of teachers){const s=monthStats(ym,t.id);for(const r of s.rows)lines.push([monthLabel(ym),t.name,sName(r.schoolId),r.done,r.cancelled,r.pending,r.extraWait,Math.round(r.amount)].join(';'));lines.push([monthLabel(ym),t.name,'TOPLAM',s.total.done,s.total.cancelled,s.total.pending,s.total.extraWait,Math.round(s.total.amount)].join(';'));}
   return lines.join('\r\n');
 }
-function setsView(admin){
+function filteredSets(){
   const q=state.ui.setsQ.toLocaleLowerCase('tr');const loc=state.ui.setsLoc;
   let sets=state.sets.slice().sort((a,b)=>String(a.code||'').localeCompare(String(b.code||''),'tr'));
   if(loc!=='all')sets=sets.filter(s=>(s.locType||'depo')===loc);
   if(q)sets=sets.filter(s=>[s.code,s.name,s.category,locLabel(s.locType,s.locId),s.note].join(' ').toLocaleLowerCase('tr').includes(q));
+  return sets;
+}
+const safeUrl=u=>/^https?:\/\//i.test(String(u||'').trim())?String(u).trim():'';
+const candTags=c=>(Array.isArray(c.tags)?c.tags:[]).filter(Boolean);
+function candMatches(c){
+  const u=state.ui;const q=(u.poolQ||'').trim().toLocaleLowerCase('tr');
+  if(u.poolStatus&&(c.status||'aday')!==u.poolStatus)return false;
+  if(u.poolDay&&!(c.days||[]).includes(Number(u.poolDay)))return false;
+  if(u.poolTag&&!candTags(c).some(t=>t.toLocaleLowerCase('tr')===u.poolTag.toLocaleLowerCase('tr')))return false;
+  if(u.poolDistrict){const d=u.poolDistrict.toLocaleLowerCase('tr');if(!((c.district||'').trim().toLocaleLowerCase('tr')===d||(c.otherDistricts||'').toLocaleLowerCase('tr').includes(d)))return false;}
+  if(q){const hay=[c.name,c.phone,c.email,c.district,c.semt,c.otherDistricts,candTags(c).join(' '),c.education,c.experience,c.source,c.notes].join(' ').toLocaleLowerCase('tr');if(!hay.includes(q))return false;}
+  return true;
+}
+function poolTable(){
+  if(!state.candidates.length)return '<p class="empty">Arşiv boş. "Öğretmen ekle" ile CV\'si gelen ilk öğretmeni kaydedin.</p>';
+  const list=state.candidates.filter(candMatches).sort(byName);
+  if(!list.length)return '<p class="empty">Filtreye uyan öğretmen yok.</p>';
+  const rows=list.map(c=>{const st=CAND_STATUS.find(x=>x[0]===(c.status||'aday'))||CAND_STATUS[0];const kind=c.status==='aktif'?'ok':(c.status==='uygun_degil'||c.status==='pasif')?'':(c.status==='gorusuldu'||c.status==='deneme')?'info':'warn';const cv=safeUrl(c.cvUrl);
+    return `<tr><td><b>${esc(c.name)}</b>${candTags(c).length?`<div class="tagline">${candTags(c).map(t=>chip('accent',esc(t))).join('')}</div>`:''}${c.source?`<div class="muted small">Kaynak: ${esc(c.source)}</div>`:''}</td>
+    <td class="small"><div class="mono">${esc(c.phone||'')}</div><div>${esc(c.email||'')}</div></td>
+    <td class="small">${esc([c.district,c.semt].filter(Boolean).join(' · '))||'<span class="muted">—</span>'}${c.otherDistricts?`<div class="muted">ulaşır: ${esc(c.otherDistricts)}</div>`:''}</td>
+    <td class="small">${c.education?`<div>${esc(c.education)}</div>`:''}${c.experience?`<div class="muted">${esc(c.experience)}</div>`:''}</td>
+    <td class="small">${(c.days||[]).map(d=>DAYS_S[d-1]).join(' ')||'<span class="muted">—</span>'}</td>
+    <td>${chip(kind,st[1])}${c.notes?`<div class="muted small">${esc(c.notes)}</div>`:''}</td>
+    <td>${cv?`<a href="${esc(cv)}" target="_blank" rel="noopener">CV</a>`:'<span class="muted">—</span>'}</td>
+    <td class="act">${btn('openCandidate',{id:c.id},'Düzenle')}${c.teacherId&&teacherById(c.teacherId)?btn('nav',{view:'teachers'},'Öğretmenlerde'):btn('promoteCandidate',{id:c.id},'Aktif öğretmen yap','primary sm')}${btn('delCandidate',{id:c.id},'Sil')}</td></tr>`;}).join('');
+  return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th>İletişim</th><th>İkamet</th><th>Eğitim / deneyim</th><th>Müsait</th><th>Durum</th><th>CV</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function poolView(){
+  const all=state.candidates;
+  const districts=[...new Set(all.flatMap(c=>[c.district||''].concat(String(c.otherDistricts||'').split(/[,\/;·]+/))).map(s=>s.trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
+  const tags=[...new Set(all.flatMap(candTags))].sort((a,b)=>a.localeCompare(b,'tr'));
+  const n=k=>all.filter(c=>(c.status||'aday')===k).length;
+  const shown=all.filter(candMatches).length;
+  return `<div class="pagehead"><div><h1>Öğretmen arşivi</h1><p class="sub">CV'si alınan öğretmenler: iletişim, ikamet, branş, müsait günler</p></div>${btn('openCandidate',{},'+ Öğretmen ekle','primary')}</div>
+  <section class="tiles">${tile(all.length,'kayıt')}${tile(n('aday'),'aday')}${tile(n('gorusuldu')+n('deneme'),'görüşüldü / deneme dersi')}${tile(n('aktif'),'aktif öğretmen oldu')}</section>
+  <section><div class="toolbar"><input type="search" data-input="poolQ" value="${esc(state.ui.poolQ)}" placeholder="Ad, ilçe, branş, not…" style="max-width:260px">
+    <select data-change="poolDistrict"><option value="">Tüm ilçeler</option>${districts.map(d=>`<option value="${esc(d)}" ${state.ui.poolDistrict===d?'selected':''}>${esc(d)}</option>`).join('')}</select>
+    <select data-change="poolDay"><option value="">Gün fark etmez</option>${WEEKDAYS6.map(wd=>`<option value="${wd}" ${String(state.ui.poolDay)===String(wd)?'selected':''}>${DAYS[wd-1]} boş</option>`).join('')}</select>
+    <select data-change="poolTag"><option value="">Tüm branşlar</option>${tags.map(t=>`<option value="${esc(t)}" ${state.ui.poolTag===t?'selected':''}>${esc(t)}</option>`).join('')}</select>
+    <select data-change="poolStatus"><option value="">Tüm durumlar</option>${CAND_STATUS.map(x=>`<option value="${x[0]}" ${state.ui.poolStatus===x[0]?'selected':''}>${x[1]}</option>`).join('')}</select>
+    <span class="muted small">${shown} / ${all.length}</span></div>
+  <div id="pool-table">${poolTable()}</div>
+  <p class="note">İlçe filtresi hem ikamet ilçesine hem "ulaşabileceği ilçeler" alanına bakar; bir okul için öğretmen ararken okulun ilçesini seçip gün filtresiyle daraltın. "Aktif öğretmen yap" kaydı Öğretmenler listesine taşır, PIN üretir ve müsait günlerini Müsaitlik tablosuna işler. CV dosyalarını Drive'da tutup bağlantısını buraya yapıştırın.</p></section>`;
+}
+function setsView(admin){
+  const loc=state.ui.setsLoc;
+  const sets=filteredSets();
   const counts={depo:0,okul:0,ogretmen:0};state.sets.forEach(s=>{counts[s.locType||'depo']=(counts[s.locType||'depo']||0)+(Number(s.qty)||1);});
   const pills=[['all','Tümü'],['depo','Depoda'],['okul','Okulda'],['ogretmen','Öğretmende']].map(x=>btn('setsLoc',{loc:x[0]},x[1],'sm '+(loc===x[0]?'on':'ghost'))).join('');
   return `<div class="pagehead"><div><h1>${admin?'Setler':'Setler'}</h1><p class="sub">${fmtNum(counts.depo)} depoda · ${fmtNum(counts.okul)} okulda · ${fmtNum(counts.ogretmen)} öğretmende</p></div>${admin?btn('openSet',{},'+ Set ekle','primary'):''}</div>
@@ -700,7 +755,7 @@ function availView(){
 }
 function teachersView(){
   const rows=state.teachers.slice().sort(byName).map(t=>{const as=state.assignments.filter(a=>a.teacherId===t.id&&a.active!==false&&!(a.validTo&&a.validTo<todayISO()));const prog=as.map(a=>`${DAYS_S[Number(a.weekday)-1]} ${sName(a.schoolId)}`).join(', ');const free=freeDays(t).map(wd=>DAYS_S[wd-1]).join(' ');
-    return `<tr><td><b>${esc(t.name)}</b>${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="mono">${esc(t.phone||'')}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${esc(prog)||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')}</td></tr>`;}).join('');
+    return `<tr><td><b>${esc(t.name)}</b>${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="small"><div class="mono">${esc(t.phone||'')}</div>${t.email?`<div>${esc(t.email)}</div>`:''}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${esc(prog)||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')}</td></tr>`;}).join('');
   return `<div class="pagehead"><div><h1>Öğretmenler</h1><p class="sub">Giriş için her öğretmenin bir PIN'i olur; ilk girişte hesabı otomatik bağlanır</p></div>${btn('openTeacher',{},'+ Öğretmen ekle','primary')}</div>
   <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ad soyad</th><th>Telefon</th><th>İkamet</th><th>Boş günleri</th><th>Haftalık program</th><th>PIN</th><th>Hesap</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Henüz öğretmen yok.</td></tr>'}</tbody></table></div>
   <p class="note">Öğretmene panel bağlantısını gönderirken claude.ai paylaşım menüsünden e-posta ile ve <b>Düzenleyen</b> yetkisiyle davet edin; herkese açık bağlantı ile paylaşırsanız öğretmenler ders onayı kaydedemez. "Panelini aç" ile öğretmenin göreceği ekranı kendiniz görebilirsiniz.</p></section>`;
@@ -755,7 +810,7 @@ function tLessonsView(){
 function tAvailView(){
   const t=teacherById(myTeacherId());if(!t)return '';
   return `<div class="pagehead"><div><h1>Müsaitliğim</h1><p class="sub">Hangi günler ders verebilirsiniz? Yönetici yeni okul planlarken buna bakar.</p></div><div class="toolbar">${btn('openProfile',{},'Bilgilerimi düzenle','ghost')}${btn('openAvail',{id:t.id},'Müsaitliğimi güncelle','primary')}</div></div>
-  <section class="tiles"><div class="card"><h3>Bilgilerim</h3><dl class="kv"><dt>Telefon</dt><dd class="mono">${esc(t.phone||'—')}</dd><dt>İkamet</dt><dd>${esc([t.district,t.semt].filter(Boolean).join(' · ')||'—')}</dd><dt>Ulaşabileceğim ilçeler</dt><dd>${esc(t.otherDistricts||'—')}</dd></dl></div>
+  <section class="tiles"><div class="card"><h3>Bilgilerim</h3><dl class="kv"><dt>Telefon</dt><dd class="mono">${esc(t.phone||'—')}</dd><dt>E-posta</dt><dd>${esc(t.email||'—')}</dd><dt>İkamet</dt><dd>${esc([t.district,t.semt].filter(Boolean).join(' · ')||'—')}</dd><dt>Ulaşabileceğim ilçeler</dt><dd>${esc(t.otherDistricts||'—')}</dd></dl></div>
   <div class="card"><h3>Haftam</h3><div class="tbl-wrap" style="border:0"><table class="tbl"><tbody>${WEEKDAYS6.map(wd=>`<tr><td>${DAYS[wd-1]}</td><td>${availCell(dayAvail(t,wd))}</td></tr>`).join('')}</tbody></table></div>${t.availNote?`<p class="note">Notunuz: ${esc(t.availNote)}</p>`:''}</div></section>
   <p class="note">Okul yazan günler haftalık programınızdan gelir; değişiklik için yöneticiye yazın. "Boş" işaretlediğiniz günlerde yeni ders planlanabilir.</p>`;
 }
@@ -816,6 +871,15 @@ const ACT={
   openHistory(d){const s=state.sets.find(x=>x.id===d.id);if(!s)return;const h=(s.history||[]).slice().reverse();openModal({title:`${esc(s.code||'')} ${esc(s.name)} · hareketler`,body:h.length?`<div class="hist">${h.map(x=>`<div><div class="mono">${fmtStamp(x.at)} · ${esc(x.by||'')}</div>${x.from?`${esc(x.from)} → `:''}<b>${esc(x.to||'')}</b>${x.note?`<div class="muted">${esc(x.note)}</div>`:''}</div>`).join('')}</div>`:'<p class="muted">Hareket kaydı yok.</p>',submit:false,cancel:'Kapat'});},
   openTeacher(d){openTeacher(d.id?teacherById(d.id):null);},
   openProfile(){const t=teacherById(myTeacherId());if(t)openTeacher(t,true);},
+  openCandidate(d){openCandidate(d.id?state.candidates.find(c=>c.id===d.id):null);},
+  delCandidate(d){const c=state.candidates.find(x=>x.id===d.id);if(!c)return;confirmModal('Arşiv kaydını sil',`${esc(c.name)} arşivden silinecek.${c.teacherId?' Öğretmenler listesindeki kaydı silinmez.':''}`,async()=>{const err=await attempt(()=>delDoc('candidates',c.id));if(err)return err;toast('Kayıt silindi.','ok');},'Sil');},
+  promoteCandidate(d){const c=state.candidates.find(x=>x.id===d.id);if(!c)return;
+    confirmModal('Aktif öğretmen yap',`${esc(c.name)} Öğretmenler listesine eklenecek, giriş PIN'i oluşturulacak ve müsait günleri Müsaitlik tablosuna "Boş" olarak işlenecek.`,async()=>{
+      const pin=String(Math.floor(1000+Math.random()*9000));const avail={};(c.days||[]).forEach(wd=>{avail[String(wd)]='bos';});
+      const t={id:uid(),name:c.name,phone:c.phone||'',email:c.email||'',district:c.district||'',semt:c.semt||'',otherDistricts:c.otherDistricts||'',avail,availNote:'',pin,note:'Öğretmen arşivinden eklendi',candidateId:c.id,active:true,createdAt:nowStamp()};
+      let err=await attempt(()=>putDoc('teachers',t));if(err)return err;
+      err=await attempt(()=>putDoc('candidates',Object.assign({},c,{status:'aktif',teacherId:t.id})));if(err)return err;
+      toast(`${c.name} öğretmen olarak eklendi · PIN ${pin}`,'ok');},'Ekle');},
   openAvail(d){const t=teacherById(d.id);if(!t)return;if(!isAdmin()&&t.id!==myTeacherId())return;openAvail(t);},
   async toggleTeacher(d){const t=teacherById(d.id);if(!t)return;const err=await attempt(()=>putDoc('teachers',Object.assign({},t,{active:t.active===false})));toast(err||'Güncellendi.',err?'bad':'ok');},
   async unbindTeacher(d){const t=teacherById(d.id);if(!t)return;const err=await attempt(()=>putDoc('teachers',Object.assign({},t,{userId:null})));toast(err||'Hesap bağı kaldırıldı.',err?'bad':'ok');},
@@ -828,7 +892,9 @@ const ACT={
 };
 $('#app').addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;e.preventDefault();const fn=ACT[el.dataset.act];if(fn)fn(el.dataset);});
 $('#app').addEventListener('change',e=>{const el=e.target.closest('[data-change]');if(!el)return;state.ui[el.dataset.change]=el.value;render();});
-$('#app').addEventListener('input',e=>{const el=e.target.closest('[data-input]');if(!el)return;state.ui[el.dataset.input]=el.value;if(el.dataset.input==='setsQ'){const box=$('#sets-table');if(box){const q=state.ui.setsQ.toLocaleLowerCase('tr');const loc=state.ui.setsLoc;let sets=state.sets.slice().sort((a,b)=>String(a.code||'').localeCompare(String(b.code||''),'tr'));if(loc!=='all')sets=sets.filter(s=>(s.locType||'depo')===loc);if(q)sets=sets.filter(s=>[s.code,s.name,s.category,locLabel(s.locType,s.locId),s.note].join(' ').toLocaleLowerCase('tr').includes(q));box.innerHTML=setsTable(sets,isAdmin());}}});
+$('#app').addEventListener('input',e=>{const el=e.target.closest('[data-input]');if(!el)return;const k=el.dataset.input;state.ui[k]=el.value;
+  if(k==='setsQ'){const box=$('#sets-table');if(box)box.innerHTML=setsTable(filteredSets(),isAdmin());}
+  if(k==='poolQ'){const box=$('#pool-table');if(box)box.innerHTML=poolTable();}});
 $('#app').addEventListener('submit',async e=>{
   const f=e.target.closest('form[data-form]');if(!f)return;e.preventDefault();
   const data={};new FormData(f).forEach((v,k)=>{data[k]=String(v).trim();});
@@ -892,11 +958,29 @@ function openAssignment(a){
 function openTeacher(t,self){
   const isNew=!t;t=t||{active:true};
   openModal({title:self?'Bilgilerimi düzenle':isNew?'Öğretmen ekle':'Öğretmeni düzenle',
-    body:field('Ad soyad',input('name',{value:t.name||'',req:true}))+`<div class="two">${field('Telefon',input('phone',{value:t.phone||'',type:'tel'}))}${field(self?'Giriş PIN':'Giriş PIN (4-6 rakam)',input('pin',{value:t.pin||String(Math.floor(1000+Math.random()*9000)),req:true,attrs:'inputmode="numeric" minlength="4" maxlength="6"'}))}</div><div class="two">${field('İkamet ilçesi',input('district',{value:t.district||'',ph:'Ümraniye'}))}${field('Semt / mahalle',input('semt',{value:t.semt||''}))}</div>`+field('Ulaşabileceği diğer ilçeler',input('otherDistricts',{value:t.otherDistricts||'',ph:'Üsküdar, Kadıköy…'}))+(self?'':field('Yönetici notu',input('note',{value:t.note||'',ph:'Branş, başlangıç tarihi…'}))),
+    body:field('Ad soyad',input('name',{value:t.name||'',req:true}))+`<div class="two">${field('Telefon',input('phone',{value:t.phone||'',type:'tel'}))}${field('E-posta',input('email',{value:t.email||'',type:'email'}))}</div><div class="two">${field(self?'Giriş PIN':'Giriş PIN (4-6 rakam)',input('pin',{value:t.pin||String(Math.floor(1000+Math.random()*9000)),req:true,attrs:'inputmode="numeric" minlength="4" maxlength="6"'}))}${field('İkamet ilçesi',input('district',{value:t.district||'',ph:'Ümraniye'}))}</div><div class="two">${field('Semt / mahalle',input('semt',{value:t.semt||''}))}${field('Ulaşabileceği diğer ilçeler',input('otherDistricts',{value:t.otherDistricts||'',ph:'Üsküdar, Kadıköy…'}))}</div>`+(self?'':field('Yönetici notu',input('note',{value:t.note||'',ph:'Branş, başlangıç tarihi…'}))),
     onSubmit:async f=>{if(!f.name)return 'Ad soyad girin.';if(!/^\d{4,6}$/.test(f.pin))return 'PIN 4-6 rakamdan oluşmalı.';
-      const rec=Object.assign({},t,{id:t.id||uid(),name:f.name,phone:f.phone,pin:f.pin,district:f.district,semt:f.semt,otherDistricts:f.otherDistricts,active:t.active!==false,createdAt:t.createdAt||nowStamp()});
+      const rec=Object.assign({},t,{id:t.id||uid(),name:f.name,phone:f.phone,email:f.email,pin:f.pin,district:f.district,semt:f.semt,otherDistricts:f.otherDistricts,active:t.active!==false,createdAt:t.createdAt||nowStamp()});
       if(!self)rec.note=f.note;
       const err=await attempt(()=>putDoc('teachers',rec));if(err)return err;toast(self?'Bilgileriniz güncellendi.':isNew?'Öğretmen eklendi.':'Öğretmen güncellendi.','ok');}});
+}
+function openCandidate(c){
+  const isNew=!c;c=c||{status:'aday',days:[]};
+  const days=WEEKDAYS6.map(wd=>`<label class="chk"><input type="checkbox" name="d${wd}" ${(c.days||[]).includes(wd)?'checked':''}>${DAYS_S[wd-1]}</label>`).join('');
+  openModal({title:isNew?'Arşive öğretmen ekle':'Arşiv kaydını düzenle',wide:true,
+    body:`<div class="two">${field('Ad soyad',input('name',{value:c.name||'',req:true}))}${field('Durum',select('status',CAND_STATUS.map(x=>({v:x[0],l:x[1]})),c.status||'aday'))}</div>
+    <div class="two">${field('Telefon',input('phone',{value:c.phone||'',type:'tel'}))}${field('E-posta',input('email',{value:c.email||'',type:'email'}))}</div>
+    <div class="two">${field('İkamet ilçesi',input('district',{value:c.district||'',ph:'Üsküdar'}))}${field('Semt / mahalle',input('semt',{value:c.semt||''}))}</div>
+    ${field('Ulaşabileceği diğer ilçeler',input('otherDistricts',{value:c.otherDistricts||'',ph:'Kadıköy, Ataşehir…'}))}
+    ${field('Branş / uzmanlık (virgülle ayırın)',input('tags',{value:candTags(c).join(', '),list:'candtags',ph:'Robotik kodlama, Drone, Okul öncesi…'}))}<datalist id="candtags">${CAND_TAGS.map(t=>`<option value="${esc(t)}">`).join('')}</datalist>
+    <div class="two">${field('Mezuniyet / eğitim',input('education',{value:c.education||'',ph:'BÖTE, 2021'}))}${field('Deneyim',input('experience',{value:c.experience||'',ph:'3 yıl robotik, Teknofest danışmanlığı'}))}</div>
+    <div class="fld"><span>Müsait günler</span><div class="pill-row">${days}</div></div>
+    <div class="two">${field('CV bağlantısı (Drive vb.)',input('cvUrl',{value:c.cvUrl||'',type:'url',ph:'https://drive.google.com/…'}))}${field('Kaynak',input('source',{value:c.source||'',ph:'İlan, referans, eğitmen eğitimi…'}))}</div>
+    ${field('Notlar',textarea('notes',c.notes||'','Görüşme izlenimi, ücret beklentisi, uygun okul türü…'))}`,
+    onSubmit:async f=>{if(!f.name)return 'Ad soyad girin.';if(f.cvUrl&&!safeUrl(f.cvUrl))return 'CV bağlantısı http:// veya https:// ile başlamalı.';
+      const tags=String(f.tags||'').split(',').map(s=>s.trim()).filter(Boolean);const days=WEEKDAYS6.filter(wd=>f['d'+wd]);
+      const rec=Object.assign({},c,{id:c.id||uid(),name:f.name,status:f.status||'aday',phone:f.phone,email:f.email,district:f.district,semt:f.semt,otherDistricts:f.otherDistricts,tags,education:f.education,experience:f.experience,days,cvUrl:f.cvUrl,source:f.source,notes:f.notes,createdAt:c.createdAt||nowStamp()});
+      const err=await attempt(()=>putDoc('candidates',rec));if(err)return err;toast(isNew?'Arşive eklendi.':'Kayıt güncellendi.','ok');}});
 }
 function openAvail(t){
   const body=WEEKDAYS6.map(wd=>{const a=dayAvail(t,wd);if(a.kind==='okul')return field(DAYS[wd-1],`<div class="pill-row">${a.schools.map(s=>chip('accent',esc(s))).join(' ')}</div>`,'Haftalık programdan gelir');const v=(t.avail||{})[String(wd)]||'';return field(DAYS[wd-1],select('d'+wd,[{v:'',l:'Belirtilmedi'},{v:'bos',l:'Boş · ders verebilir'},{v:'dolu',l:'Dolu'}],v));}).join('');
