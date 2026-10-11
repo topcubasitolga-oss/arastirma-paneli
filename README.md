@@ -1,27 +1,14 @@
 # Araştırma Paneli — Dr. Öğr. Üyesi Tolga Topçubaşı
 
 Makaleler, projeler, bildiriler, kitaplar ve etik kurul onaylarının tek sayfada toplandığı kişisel araştırma paneli.
-Site GitHub Pages ile yayınlanır; içerik `data.json` dosyasından okunur.
+Site GitHub Pages ile yayınlanır. İki sekme vardır: **Çalışma Arşivi** (şifreli, `arsiv.enc.json`; yalnızca parolayı bilen açar) ve **Yayınlarım** (herkese açık, `index.html` içindeki `Y` verisi).
 
-## Yeni çalışma eklemek
+## Güncelleme
 
-1. GitHub'da `data.json` dosyasını açın, sağ üstteki kalem simgesine tıklayın.
-2. İlgili listeye (`makaleler`, `projeler`, `bildiriler`, `etikKurul`, `kitaplar`) yeni bir satır ekleyin. Örnek:
-
-```json
-{
-  "baslik": "Yeni makalenin başlığı",
-  "durum": "Gönderime hazır",
-  "yil": 2026,
-  "etiketler": ["Yapay Zekâ Etiği"],
-  "drive": "https://drive.google.com/drive/folders/KLASOR_ID"
-}
-```
-
-3. "Commit changes" deyin. Site bir iki dakika içinde güncellenir.
+Yayın listesi ve şifreli arşiv Claude ile güncellenir ("Yayınlarım'a şunu ekle" / "arşivi yeniden kilitle"). Arşivin canlı, düzenlenebilir hali Claude'daki özel paneldedir.
 
 ## Gizlilik
 
-- Drive bağlantıları dosyaların paylaşım ayarına bağlıdır. Dosyalar "Kısıtlı" kaldıkça yalnızca sahibi açabilir; sitede sadece başlıklar görünür.
-- Kitaplar `"goster": false` ile gizli tutulur; yayınlamak istediklerinizi `true` yapın.
+- Sohbet arşivi AES-GCM ile şifrelidir; parola olmadan dosya okunamaz.
+- Sitede YÖKSİS numarası, yerel dosya yolu ve karar sureti dosyası yoktur.
 - Öğrenci çalışmalarında öğrenci adları yalnızca baş harfle gösterilir.

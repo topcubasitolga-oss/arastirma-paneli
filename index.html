@@ -2,319 +2,736 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tolga Topçubaşı · Araştırma Paneli</title>
-<meta name="description" content="Dr. Öğr. Üyesi Tolga Topçubaşı'nın makaleleri, projeleri, bildirileri ve etik kurul onayları.">
+<meta name="description" content="Dr. Öğr. Üyesi Tolga Topçubaşı: yayınlar, projeler, atıflar ve çalışma arşivi.">
+<meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
 <style>
+/* Düzen: solda bölüm rafı, sağda aranabilir kayıt listesi; telefonda raf yatay şerit olur */
 :root{
-  --paper:#f5f1e8; --card:#fffdf8; --ink:#1e1b16; --muted:#6b6457; --line:#e2dccd;
-  --accent:#1f5c58; --accent-soft:#e1ece9; --seal:#8a5a1c; --seal-soft:#f3e7d3;
-  --draft:#6d5a9c; --draft-soft:#ebe6f5;
-  --serif:"Fraunces",Georgia,serif; --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --bg:#eef1f4; --panel:#ffffff; --ink:#151c26; --muted:#5d6878; --line:#d8dee6;
+  --accent:#1d4fbf; --accent-soft:#e3eafb;
+  --chat:#0e7a6d; --chat-soft:#dcf1ee; --page:#a2580a; --page-soft:#fbecd9; --drive:#3a6f2a; --drive-soft:#e3f0dc;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Public Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
 }
-@media (prefers-color-scheme:dark){
-  :root{
-    --paper:#15130f; --card:#1d1a15; --ink:#efe9dc; --muted:#a39b8b; --line:#332e26;
-    --accent:#7cc2ba; --accent-soft:#1f3331; --seal:#e0b071; --seal-soft:#3a2c18;
-    --draft:#b6a6e6; --draft-soft:#2b2540;
-  }
-}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --panel:#171e28; --ink:#e7ecf2; --muted:#9aa6b6; --line:#2a3443;
+  --accent:#86a7ff; --accent-soft:#1c2a4a;
+  --chat:#5fd0c0; --chat-soft:#123631; --page:#f0b46a; --page-soft:#3a2810; --drive:#9fd28a; --drive-soft:#1f3418; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --panel:#171e28; --ink:#e7ecf2; --muted:#9aa6b6; --line:#2a3443;
+  --accent:#86a7ff; --accent-soft:#1c2a4a;
+  --chat:#5fd0c0; --chat-soft:#123631; --page:#f0b46a; --page-soft:#3a2810; --drive:#9fd28a; --drive-soft:#1f3418; color-scheme:dark}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
-a{color:inherit}
-.wrap{max-width:980px;margin:0 auto;padding:0 20px}
-
-/* Kapak */
-header.hero{padding:64px 0 36px;border-bottom:1px solid var(--line)}
-.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,6vw,56px);line-height:1.05;margin:10px 0 8px;letter-spacing:-.01em}
-.unvan{color:var(--muted);margin:0 0 18px}
-.ozet{font-family:var(--serif);font-size:20px;line-height:1.5;max-width:44ch;margin:0 0 22px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font-size:13px;padding:4px 11px;border:1px solid var(--line);border-radius:99px;background:var(--card);cursor:pointer;color:var(--ink)}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
-
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
-.stat{background:var(--card);padding:16px 18px}
-.stat b{display:block;font-family:var(--serif);font-size:32px;font-weight:600;line-height:1}
-.stat span{font-size:13px;color:var(--muted)}
-
-/* Gezinme */
-nav.bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-nav .wrap{display:flex;gap:6px;align-items:center;padding-top:10px;padding-bottom:10px;overflow-x:auto}
-nav a{flex:none;text-decoration:none;font-size:14px;font-weight:500;padding:6px 12px;border-radius:8px;color:var(--muted)}
-nav a:hover{background:var(--card);color:var(--ink)}
-.search{margin-left:auto;flex:none}
-.search input{font:inherit;font-size:14px;width:200px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
-
-/* Bölümler */
-section{padding:44px 0 8px;scroll-margin-top:56px}
-h2{font-family:var(--serif);font-weight:600;font-size:28px;margin:0 0 4px;display:flex;align-items:baseline;gap:10px}
-h2 small{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--muted)}
-.lede{color:var(--muted);margin:0 0 20px;font-size:15px}
-.list{display:grid;gap:12px}
-.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
-.item h3{font-family:var(--serif);font-weight:600;font-size:18px;line-height:1.35;margin:0}
-.meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;color:var(--muted)}
-.badge{font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
-.badge.draft{background:var(--draft-soft);color:var(--draft)}
-.badge.seal{background:var(--seal-soft);color:var(--seal)}
-.drive{font-size:13px;font-weight:500;text-decoration:none;color:var(--accent);display:inline-flex;gap:5px;align-items:center}
-.drive:hover{text-decoration:underline}
-.tag{font-size:12px;color:var(--muted)}
-.tag::before{content:"#"}
-
-/* Etik kurul zaman çizelgesi */
-.year{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--seal);margin:26px 0 10px}
-.ethic{display:grid;grid-template-columns:118px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
-.ethic:last-child{border-bottom:1px solid var(--line)}
-.ethic .no{font-variant-numeric:tabular-nums}
-.ethic .no b{display:block;font-size:15px}
-.ethic .no span{font-size:13px;color:var(--muted)}
-.ethic h3{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.4;margin:0 0 6px}
-.ok{font-size:13px;color:var(--muted)}
-.ok::before{content:"✓ ";color:var(--accent);font-weight:700}
-details{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px}
-summary{cursor:pointer;font-weight:500}
-
-.empty{color:var(--muted);font-style:italic;padding:8px 0}
-footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
-.hidden{display:none!important}
-
-@media (max-width:640px){
-  header.hero{padding-top:40px}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .search input{width:140px}
-  .ethic{grid-template-columns:1fr;gap:4px}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 60px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px}
+header{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px}
+h1{font:700 clamp(28px,4vw,40px)/1.05 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.stamp{font:12px var(--mono);color:var(--muted)}
+aside{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;display:grid;gap:2px}
+aside h2{font:600 11px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px 10px}
+.sec{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;font:500 14px var(--body);color:var(--ink);background:none;border:0;border-radius:8px;padding:8px 10px;cursor:pointer}
+.sec:hover{background:var(--panel)}
+.sec[aria-pressed="true"]{background:var(--accent);color:var(--bg)}
+.sec .n{font:12px var(--mono);opacity:.75;font-variant-numeric:tabular-nums}
+main{min-width:0;display:grid;gap:16px;align-content:start}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search{flex:1 1 100%;display:grid;gap:6px}
+.search label{font:700 18px/1.2 var(--display)}
+.search input{width:100%;min-width:0;font:500 17px var(--body);padding:14px 16px;border:2px solid var(--accent);border-radius:12px;background:var(--panel);color:var(--ink)}
+.search .ipucu{font-size:13px;color:var(--muted)}
+.search kbd{font:12px var(--mono);border:1px solid var(--line);border-radius:4px;padding:0 5px;background:var(--panel)}
+mark{background:var(--accent-soft);color:inherit;border-radius:3px;padding:0 1px}
+.yer{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:1px 8px;white-space:nowrap}
+.tools input:focus-visible,.sec:focus-visible,.f:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.f{font:500 13px var(--body);padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.f[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.group{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.group>h3{font:600 13px var(--body);margin:0;padding:10px 16px;border-bottom:1px solid var(--line);color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.row{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:4px 14px;align-items:start;padding:12px 16px;border-top:1px solid var(--line)}
+.group>h3+.row{border-top:0}
+.kind{font:600 11px var(--body);letter-spacing:.04em;text-transform:uppercase;text-align:center;padding:3px 0;border-radius:6px;margin-top:2px}
+.k-sohbet{background:var(--chat-soft);color:var(--chat)}
+.k-sayfa{background:var(--page-soft);color:var(--page)}
+.k-drive{background:var(--drive-soft);color:var(--drive)}
+.title{min-width:0}
+.title a,.title span.t{font-weight:600;color:var(--ink);text-decoration:none;overflow-wrap:anywhere}
+.title a:hover{color:var(--accent);text-decoration:underline}
+.oz{color:var(--muted);font-size:13.5px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.side{display:grid;justify-items:end;gap:4px}
+.date{font:12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+select{font:12px var(--body);padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--muted);max-width:130px}
+.devam{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--body);padding:6px 12px;border-radius:8px;background:var(--accent);color:var(--bg);text-decoration:none;white-space:nowrap}
+.devam:hover{filter:brightness(1.08)}
+.devam.ikincil{background:var(--accent-soft);color:var(--accent)}
+.resume{display:grid;gap:10px}
+.resume>h2{font:700 20px/1.2 var(--display);margin:0}
+.resume>p{margin:-4px 0 2px;color:var(--muted);font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:8px;align-content:space-between;min-width:0}
+.card b{font-weight:600;overflow-wrap:anywhere}
+.card .meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sec.vurgu:not([aria-pressed="true"]){color:var(--accent);font-weight:600}
+.empty{background:var(--panel);border:1px dashed var(--line);border-radius:14px;padding:28px;color:var(--muted)}
+.more{justify-self:center;font:500 14px var(--body);padding:8px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+@media (max-width:760px){
+  .wrap{grid-template-columns:1fr;gap:16px}
+  aside{position:static;display:flex;overflow-x:auto;gap:6px;padding-bottom:4px}
+  aside h2{display:none}
+  .sec{flex:none;width:auto;border:1px solid var(--line);background:var(--panel)}
+  .row{grid-template-columns:1fr;gap:6px}
+  .kind{justify-self:start;padding:2px 8px}
+  .side{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+/* Dosyalar, seçim, işlem menüsü */
+.side-h{display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px 10px}
+.side-h h2{margin:0}
+.mini{font:600 12px var(--body);padding:3px 9px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--accent);cursor:pointer}
+.mini:hover{border-color:var(--accent)}
+.mini.tehlike{color:#b3261e}
+.newf{display:flex;gap:6px;padding:4px 0 6px}
+.newf input{flex:1;min-width:0;font:14px var(--body);padding:6px 8px;border:1px solid var(--accent);border-radius:8px;background:var(--panel);color:var(--ink)}
+.sec .fd{display:flex;align-items:center;gap:7px;min-width:0}
+.sec .fd span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sec .ic{flex:none;width:14px;height:11px;border-radius:2px 2px 3px 3px;background:currentColor;opacity:.55;position:relative}
+.sec .ic::before{content:"";position:absolute;left:0;top:-3px;width:7px;height:4px;border-radius:2px 2px 0 0;background:inherit}
+.row{grid-template-columns:22px 72px minmax(0,1fr) auto}
+.row.secili{background:var(--accent-soft)}
+.chk{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
+.etiketler{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.fchip{font-size:12px;color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:1px 8px;cursor:pointer;border:0;font-family:var(--body)}
+details.menu{position:relative}
+details.menu>summary{list-style:none;font:500 12px var(--body);padding:4px 10px;border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--muted);background:var(--panel)}
+details.menu>summary::-webkit-details-marker{display:none}
+details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
+.pop{position:absolute;right:0;top:calc(100% + 4px);z-index:20;width:240px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgb(0 0 0 / .14);padding:10px;display:grid;gap:8px}
+.pop label{font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pop select{max-width:none;width:100%;font-size:13px;padding:5px 6px}
+.pop .btns{display:flex;flex-wrap:wrap;gap:6px}
+.onay{display:grid;gap:6px;font-size:13px;color:var(--ink)}
+.bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:var(--ink);color:var(--bg);padding:10px 12px;border-radius:12px;box-shadow:0 12px 30px rgb(0 0 0 / .25);max-width:calc(100% - 32px)}
+.bar b{font-weight:600;margin-right:4px}
+.bar select{max-width:190px;font-size:13px;color:var(--ink)}
+.bar button{font:600 13px var(--body);padding:6px 11px;border-radius:8px;border:0;cursor:pointer;background:var(--panel);color:var(--ink)}
+.bar button.tehlike{background:#d9473d;color:#fff}
+.bar button.duz{background:none;color:var(--bg);text-decoration:underline}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:31;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 8px 24px rgb(0 0 0 / .15);font-size:14px;max-width:calc(100% - 32px)}
+.toast button{font:600 13px var(--body);border:0;background:none;color:var(--accent);cursor:pointer}
+.fhead{display:grid;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.yol{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.yol button{font:inherit;border:0;background:none;color:var(--accent);cursor:pointer;padding:0}
+.fhead h2{font:700 24px/1.15 var(--display);margin:0;overflow-wrap:anywhere}
+.fhead .btns{display:flex;flex-wrap:wrap;gap:6px}
+.altlar{display:flex;flex-wrap:wrap;gap:8px}
+.altlar button{display:flex;align-items:center;gap:8px;font:500 14px var(--body);padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);cursor:pointer}
+.altlar button .ic{width:14px;height:11px;border-radius:2px;background:var(--accent);opacity:.6}
+.inl{display:flex;gap:6px;flex-wrap:wrap}
+.inl input{flex:1 1 200px;min-width:0;font:14px var(--body);padding:6px 10px;border:1px solid var(--accent);border-radius:8px;background:var(--panel);color:var(--ink)}
+.bilgi{font-size:13px;color:var(--muted)}
+@media (max-width:760px){
+  .row{grid-template-columns:22px minmax(0,1fr)}
+  .row .kind{grid-column:2}
+  .row .title,.row .side{grid-column:2}
+  .pop{right:auto;left:0}
 }
 
-.badge.plain{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:500}
-.cites{font-size:13.5px;color:var(--muted)}
-.list+.year,.year:first-child{margin-top:0}
-#list-bildiri .year{margin:22px 0 10px}
+.kilit{max-width:520px;margin:60px auto;padding:0 20px;display:grid;gap:14px}
+.kilit h1{font:700 30px/1.1 var(--display);margin:0}
+.kilit p{color:var(--muted);margin:0}
+.kilit form{display:grid;gap:10px}
+.kilit input{font:16px var(--body);padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
+.kilit button{font:600 15px var(--body);padding:11px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--bg);cursor:pointer;justify-self:start}
+.kilit .hata{color:#b3261e;font-size:14px}
+.statik .chk,.statik #bar,.statik details.menu,.statik .side-h button,.statik #yv-drive{display:none!important}
+.statik .row{grid-template-columns:72px minmax(0,1fr) auto}
+@media (max-width:760px){.statik .row{grid-template-columns:1fr}.statik .row .kind,.statik .row .title,.statik .row .side{grid-column:1}}
+.apptabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
+.apptabs .in{max-width:1180px;margin:0 auto;padding-inline:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.apptabs .marka{font:700 15px var(--display);color:var(--ink);padding:12px 0;margin-right:6px;white-space:nowrap}
+.apptabs .tabs{display:flex;gap:6px;padding:8px 0}
+.apptabs button{font:600 15px var(--body);padding:9px 18px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer;border-radius:10px;display:flex;align-items:center;gap:8px}
+.apptabs button .n{font:12px var(--mono);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:1px 7px}
+.apptabs button[aria-selected="true"]{color:var(--bg);background:var(--accent);border-color:var(--accent)}
+.apptabs button[aria-selected="true"] .n{background:rgb(255 255 255 / .18);border-color:transparent;color:inherit}
+.apptabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.yv{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 60px;display:grid;gap:18px}
+.yv-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px 24px}
+.yv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.yv-stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:2px}
+.yv-stat b{font:700 30px/1 var(--display);font-variant-numeric:tabular-nums}
+.yv-stat span{font-size:13px;color:var(--muted)}
+.yv-drive{background:var(--accent-soft);border-radius:12px;padding:12px 16px;font-size:14px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.yv-drive code{font:12.5px var(--mono);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 6px;overflow-wrap:anywhere}
+.yv-tabs{display:flex;flex-wrap:wrap;gap:6px}
+.yv-search{max-width:640px}
+.yv-search input{font-size:15px;padding:10px 14px;border-width:1px;border-color:var(--line)}
+.pub{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 16px;padding:14px 16px;border-top:1px solid var(--line);align-items:start}
+.group>h3+.pub{border-top:0}
+.pub h4{margin:0;font:600 15px/1.4 var(--body);overflow-wrap:anywhere}
+.pub .ven{color:var(--muted);font-size:13.5px;margin-top:3px}
+.pub .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.tg{font-size:12px;border-radius:99px;padding:1px 8px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tg.q1{border-color:var(--accent);color:var(--accent);font-weight:600}
+.tg.ok{background:var(--chat-soft);color:var(--chat);border-color:transparent}
+.tg.wait{background:var(--page-soft);color:var(--page);border-color:transparent}
+.tg.atif{background:var(--drive-soft);color:var(--drive);border-color:transparent;font-weight:600}
+.pub .acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:end;align-items:center}
+.cites{font-size:13px;color:var(--muted);margin-top:6px}
+.ptable{width:100%;border-collapse:collapse;font-size:14px}
+.ptable th,.ptable td{text-align:left;padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+.ptable th{font-weight:600;color:var(--muted);font-size:12.5px;border-top:0}
+.ptable td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ptable tr.toplam td{font-weight:600}
 .tw{overflow-x:auto}
-.dtable{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:15px}
-.dtable th,.dtable td{text-align:left;padding:10px 14px;border-top:1px solid var(--line)}
-.dtable th{border-top:0;font-size:13px;color:var(--muted);font-weight:600}
-.dtable td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
-.stats{grid-template-columns:repeat(6,1fr)}
-@media (max-width:860px){.stats{grid-template-columns:repeat(3,1fr)}}
-@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
-section{scroll-margin-top:56px}
+.not{font-size:13px;color:var(--muted);padding:10px 16px;border-top:1px solid var(--line)}
+.not a{color:var(--accent)}
+@media (max-width:760px){.pub{grid-template-columns:1fr}.pub .acts{justify-content:start}}
 </style>
 </head>
 <body>
 
+<nav class="apptabs" aria-label="Sayfalar"><div class="in"><span class="marka">Araştırma Paneli</span><div class="tabs" role="tablist"><button type="button" role="tab" id="tab-arsiv" aria-selected="true">Çalışma Arşivi <span class="n" id="tab-arsiv-n"></span></button><button type="button" role="tab" id="tab-yayin" aria-selected="false">Yayınlarım <span class="n" id="tab-yayin-n"></span></button></div></div></nav>
+<div id="kilit" class="kilit">
+  <h1>Çalışma Arşivi kilitli</h1>
+  <p>Bu bölüm şifrelidir ve yalnızca sahibine açıktır. Parolayı girerek arşivi bu tarayıcıda açabilirsiniz; parola hiçbir yere gönderilmez.</p>
+  <form id="kilit-form"><input id="parola" type="password" autocomplete="current-password" placeholder="Parola" aria-label="Parola" required><button type="submit">Arşivi aç</button><div class="hata" id="kilit-hata" hidden></div></form>
+</div>
+<div id="arsivView" hidden>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Çalışma Arşivi</h1>
+      <p class="sub">Claude ile yürütülen sohbetler, hazırlanan sayfalar ve Drive'daki çalışma dosyaları. Bu kopya salt okunurdur; düzenleme Claude'daki özel panelden yapılır.</p>
+    </div>
+    <div class="stamp" id="stamp">Kayıtlar yükleniyor…</div>
+  </header>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="eyebrow">Araştırma Paneli</div>
-    <h1 id="ad">…</h1>
-    <p class="unvan" id="unvan"></p>
-    <p class="ozet" id="ozet"></p>
-    <div class="chips" id="chips"></div>
-    <div class="stats" id="stats"></div>
+  <aside id="secs" aria-label="Bölümler ve dosyalar"></aside>
+
+  <main>
+    <div class="tools">
+      <div class="search">
+        <label for="q">Ara</label>
+        <input id="q" type="search" autocomplete="off" placeholder="Araştırmanın adından bir kelime yazın: etik farkındalık, P4C, 3501…">
+        <div class="ipucu">Tüm bölümlerde arar. Türkçe karakter ve kelime sırası fark etmez; “yz”, “bit”, “hb” gibi kısaltmalar da çalışır. Kısayol: <kbd>/</kbd></div>
+      </div>
+      <div class="filters" id="kinds"></div>
+    </div>
+    <section class="fhead" id="fhead" hidden></section>
+    <section class="resume" id="resume" hidden></section>
+    <div id="list"><div class="empty">Arşiv açılıyor. Kayıtlar gelince sohbetleriniz, sayfalarınız ve Drive dosyalarınız burada bölüm bölüm listelenecek.</div></div>
+  </main>
+</div>
+</div>
+<section id="yayinView" class="yv" hidden>
+  <div class="yv-head">
+    <div>
+      <h1>Yayınlarım</h1>
+      <p class="sub">Hakemli makaleler, bildiriler, kitap bölümleri, projeler, atıflar ve dersler.</p>
+    </div>
+    <div class="stamp" id="yv-stamp"></div>
   </div>
-</header>
-
-<nav class="bar">
-  <div class="wrap">
-    <a href="#makaleler">Makaleler</a>
-    <a href="#bildiriler">Bildiriler</a>
-    <a href="#kitaplar">Kitaplar</a>
-    <a href="#projeler">Projeler</a>
-    <a href="#atiflar">Atıflar</a>
-    <a href="#dersler">Dersler</a>
-    <a href="#etik">Etik Kurul</a>
-    <label class="search"><input id="q" type="search" placeholder="Ara…" aria-label="Çalışmalarda ara"></label>
+  <div class="yv-stats" id="yv-stats"></div>
+  <div class="yv-drive" id="yv-drive"></div>
+  <nav class="yv-tabs" id="yv-tabs" aria-label="Yayın türleri"></nav>
+  <div class="search yv-search">
+    <label for="yq">Yayınlarda ara</label>
+    <input id="yq" type="search" autocomplete="off" placeholder="Başlık, dergi, yıl ya da YÖKSİS no…">
   </div>
-</nav>
-
-<main class="wrap">
-  <section id="makaleler">
-    <h2>Makaleler <small id="n-makale"></small></h2>
-    <p class="lede">Hakemli dergilerde yayımlanan ve yayına kabul edilen makaleler, yeniden eskiye.</p>
-    <div class="list" id="list-makale"></div>
-  </section>
-
-  <section id="bildiriler">
-    <h2>Bildiriler <small id="n-bildiri"></small></h2>
-    <p class="lede">Ulusal ve uluslararası sempozyum ve kongrelerde sunulan bildiriler.</p>
-    <div id="list-bildiri"></div>
-  </section>
-
-  <section id="kitaplar">
-    <h2>Kitaplar ve kitap bölümleri <small id="n-kitap"></small></h2>
-    <div class="list" id="list-kitap"></div>
-  </section>
-
-  <section id="projeler">
-    <h2>Projeler <small id="n-proje"></small></h2>
-    <p class="lede">TÜBİTAK, BAP ve ulusal projeler; danışmanlık yapılan TÜBİTAK 2209-A öğrenci projeleri.</p>
-    <div class="list" id="list-proje"></div>
-    <details id="etkinlik-wrap">
-      <summary>Atölyeler ve eğitmen eğitimleri <span id="n-etk"></span></summary>
-      <div class="list" id="list-etk" style="margin-top:12px"></div>
-    </details>
-  </section>
-
-  <section id="atiflar">
-    <h2>Atıflar <small id="n-atif"></small></h2>
-    <p class="lede">Çalışmalarıma diğer araştırmacıların yaptığı atıflar, en çok atıf alan eser üstte.</p>
-    <div class="list" id="list-atif"></div>
-  </section>
-
-  <section id="dersler">
-    <h2>Verdiğim dersler <small id="n-ders"></small></h2>
-    <p class="lede">İstanbul 29 Mayıs Üniversitesi, Eğitim Fakültesi.</p>
-    <div class="tw"><table class="dtable" id="list-ders"></table></div>
-  </section>
-
-  <section id="etik">
-    <h2>Etik Kurul Onayları <small id="n-etik"></small></h2>
-    <p class="lede">İstanbul 29 Mayıs Üniversitesi Bilimsel Araştırma ve Yayın Etiği Kurulu kararları. Tümü oybirliğiyle “etik açıdan sakınca yoktur” kararıyla sonuçlanmıştır. Karar suretleri gizlidir; yalnızca yetkili hesap açabilir.</p>
-    <div id="list-etik"></div>
-    <details id="ogrenci-wrap">
-      <summary>Danışmanlık yapılan öğrenci çalışmaları <span id="n-ogr"></span></summary>
-      <div id="list-ogr"></div>
-    </details>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <span id="guncel"></span> · Veriler <code>data.json</code> dosyasından okunur; yeni çalışma eklemek için o dosyayı düzenlemek yeterli.
-  </div>
-</footer>
+  <div id="yv-body"></div>
+</section>
+<div class="bar" id="bar" hidden></div>
+<div class="toast" id="toast" hidden></div>
 
 <script>
 (function(){
+  const BOLUMLER = [
+    ["makale","Makaleler ve yayınlar"],["kitap","Kitaplar"],["proje","Projeler"],["danismanlik","Danışmanlıklar"],
+    ["ders","Dersler ve eğitimler"],["etik","Etik kurul"],["kariyer","Doçentlik ve kariyer"],["idari","Yazışma ve idari"],["diger","Diğer"]
+  ];
+  const BOL_AD = Object.fromEntries(BOLUMLER);
+  const TURLER = [["hepsi","Hepsi"],["sohbet","Sohbetler"],["sayfa","Sayfalar"],["drive","Drive"]];
+  const AY = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
   const $ = s => document.querySelector(s);
-  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const tarihTR = iso => new Date(iso + "T12:00:00").toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"});
+
+  let items = [], klasorler = [], db = null;
+  let gorunum = {tip:"bolum", k:"hepsi"};   // bolum | klasor | gizli | silindi
+  let tur = "hepsi", q = "", gosterilen = 120;
+  const secili = new Set();
+  let yeniKlasorAcik = false, yeniKlasorUst = "";
+
+  try { const s = JSON.parse(localStorage.getItem("arsiv-gorunum")||"{}"); if (s.gorunum) gorunum = s.gorunum; if (s.tur) tur = s.tur; } catch(e){}
+  const hatirla = () => { try { localStorage.setItem("arsiv-gorunum", JSON.stringify({gorunum,tur})); } catch(e){} };
+
+  function el(tag, attrs, ...kids){
+    const n = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs||{})) {
+      if (k==="class") n.className=v; else if (k==="text") n.textContent=v;
+      else if (k.startsWith("on")) n[k]=v; else if (v!==null && v!==undefined && v!==false) n.setAttribute(k,v===true?"":v);
+    }
+    kids.flat().forEach(k => k!==null && k!==undefined && k!==false && n.append(k));
+    return n;
+  }
+  const tarihYaz = it => { const [y,m,d] = (it.tarih||"").split("-"); if (!y) return ""; return it.yilOnly ? y : `${+d} ${AY[+m-1]} ${y}`; };
+  const durumu = it => it.silindi ? "silindi" : it.gizli ? "gizli" : "aktif";
+  const aktifler = () => items.filter(it => !it.silindi && !it.gizli);
+
+  /* ---------- Arama ---------- */
+  const HARF = {"ı":"i","ş":"s","ç":"c","ğ":"g","ö":"o","ü":"u","â":"a","î":"i","û":"u","é":"e"};
+  function norm(s){ let o=""; for (const ch of String(s||"")){ let c = ch.toLocaleLowerCase("tr-TR"); c = HARF[c]||c; c = c[0]; o += /[a-z0-9]/.test(c) ? c : " "; } return o; }
+  const KISALTMA = {"yz":["yapay zeka"],"yzo":["yapay zeka okuryazarlig"],"bit":["bilgi islemsel"],"bid":["bilgi islemsel"],"hb":["hayat bilgisi"],"sb":["sosyal bilgiler"],"p4c":["cocuklar icin felsefe"],"tymm":["maarif model"],"bt":["bilgi teknoloji","bilisim teknoloji"],"ssci":["manuscript","makale"]};
+  const sorguParcala = qs => norm(qs).split(" ").filter(Boolean).map(t => [t, ...(t.length>=5 && /[kptcg]$/.test(t) ? [t.slice(0,-1)] : []), ...(KISALTMA[t]||[])]);
+  function puan(it, parcalar){
+    const b = norm(it.baslik), o = norm((it.ozet||"")+" "+(it.grup||"")+" "+(BOL_AD[it.bolum]||"")+" "+klasorAdlari(it).join(" "));
+    let p = 0;
+    for (const sec of parcalar){ let en = 0;
+      for (const t of sec){ if (b.includes(t)) en = Math.max(en, (" "+b).includes(" "+t) ? 4 : 3); else if (o.includes(t)) en = Math.max(en,1); }
+      if (!en) return 0; p += en; }
+    return p;
+  }
+  function vurgula(metin){
+    const frag = document.createDocumentFragment();
+    if (!q){ frag.append(metin); return frag; }
+    const n = norm(metin), isa = new Array(n.length).fill(false);
+    sorguParcala(q).flat().forEach(t => { let i = n.indexOf(t); while (i>=0){ for (let k=i;k<i+t.length;k++) isa[k]=true; i = n.indexOf(t,i+1); } });
+    const h = [...metin]; let i = 0;
+    while (i < h.length){ const m = isa[i]; let j = i; while (j<h.length && isa[j]===m) j++; const p = h.slice(i,j).join(""); frag.append(m ? el("mark",{text:p}) : p); i = j; }
+    return frag;
+  }
+
+  /* ---------- Dosyalar (klasörler) ---------- */
+  const kById = id => klasorler.find(k => k.id===id);
+  const cocuklar = ustId => klasorler.filter(k => (k.ust||"")===(ustId||"")).sort((a,b) => (a.ad||"").localeCompare(b.ad||"","tr"));
+  function soy(id){ const out = []; (function r(x){ cocuklar(x).forEach(c => { out.push(c.id); r(c.id); }); })(id); return out; }
+  function yol(id){ const out = []; let k = kById(id); const g = new Set(); while (k && !g.has(k.id)){ g.add(k.id); out.unshift(k); k = kById(k.ust); } return out; }
+  const klasorAdlari = it => (it.klasorler||[]).map(id => kById(id)).filter(Boolean).map(k => k.ad);
+  function klasorSayisi(id){ const ids = new Set([id, ...soy(id)]); return aktifler().filter(it => (it.klasorler||[]).some(x => ids.has(x))).length; }
+  function agacSecenekleri(sel, ilkMetin, haric){
+    sel.append(el("option",{value:"",text:ilkMetin}));
+    (function r(ust, derinlik){ cocuklar(ust).forEach(k => { if (haric && (k.id===haric || soy(haric).includes(k.id))) return;
+      sel.append(el("option",{value:k.id,text:"  ".repeat(derinlik)+(derinlik?"└ ":"")+k.ad})); r(k.id, derinlik+1); }); })("",0);
+  }
+
+  /* ---------- Yazma ---------- */
+  const kayit = id => db.collection("kayitlar").doc(id);
+  async function guncelle(list, alanlar, mesaj, geriAl){
+    const eski = list.map(it => [it, Object.fromEntries(Object.keys(alanlar(it)).map(k => [k, it[k]]))]);
+    list.forEach(it => Object.assign(it, alanlar(it)));
+    secili.clear(); hepsiniCiz();
+    try { for (const it of list) await kayit(it.id).update(alanlar(it)); if (mesaj) toast(mesaj, geriAl ? () => geriAl(eski) : null); }
+    catch(e){ eski.forEach(([it,v]) => Object.assign(it,v)); hepsiniCiz(); toast("Kaydedilemedi. Sayfayı yenileyip tekrar deneyin."); }
+  }
+  async function geriYukle(eski){
+    eski.forEach(([it,v]) => Object.assign(it,v)); hepsiniCiz();
+    try { for (const [it,v] of eski){ const g = {}; for (const [k,val] of Object.entries(v)) g[k] = val===undefined ? false : val; await kayit(it.id).update(g); } toast("Geri alındı."); }
+    catch(e){ toast("Geri alınamadı. Sayfayı yenileyin."); }
+  }
+  const gizle = list => guncelle(list, () => ({gizli:true}), `${list.length} kayıt gizlendi.`, geriYukle);
+  const goster = list => guncelle(list, () => ({gizli:false}), `${list.length} kayıt yeniden görünür.`);
+  const sil = list => guncelle(list, () => ({silindi:true}), `${list.length} kayıt arşivden silindi.`, geriYukle);
+  const silGeriAl = list => guncelle(list, () => ({silindi:false, gizli:false}), `${list.length} kayıt geri yüklendi.`);
+  const klasoreEkle = (list, fid) => guncelle(list, it => ({klasorler:[...new Set([...(it.klasorler||[]), fid])]}), `${list.length} kayıt “${kById(fid)?.ad}” dosyasına eklendi.`, geriYukle);
+  const klasordenCikar = (list, fid) => guncelle(list, it => ({klasorler:(it.klasorler||[]).filter(x => x!==fid)}), `${list.length} kayıt dosyadan çıkarıldı.`, geriYukle);
+  const bolumDegis = (list, b) => guncelle(list, () => ({bolum:b}), null);
+
+  async function klasorOlustur(ad, ust){
+    ad = ad.trim(); if (!ad) return;
+    try { const ref = db.collection("klasorler").doc(); await ref.set({ad, ust:ust||"", olusturma:Date.now()}); yeniKlasorAcik = false; toast(`“${ad}” dosyası oluşturuldu.`); }
+    catch(e){ toast("Dosya oluşturulamadı. Sayfayı yenileyip tekrar deneyin."); }
+  }
+  async function klasorAdDegis(id, ad){ ad = ad.trim(); if (!ad) return; try { await db.collection("klasorler").doc(id).update({ad}); } catch(e){ toast("Ad değiştirilemedi."); } }
+  async function klasorTasi(id, ust){ try { await db.collection("klasorler").doc(id).update({ust:ust||""}); toast("Dosya taşındı."); } catch(e){ toast("Dosya taşınamadı."); } }
+  async function klasorSil(id){
+    const k = kById(id); if (!k) return;
+    try {
+      for (const c of cocuklar(id)) await db.collection("klasorler").doc(c.id).update({ust:k.ust||""});
+      for (const it of items.filter(it => (it.klasorler||[]).includes(id))) await kayit(it.id).update({klasorler:it.klasorler.filter(x => x!==id)});
+      await db.collection("klasorler").doc(id).delete();
+      gorunum = k.ust ? {tip:"klasor", id:k.ust} : {tip:"bolum", k:"hepsi"}; hatirla();
+      toast(`“${k.ad}” dosyası silindi. İçindeki kayıtlar arşivde duruyor.`);
+    } catch(e){ toast("Dosya silinemedi. Sayfayı yenileyin."); }
+  }
+
+  /* ---------- Bildirim ---------- */
+  let toastZaman = null;
+  function toast(metin, geriAl){
+    const t = $("#toast"); t.textContent = ""; t.append(el("span",{text:metin}));
+    if (geriAl) t.append(el("button",{type:"button",text:"Geri al",onclick:() => { t.hidden = true; geriAl(); }}));
+    t.hidden = false; clearTimeout(toastZaman); toastZaman = setTimeout(() => t.hidden = true, geriAl ? 9000 : 4000);
+  }
+
+  /* ---------- Kenar çubuğu ---------- */
+  function git(g){ gorunum = g; gosterilen = 120; secili.clear(); q = ""; $("#q").value = ""; hatirla(); hepsiniCiz(); window.scrollTo({top:0}); }
+  function secBtn(ad, n, aktif, onclick, ekSinif, ikon){
+    return el("button",{class:"sec"+(ekSinif?" "+ekSinif:""),"aria-pressed":String(aktif),type:"button",onclick},
+      el("span",{class:"fd"}, ikon ? el("i",{class:"ic"}) : null, el("span",{text:ad})), el("span",{class:"n",text:String(n)}));
+  }
+  function renderSecs(){
+    const box = $("#secs"); box.textContent = "";
+    const ak = aktifler(), say = {}; ak.forEach(it => say[it.bolum] = (say[it.bolum]||0)+1);
+    const g = gorunum;
+    box.append(secBtn("Tümü", ak.length, g.tip==="bolum" && g.k==="hepsi" && !q, () => git({tip:"bolum",k:"hepsi"})));
+    box.append(secBtn("Yazışmaya devam et", ak.filter(it => it.tur==="sohbet").length, g.tip==="bolum" && g.k==="devam", () => git({tip:"bolum",k:"devam"}), "vurgu"));
+
+    if (db) {
+    const fh = el("div",{class:"side-h"}, el("h2",{text:"Dosyalarım"}),
+      el("button",{class:"mini",type:"button",text:"+ Yeni dosya",onclick:() => { yeniKlasorAcik = !yeniKlasorAcik; yeniKlasorUst = ""; renderSecs(); }}));
+    box.append(fh); }
+    if (yeniKlasorAcik && !yeniKlasorUst){
+      const inp = el("input",{id:"yeni-klasor",placeholder:"Örn. Yapay zekâ çalışmaları","aria-label":"Yeni dosya adı"});
+      const f = el("form",{class:"newf",onsubmit:e => { e.preventDefault(); klasorOlustur(inp.value, ""); }}, inp, el("button",{class:"mini",type:"submit",text:"Oluştur"}));
+      box.append(f); setTimeout(() => inp.focus(), 0);
+    }
+    if (db && !klasorler.length && !yeniKlasorAcik) box.append(el("div",{class:"bilgi",style:"padding:0 10px 4px",text:"Henüz dosya yok. Bir dosya açıp kayıtları içine toplayın."}));
+    (function r(ust, d){ cocuklar(ust).forEach(k => {
+      const b = secBtn(k.ad, klasorSayisi(k.id), g.tip==="klasor" && g.id===k.id, () => git({tip:"klasor", id:k.id}), null, true);
+      b.style.paddingLeft = (10 + d*16) + "px"; box.append(b); r(k.id, d+1); }); })("",0);
+
+    box.append(el("div",{class:"side-h"}, el("h2",{text:"Bölümler"})));
+    BOLUMLER.forEach(([k,ad]) => { if (say[k]) box.append(secBtn(ad, say[k], g.tip==="bolum" && g.k===k, () => git({tip:"bolum",k}))); });
+
+    const gz = items.filter(it => it.gizli && !it.silindi).length, sl = items.filter(it => it.silindi).length;
+    if (gz || sl) box.append(el("div",{class:"side-h"}, el("h2",{text:"Kaldırılanlar"})));
+    if (gz) box.append(secBtn("Gizlenenler", gz, g.tip==="gizli", () => git({tip:"gizli"})));
+    if (sl) box.append(secBtn("Silinenler", sl, g.tip==="silindi", () => git({tip:"silindi"})));
+
+    const kb = $("#kinds"); kb.textContent = "";
+    TURLER.forEach(([k,ad]) => kb.append(el("button",{class:"f","aria-pressed":String(tur===k),type:"button",text:ad,onclick:() => { tur = k; gosterilen = 120; hatirla(); hepsiniCiz(); }})));
+  }
+
+  /* ---------- Dosya başlığı ---------- */
+  function renderFhead(){
+    const box = $("#fhead");
+    const k = gorunum.tip==="klasor" && !q ? kById(gorunum.id) : null;
+    box.hidden = !k; if (!k) return; box.textContent = "";
+    const y = yol(k.id);
+    const yolEl = el("div",{class:"yol"}, el("button",{type:"button",text:"Dosyalarım",onclick:() => git({tip:"bolum",k:"hepsi"})}));
+    y.slice(0,-1).forEach(p => yolEl.append(" / ", el("button",{type:"button",text:p.ad,onclick:() => git({tip:"klasor",id:p.id})})));
+    const baslik = el("h2",{text:k.ad});
+    const alan = el("div",{});
+    const btns = el("div",{class:"btns"},
+      el("button",{class:"mini",type:"button",text:"+ Alt dosya",onclick:() => formAc("alt")}),
+      el("button",{class:"mini",type:"button",text:"Yeniden adlandır",onclick:() => formAc("ad")}),
+      el("button",{class:"mini",type:"button",text:"Başka dosyaya taşı",onclick:() => formAc("tasi")}),
+      el("button",{class:"mini tehlike",type:"button",text:"Dosyayı sil",onclick:() => formAc("sil")}));
+    function formAc(tip){
+      alan.textContent = "";
+      if (tip==="alt"){ const i = el("input",{id:"alt-ad",placeholder:"Alt dosya adı"}); alan.append(el("form",{class:"inl",onsubmit:e => { e.preventDefault(); klasorOlustur(i.value, k.id); alan.textContent=""; }}, i, el("button",{class:"mini",type:"submit",text:"Oluştur"}))); i.focus(); }
+      if (tip==="ad"){ const i = el("input",{id:"klasor-ad",value:k.ad}); alan.append(el("form",{class:"inl",onsubmit:e => { e.preventDefault(); klasorAdDegis(k.id, i.value); alan.textContent=""; }}, i, el("button",{class:"mini",type:"submit",text:"Kaydet"}))); i.focus(); i.select(); }
+      if (tip==="tasi"){ const s = el("select",{id:"klasor-ust","aria-label":"Üst dosya"}); agacSecenekleri(s, "En üst düzey (Dosyalarım)", k.id); s.value = k.ust||"";
+        alan.append(el("div",{class:"inl"}, s, el("button",{class:"mini",type:"button",text:"Taşı",onclick:() => { klasorTasi(k.id, s.value); alan.textContent=""; }}))); }
+      if (tip==="sil"){ alan.append(el("div",{class:"onay"}, el("span",{text:`“${k.ad}” dosyası silinsin mi? İçindeki kayıtlar silinmez, arşivde kalır; alt dosyalar bir üst düzeye taşınır.`}),
+        el("div",{class:"btns"}, el("button",{class:"mini tehlike",type:"button",text:"Evet, dosyayı sil",onclick:() => klasorSil(k.id)}), el("button",{class:"mini",type:"button",text:"Vazgeç",onclick:() => alan.textContent=""})))); }
+    }
+    const altlar = cocuklar(k.id);
+    box.append(yolEl, baslik, btns, alan,
+      altlar.length ? el("div",{class:"altlar"}, altlar.map(a => el("button",{type:"button",onclick:() => git({tip:"klasor",id:a.id})}, el("i",{class:"ic"}), a.ad+" · "+klasorSayisi(a.id)))) : null);
+  }
+
+  /* ---------- Satır ---------- */
+  function eylem(it){
+    if (!it.url) return null;
+    const ad = it.tur==="sohbet" ? "Yazışmaya devam et →" : it.tur==="sayfa" ? "Sayfayı aç" : "Drive'da aç";
+    return el("a",{class:"devam"+(it.tur==="sohbet"?"":" ikincil"),href:it.url,target:"_blank",rel:"noopener",text:ad});
+  }
+  function islemMenusu(it){
+    const d = el("details",{class:"menu"}); d.append(el("summary",{text:"Düzenle"}));
+    const pop = el("div",{class:"pop"});
+    if (it.silindi){
+      pop.append(el("div",{class:"btns"}, el("button",{class:"mini",type:"button",text:"Geri yükle",onclick:() => silGeriAl([it])})));
+    } else {
+      const fs = el("select",{id:"f_"+it.id,"aria-label":"Dosyaya ekle"}); agacSecenekleri(fs, klasorler.length ? "Bir dosya seçin…" : "Önce soldan dosya açın");
+      fs.onchange = () => { if (fs.value) klasoreEkle([it], fs.value); };
+      const bs = el("select",{id:"b_"+it.id,"aria-label":"Bölüm"}); BOLUMLER.forEach(([k,ad]) => bs.append(el("option",{value:k,text:ad,selected:k===it.bolum})));
+      bs.onchange = () => bolumDegis([it], bs.value);
+      const onay = el("div",{});
+      pop.append(el("label",{for:"f_"+it.id,text:"Dosyaya ekle"}), fs, el("label",{for:"b_"+it.id,text:"Bölüm"}), bs,
+        el("div",{class:"btns"},
+          it.gizli ? el("button",{class:"mini",type:"button",text:"Göster",onclick:() => goster([it])}) : el("button",{class:"mini",type:"button",text:"Gizle",onclick:() => gizle([it])}),
+          gorunum.tip==="klasor" && (it.klasorler||[]).includes(gorunum.id) ? el("button",{class:"mini",type:"button",text:"Bu dosyadan çıkar",onclick:() => klasordenCikar([it], gorunum.id)}) : null,
+          el("button",{class:"mini tehlike",type:"button",text:"Sil",onclick:() => { onay.textContent = ""; onay.append(el("div",{class:"onay"},
+            el("span",{text:"Arşivden silinsin mi? Claude'daki sohbet ya da sayfa silinmez."}),
+            el("div",{class:"btns"}, el("button",{class:"mini tehlike",type:"button",text:"Evet, sil",onclick:() => sil([it])}), el("button",{class:"mini",type:"button",text:"Vazgeç",onclick:() => onay.textContent=""})))); }})),
+        onay);
+    }
+    d.append(pop); return d;
+  }
+  function satir(it){
+    const etiket = {sohbet:"Sohbet",sayfa:"Sayfa",drive:"Drive"}[it.tur]||it.tur;
+    const chk = el("input",{type:"checkbox",class:"chk","aria-label":"Seç: "+it.baslik,checked:secili.has(it.id),onchange:e => { e.target.checked ? secili.add(it.id) : secili.delete(it.id); row.classList.toggle("secili", e.target.checked); renderBar(); }});
+    const baslik = it.url ? el("a",{href:it.url,target:"_blank",rel:"noopener"}, vurgula(it.baslik)) : el("span",{class:"t"}, vurgula(it.baslik));
+    const fl = (it.klasorler||[]).map(id => kById(id)).filter(Boolean);
+    const etik = (fl.length || q) ? el("div",{class:"etiketler"},
+      q ? el("span",{class:"yer",text:BOL_AD[it.bolum]||"Diğer"}) : null,
+      fl.map(k => el("button",{class:"fchip",type:"button",text:k.ad,onclick:() => git({tip:"klasor",id:k.id})}))) : null;
+    const tit = el("div",{class:"title"}, baslik, it.ozet ? el("div",{class:"oz"}, vurgula(it.ozet)) : null, etik);
+    const row = el("div",{class:"row"+(secili.has(it.id)?" secili":"")}, chk, el("div",{class:"kind k-"+it.tur,text:etiket}), tit,
+      el("div",{class:"side"}, el("span",{class:"date",text:tarihYaz(it)}), eylem(it), db ? islemMenusu(it) : null));
+    return row;
+  }
+
+  /* ---------- Toplu işlem çubuğu ---------- */
+  function renderBar(){
+    const bar = $("#bar"); bar.hidden = secili.size===0; if (!secili.size) return; bar.textContent = "";
+    const list = items.filter(it => secili.has(it.id));
+    bar.append(el("b",{text:`${list.length} seçili`}));
+    if (gorunum.tip==="silindi"){ bar.append(el("button",{type:"button",text:"Geri yükle",onclick:() => silGeriAl(list)})); }
+    else {
+      const fs = el("select",{id:"toplu-dosya","aria-label":"Seçilenleri dosyaya ekle"}); agacSecenekleri(fs, klasorler.length ? "Dosyaya ekle…" : "Önce bir dosya açın");
+      fs.onchange = () => { if (fs.value) klasoreEkle(list, fs.value); };
+      bar.append(fs);
+      if (gorunum.tip==="klasor") bar.append(el("button",{type:"button",text:"Bu dosyadan çıkar",onclick:() => klasordenCikar(list, gorunum.id)}));
+      bar.append(gorunum.tip==="gizli" ? el("button",{type:"button",text:"Göster",onclick:() => goster(list)}) : el("button",{type:"button",text:"Gizle",onclick:() => gizle(list)}));
+      const silB = el("button",{class:"tehlike",type:"button",text:"Sil",onclick:() => {
+        silB.replaceWith(el("button",{class:"tehlike",type:"button",text:`Evet, ${list.length} kaydı sil`,onclick:() => sil(list)})); }});
+      bar.append(silB);
+    }
+    bar.append(el("button",{class:"duz",type:"button",text:"Seçimi kaldır",onclick:() => { secili.clear(); hepsiniCiz(); }}));
+  }
+
+  /* ---------- Liste ---------- */
+  function filtrele(){
+    const turOk = it => tur==="hepsi" || it.tur===tur;
+    if (q){
+      const p = sorguParcala(q); if (!p.length) return [];
+      return aktifler().filter(turOk).map(it => [puan(it,p), it]).filter(([s]) => s>0)
+        .sort((a,b) => b[0]-a[0] || (b[1].tarih||"").localeCompare(a[1].tarih||"")).map(([,it]) => it);
+    }
+    const g = gorunum; let f;
+    if (g.tip==="gizli") f = items.filter(it => it.gizli && !it.silindi);
+    else if (g.tip==="silindi") f = items.filter(it => it.silindi);
+    else if (g.tip==="klasor"){ const ids = new Set([g.id, ...soy(g.id)]); f = aktifler().filter(it => (it.klasorler||[]).some(x => ids.has(x))); }
+    else if (g.k==="devam") f = aktifler().filter(it => it.tur==="sohbet");
+    else if (g.k==="hepsi") f = aktifler();
+    else f = aktifler().filter(it => it.bolum===g.k);
+    return f.filter(it => g.k==="devam" || turOk(it)).sort((a,b) => (b.tarih||"").localeCompare(a.tarih||""));
+  }
+  function renderResume(){
+    const box = $("#resume"); const goster_ = gorunum.tip==="bolum" && gorunum.k==="hepsi" && tur==="hepsi" && !q;
+    box.hidden = !goster_; if (!goster_) return; box.textContent = "";
+    const son = aktifler().filter(it => it.tur==="sohbet").sort((a,b) => (b.tarih||"").localeCompare(a.tarih||"")).slice(0,9);
+    if (!son.length){ box.hidden = true; return; }
+    box.append(el("h2",{text:"Yarım kalan çalışmalar · Yazışmaya devam et"}), el("p",{text:"Claude'da en son üzerinde çalıştığınız sohbetler. Düğme, sohbeti Claude'da dosyalarıyla birlikte açar; kaldığınız yerden sürdürürsünüz."}),
+      el("div",{class:"cards"}, son.map(it => el("div",{class:"card"}, el("b",{text:it.baslik}), el("div",{class:"meta"}, el("span",{class:"date",text:tarihYaz(it)}), eylem(it))))),
+      el("button",{class:"f",type:"button",text:"Tüm sohbetler",style:"justify-self:start",onclick:() => git({tip:"bolum",k:"devam"})}));
+  }
+  function renderList(){
+    const list = $("#list"); list.textContent = "";
+    const f = filtrele();
+    const g = gorunum;
+    if (!f.length){
+      const m = q ? `“${q}” için kayıt bulunamadı. Daha kısa bir kelime ya da kelimenin kökünü deneyin (ör. “okuryazar”).`
+        : g.tip==="klasor" ? "Bu dosya boş. Bir kaydın “Düzenle” menüsünden ya da birkaç kaydı seçip alttaki çubuktan bu dosyaya ekleyebilirsiniz."
+        : g.tip==="gizli" ? "Gizlenen kayıt yok." : g.tip==="silindi" ? "Silinen kayıt yok."
+        : items.length ? "Bu bölümde kayıt yok." : "Arşiv henüz boş. Her gece yeni sohbetler ve sayfalar buraya eklenir.";
+      list.append(el("div",{class:"empty",text:m})); return;
+    }
+    const parca = f.slice(0, gosterilen);
+    const kutu = (ad, arr) => { const s = el("section",{class:"group"}, el("h3",{}, el("span",{text:ad}), el("span",{text:arr.length+" kayıt"}))); arr.forEach(it => s.append(satir(it))); list.append(s); };
+    if (q) kutu("Arama sonuçları · en iyi eşleşme üstte", parca);
+    else if (g.tip==="gizli") kutu("Gizlenen kayıtlar · “Düzenle”den yeniden gösterebilirsiniz", parca);
+    else if (g.tip==="silindi") kutu("Arşivden silinenler · gece güncellemesi bunları geri eklemez", parca);
+    else {
+      const m = new Map();
+      parca.forEach(it => { const key = it.grup ? "g:"+it.grup : "m:"+(it.yilOnly ? it.tarih.slice(0,4) : it.tarih.slice(0,7)); if (!m.has(key)) m.set(key,[]); m.get(key).push(it); });
+      for (const [key,arr] of m){ let ad; if (key.startsWith("g:")) ad = key.slice(2); else { const [y,mm] = key.slice(2).split("-"); ad = mm ? `${AY[+mm-1]} ${y}` : `${y} · Drive dosyaları`; } kutu(ad, arr); }
+    }
+    if (f.length > gosterilen) list.append(el("button",{class:"more",type:"button",text:`${f.length-gosterilen} kayıt daha göster`,onclick:() => { gosterilen += 200; renderList(); }}));
+  }
+  function hepsiniCiz(){
+    if (gorunum.tip==="klasor" && !kById(gorunum.id) && klasorlerGeldi) gorunum = {tip:"bolum",k:"hepsi"};
+    renderSecs(); renderFhead(); renderResume(); renderList(); renderBar();
+  }
+
+  /* ---------- Olaylar ---------- */
+  let zaman = null;
+  $("#q").addEventListener("input", e => { clearTimeout(zaman); zaman = setTimeout(() => { q = e.target.value.trim(); gosterilen = 120; secili.clear(); hepsiniCiz(); }, 120); });
+  $("#q").addEventListener("keydown", e => { if (e.key==="Escape"){ e.target.value = ""; q = ""; hepsiniCiz(); } });
+  document.addEventListener("keydown", e => { if (e.key==="/" && !/input|select|textarea/i.test(document.activeElement.tagName)){ e.preventDefault(); $("#q").focus(); } });
+  document.addEventListener("click", e => { document.querySelectorAll("details.menu[open]").forEach(d => { if (!d.contains(e.target)) d.open = false; }); });
+
+  let klasorlerGeldi = true;
+  document.body.classList.add("statik");
+  hepsiniCiz();
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  async function coz(pw, enc){
+    const km = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(enc.salt), iterations:enc.iter, hash:"SHA-256"}, km, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+    const buf = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(enc.iv)}, key, b64(enc.ct));
+    return JSON.parse(new TextDecoder().decode(buf));
+  }
+  let encVeri = null;
+  const form = $("#kilit-form"), hata = $("#kilit-hata"), btn = form.querySelector("button");
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); hata.hidden = true; btn.disabled = true; btn.textContent = "Açılıyor…";
+    try {
+      if (!encVeri) encVeri = await (await fetch("arsiv.enc.json", {cache:"no-cache"})).json();
+      const veri = await coz($("#parola").value.trim(), encVeri);
+      items = veri.kayitlar || []; klasorler = veri.klasorler || [];
+      const ak = aktifler(); const son = ak.reduce((m,it) => it.tur!=="drive" && it.tarih > m ? it.tarih : m, "");
+      $("#stamp").textContent = `${ak.length} kayıt · en yeni ${son ? tarihYaz({tarih:son}) : "—"}` + (veri.guncel ? " · kilitlendi " + veri.guncel.split("-").reverse().join(".") : "");
+      const tn = document.getElementById("tab-arsiv-n"); if (tn) tn.textContent = ak.length;
+      window.__arsivAcik = true; $("#kilit").hidden = true; $("#arsivView").hidden = false; $("#parola").value = "";
+      hepsiniCiz();
+    } catch(err){
+      hata.textContent = "Parola yanlış ya da arşiv dosyası okunamadı."; hata.hidden = false;
+    }
+    btn.disabled = false; btn.textContent = "Arşivi aç";
+  });
+})();
+</script>
+<script>
+(function(){
+  const Y = {"makaleler": [{"baslik": "Learning When AI Is—and Is Not—Needed", "dergi": "Journal of Intelligence", "endeks": "SSCI Q1", "yil": "2026", "yazar": 2, "durum": "Kabul (07.10.2026)", "atif": 0}, {"baslik": "Teachers' Artificial Intelligence Self-Efficacy: Development and Validation of a Multidimensional Scale", "dergi": "Frontiers in Education", "endeks": "ESCI · Scopus Q1", "yil": "2026", "yazar": 4, "durum": "Kabul (08.10.2026)", "atif": 0}, {"baslik": "Yükseköğretimde Yapay Zekâya Hazırlık", "dergi": "Ankara Uluslararası Sosyal Bilimler Dergisi", "endeks": "ERIH PLUS", "yil": "2026", "yazar": 2, "durum": "Kabul (22.09.2026)", "atif": 0}, {"baslik": "Sınıf Öğretmeni Adaylarının Üretken Yapay Zekâ Okuryazarlık Düzeyleri", "dergi": "Temel Eğitim Araştırmaları Dergisi", "endeks": "ERIH PLUS", "yil": "2026", "yazar": 2, "durum": "Kabul (07.10.2026)", "atif": 0}, {"baslik": "Sınıf Öğretmeni Adaylarının Bilişimsel Düşünme Düzeyleri", "dergi": "Harran Maarif Dergisi", "endeks": "TEİ · SOBİAD", "yil": "2026", "yazar": 2, "durum": "Editörde", "atif": 0}, {"baslik": "Tracing the Development of Primary Students' Expressed Sustainability Conceptions", "dergi": "Frontiers in Psychology", "endeks": "SSCI Q1", "yil": "2026", "yazar": 2, "durum": "Yayımlandı", "atif": 0}, {"baslik": "Digital Competence of Preservice Primary School Teachers", "dergi": "Turkish Journal of Science and Technology", "endeks": "TR Dizin", "yil": "2026", "yazar": 3, "durum": "Yayımlandı", "atif": 0}, {"baslik": "Sürdürülebilir Kalkınma Hedefleri Eğitim Programının İlkokul Öğrencilerinin Sürdürülebilir Yaşama Yönelik Farkındalıklarına Etkisi", "dergi": "Batı Anadolu Eğitim Bilimleri Dergisi", "endeks": "TR Dizin", "yil": "2026", "yazar": 3, "durum": "Yayımlandı", "atif": 0}, {"baslik": "Sınıf Öğretmeni Adaylarının Yapay Zekânın Eğitim Ortamlarında Kullanımına Yönelik Görüşleri", "dergi": "Uluslararası Temel Eğitim Çalışmaları Dergisi (IJPES)", "endeks": "Alan endeksi", "yil": "2025", "yazar": 1, "durum": "Yayımlandı", "atif": 3}, {"baslik": "Robotics Coding Training and Scientific Reasoning", "dergi": "International Journal of Scholars in Education", "endeks": "Alan endeksi", "yil": "2025", "yazar": 5, "durum": "Yayımlandı", "atif": 1}, {"baslik": "Hayat Bilgisi ve Sosyal Bilgiler Öğretiminde Genişletilmiş Gerçeklik (XR) Teknolojisi", "dergi": "Trakya Eğitim Dergisi", "endeks": "TR Dizin", "yil": "2024", "yazar": 1, "durum": "Yayımlandı", "atif": 1}, {"baslik": "Sosyal Bilgiler Dersinde Kavram Karikatürleriyle Desteklenmiş Örnek Olay Yönteminin Finansal Okuryazarlığa Etkisi", "dergi": "Trakya Eğitim Dergisi", "endeks": "TR Dizin", "yil": "2024", "yazar": 2, "durum": "Yayımlandı", "atif": 3}, {"baslik": "Öğretmen Adaylarının Öğretmenlik Meslek Statüsüne İlişkin Görüşleri", "dergi": "IJETSAR", "endeks": "Education Full Text", "yil": "2024", "yazar": 3, "durum": "Yayımlandı", "atif": 0}, {"baslik": "Hayat Bilgisi Dersinde Gazete Haberleriyle Desteklenmiş Örnek Olay Yönteminin Etkililiği", "dergi": "IJOESS", "endeks": "Alan endeksi", "yil": "2024", "yazar": 2, "durum": "Yayımlandı", "atif": 0}, {"baslik": "The Effect of Arduino-Based E-STEM Education", "dergi": "Journal of Science Learning", "endeks": "ERIC", "yil": "2023", "yazar": 2, "durum": "Yayımlandı", "atif": 2}, {"baslik": "Gazete Haberleriyle Desteklenmiş Örnek Olay Çoklu Bakış Açısı Kazandırır Mı?", "dergi": "Batı Anadolu Eğitim Bilimleri Dergisi", "endeks": "TR Dizin", "yil": "2022", "yazar": 2, "durum": "Yayımlandı", "atif": 0}, {"baslik": "Sınıf Öğretmenlerinin Hayat Bilgisi ve Sosyal Bilgiler Öğrenme Ortamlarında Gazete Haberlerini Kullanma(ma)sı", "dergi": "IJOEEC", "endeks": "Alan endeksi", "yil": "2019", "yazar": 2, "durum": "Yayımlandı", "atif": 0}, {"baslik": "Değerler Eğitiminde Hizmet Ederek Öğrenme Yaklaşımı", "dergi": "Kırşehir Eğitim Fakültesi Dergisi", "endeks": "Alan endeksi", "yil": "2019", "yazar": 2, "durum": "Yayımlandı", "atif": 3}, {"baslik": "Farklılıklara Saygı Eğitim Programının Etkisi", "dergi": "Kalem Eğitim ve İnsan Bilimleri Dergisi", "endeks": "Alan endeksi", "yil": "2018", "yazar": 2, "durum": "Yayımlandı", "atif": 0}, {"baslik": "İlk Mezunlarını Verme Sürecinde 4+4+4 Eğitim Sistemini Yeniden Değerlendirmek", "dergi": "EKUAD", "endeks": "Alan endeksi", "yil": "2018", "yazar": 5, "durum": "Yayımlandı", "atif": 1}, {"baslik": "Kültürlerarası Eğitim", "dergi": "IJETSAR", "endeks": "Alan endeksi · derleme", "yil": "2016", "yazar": null, "durum": "Yayımlandı", "atif": 1}, {"baslik": "Farklılıklara Saygı Eğitiminde Öğrenme Ortamı", "dergi": "IJOEEC", "endeks": "Alan endeksi · derleme", "yil": "2016", "yazar": null, "durum": "Yayımlandı", "atif": 0}, {"baslik": "Sosyal Bilgiler Öğretiminde Kavram Karikatürlerinin Öğrenci Başarısına Etkisi", "dergi": "IJTASE", "endeks": "Alan endeksi", "yil": "2014", "yazar": 2, "durum": "Yayımlandı", "atif": 20}], "bildiriler": [{"baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglarla Yapay Zekâ Etiği", "tur": "Bildiri", "etkinlik": "USOS", "yil": "2026", "sayfa": "", "atif": 0}, {"baslik": "Sürdürülebilir Kalkınma Hedefleri Eğitim Programının İlkokul Öğrencilerinin Sürdürülebilir Yaşama Yönelik Farkındalıklarına Etkisi", "tur": "Özet", "etkinlik": "23. Uluslararası Sınıf Öğretmenliği Eğitimi Sempozyumu (USOS), Gazi Üniv.", "yil": "2025", "sayfa": "", "atif": 0}, {"baslik": "İlkokul 3. Sınıf Matematik Dersinde Eğitsel Oyun Kullanımının Öğrencilerin Matematik Dersine Karşı Tutumlarına ve Akademik Başarısına Etkisi", "tur": "Özet", "etkinlik": "23. USOS, Gazi Üniv.", "yil": "2025", "sayfa": "", "atif": 0}, {"baslik": "Hayat Bilgisi Dersinde e-STEAM Yaklaşımının 3. Sınıf Öğrencilerinin Eleştirel Düşünme, Problem Çözme ve Girişimcilik Becerilerine Etkisi", "tur": "Özet", "etkinlik": "23. USOS, Gazi Üniv.", "yil": "2025", "sayfa": "", "atif": 0}, {"baslik": "Dijital Oyunların Eğitsel Katkılarının Öğrenci, Öğretmen ve Veli Görüşleri Doğrultusunda İncelenmesi", "tur": "Tam metin", "etkinlik": "Uluslararası Oyun Kongresi, Üsküdar Üniv. (YÖKSİS'te 'Ü.Ü.')", "yil": "2025", "sayfa": "137–144", "atif": 0}, {"baslik": "Türkiye Yüzyılı Maarif Modeli Çerçevesinde İlkokul Düzeyinde Robotik Kodlama Eğitiminin Öğrencilere Kazandırdığı Beceriler, Eğilimler ve Değerler", "tur": "Özet", "etkinlik": "İstanbul Eğitim Araştırmaları Kongresi (MEB İstanbul İl MEM)", "yil": "2025", "sayfa": "52", "atif": 0}, {"baslik": "Eğitimde Yapay Zeka Kullanımı Üzerine Sınıf Öğretmeni Görüşlerinin İncelenmesi", "tur": "Özet", "etkinlik": "22. USOS, Harran Üniv.", "yil": "2024", "sayfa": "693–694", "atif": 0}, {"baslik": "Sosyal Bilgiler Dersinde Üretken Yapay Zeka Destekli Hazırlanan Ders İçeriklerinin Öğrencilerin Akademik Başarısına ve Sosyal Bilgiler Dersine Yönelik Tutumuna Etkisi", "tur": "Özet", "etkinlik": "22. USOS, Harran Üniv.", "yil": "2024", "sayfa": "341–342", "atif": 0}, {"baslik": "Robotik Kodlama Eğitimi Almış Sınıf Eğitimi ve Fen Bilgisi Eğitimi Anabilim Dalındaki Akademisyen ve Öğrencilerin Bilimsel Muhakeme ve Problem Çözme Becerileri Hakkındaki Görüşleri", "tur": "Özet", "etkinlik": "16. Ulusal Fen Bilimleri ve Matematik Eğitimi Kongresi (UFBMEK), Trakya Üniv.", "yil": "2024", "sayfa": "", "atif": 0}, {"baslik": "İlkokul Öğrencilerinin Rekabetli ve Rekabetsiz Oyunlara İlişkin Tercihlerinin ve Deneyimlerinin İncelemesi", "tur": "Özet", "etkinlik": "21. USOS, Antalya", "yil": "2023", "sayfa": "271–272", "atif": 0}, {"baslik": "İlkokul 4. Sınıf Öğrencilerinin Yapay Zekanın Toplumsal Etkilerine Yönelik Algı Değişimlerinin İncelenmesi", "tur": "Özet", "etkinlik": "21. USOS, Antalya", "yil": "2023", "sayfa": "205–206", "atif": 0}, {"baslik": "Hayat Bilgisi ve Sosyal Bilgiler Öğretiminde Genişletilmiş Gerçeklik (XR) Teknolojisi Kullanımı ile İlgili Sınıf Öğretmenlerinin Görüşlerinin İncelenmesi", "tur": "Özet", "etkinlik": "12. Uluslararası Sosyal Bilgiler Eğitimi Sempozyumu (USBES), Trakya Üniv.", "yil": "2024", "sayfa": "267–268", "atif": 0}, {"baslik": "Kavram Karikatürleriyle Desteklenmiş Örnek Olay Yönteminin Öğrencilerin Finansal Okuryazarlık Becerilerine Etkisi", "tur": "Özet", "etkinlik": "12. USBES, Trakya Üniv.", "yil": "2024", "sayfa": "", "atif": 0}, {"baslik": "İnsan Hakları, Yurttaşlık ve Demokrasi Ders Kitabının Dijital Vatandaşlık Kapsamında İncelenmesi", "tur": "Özet", "etkinlik": "11. USBES, Fırat Üniv.", "yil": "2023", "sayfa": "363–364", "atif": 0}, {"baslik": "Sınıf Öğretmenlerinin Mesleki Kariyer Basamaklarına Yönelik Görüşlerinin İncelenmesi", "tur": "Tam metin", "etkinlik": "20. USOS, Antalya", "yil": "2022", "sayfa": "304–310", "atif": 0}, {"baslik": "Hayat Bilgisi Dersinde Müzede Drama Yönteminin Vatanseverlik Değerini Kazandırmadaki Etkililiği", "tur": "Özet", "etkinlik": "20. USOS, Antalya", "yil": "2022", "sayfa": "55–56", "atif": 0}, {"baslik": "İlkokul 3. Sınıf Hayat Bilgisi Dersinde Kullanılan Eğitsel Dijital Oyunların Öğrencilerin Akademik Başarılarına Etkisi", "tur": "Özet", "etkinlik": "20. USOS, Antalya", "yil": "2022", "sayfa": "75–76", "atif": 0}, {"baslik": "Öğretmen Adaylarının Öğretmenlik Meslek Statüsüne İlişkin Görüşlerinin Belirlenmesi", "tur": "Özet", "etkinlik": "X. EJER Kongresi, TED Üniv.", "yil": "2023", "sayfa": "", "atif": 0}, {"baslik": "Lego İle Yapılan Matematik Öğretiminin Öğrencilerin Matematik Tutumuna ve Matematik Başarısına Etkisi", "tur": "Özet", "etkinlik": "2. Uluslararası Avrasya Sosyal Bilimler Kongresi (ICOESS)", "yil": "2018", "sayfa": "", "atif": 0}, {"baslik": "Sınıf Öğretmenlerinin İlkokullarda Yetiştirme Programına Katılacak Öğrencilerin Belirlenmesi İle İlgili Görüşlerinin Değerlendirilmesi", "tur": "Özet", "etkinlik": "2. ICOESS", "yil": "2018", "sayfa": "", "atif": 5}, {"baslik": "İlkokul 4. Sınıf Öğretmenlerinin Yenilenen 4. Sınıf Sosyal Bilgiler Taslak Öğretim Programına Yönelik Görüşlerinin Değerlendirilmesi", "tur": "Özet", "etkinlik": "2. ICOESS", "yil": "2018", "sayfa": "", "atif": 0}, {"baslik": "İlkokul 4. Sınıf Öğrencileriyle Yapılan Robotik Tasarım ve Kodlama Eğitiminin Öğrencilerin Bilimsel Süreç Becerilerine ve Fene Karşı Tutumlarına Etkisi", "tur": "Özet", "etkinlik": "1. Uluslararası Eğitim ve Değerler Sempozyumu (ISOEVA), Bodrum", "yil": "2017", "sayfa": "367", "atif": 0}, {"baslik": "Sınıf Öğretmenlerinin Değerler Eğitiminin Uygulanmasına Yönelik Görüşlerinin Değerlendirilmesi", "tur": "Özet", "etkinlik": "1. ISOEVA, Bodrum", "yil": "2017", "sayfa": "369", "atif": 0}, {"baslik": "Yeni Nesil İlkokul Sınıf Öğretmenlerinin Okullarda Kazandırılmasını Arzuladığı Değerler", "tur": "Özet", "etkinlik": "1. ISOEVA, Bodrum", "yil": "2017", "sayfa": "371", "atif": 0}, {"baslik": "Öğretmen Performans Değerlendirme Sistemi Hakkında Öğretmen, İdareci, Veli, Öğrenci Görüşlerinin İncelenmesi", "tur": "Özet", "etkinlik": "17. USOS, Gazi Üniv.", "yil": "2018", "sayfa": "1211–1212", "atif": 0}, {"baslik": "İlkokul Türkçe Ders Kitaplarında Yer Alan Şiirlerin Değerler Açısından İncelenmesi", "tur": "Özet", "etkinlik": "17. USOS, Gazi Üniv.", "yil": "2018", "sayfa": "960–961", "atif": 0}, {"baslik": "İlköğretim Programının Farklılıklara Saygı Tutumunu Kazandırmadaki Etkisi", "tur": "Özet", "etkinlik": "15. USOS, Muğla Sıtkı Koçman Üniv.", "yil": "2016", "sayfa": "58", "atif": 0}, {"baslik": "Ortaokul 8. Sınıf Öğrencilerinin Madde Bağımlılığı ve Medya Bağımlılığı ile İlgili Düşünceleri", "tur": "Özet", "etkinlik": "1. ICOESS, Alanya", "yil": "2017", "sayfa": "", "atif": 0}, {"baslik": "İlkokul Öğretmenlerinin Mahremiyet Eğitimine İlişkin Görüşlerinin Değerlendirilmesi", "tur": "Özet", "etkinlik": "2. ISOEVA, Antalya", "yil": "2018", "sayfa": "381–382", "atif": 0}, {"baslik": "İlkokul 4. Sınıf Öğrencilerine Yönelik Yapılan Scratch Programlama Eğitiminin Öğrencilerin Programlama Becerilerine Etkisi", "tur": "Özet", "etkinlik": "2. ISOEVA, Antalya", "yil": "2018", "sayfa": "379–380", "atif": 0}, {"baslik": "İlkokulda Ev Ödevlerinin Verimliliği Hakkında Sınıf Öğretmenlerinin Görüşleri", "tur": "Özet", "etkinlik": "16. USOS, Lefke Avrupa Üniv.", "yil": "2017", "sayfa": "PDF s.100–101", "atif": 0}, {"baslik": "İlkokul 4. Sınıf Öğrencileriyle Yapılan Fetemm Etkinliklerinin Öğrencilerin Bilimsel Süreç Becerilerine ve Fene Karşı Tutumlarına Etkisi", "tur": "Özet", "etkinlik": "16. USOS, Lefke Avrupa Üniv.", "yil": "2017", "sayfa": "PDF s.249", "atif": 0}, {"baslik": "Bitişik Eğik El Yazısından Dik Yazıya Geçiş Hakkında Öğretmen, Öğrenci, Veli Görüşlerinin Değerlendirilmesi", "tur": "Özet", "etkinlik": "16. USOS, Lefke Avrupa Üniv.", "yil": "2017", "sayfa": "PDF s.174", "atif": 0}, {"baslik": "Hizmet Ederek Öğrenme Yaklaşımıyla Öğrencilere Kazandırılabilecek Değerler", "tur": "Özet", "etkinlik": "3. ICOESS, Bodrum", "yil": "2019", "sayfa": "519–520", "atif": 0}, {"baslik": "Hayat Bilgisi Dersinde Hizmet Ederek Öğrenme Yaklaşımının Etkililiği: Örnek Bir Uygulama", "tur": "Özet", "etkinlik": "3. ICOESS, Bodrum", "yil": "2019", "sayfa": "516–518", "atif": 0}, {"baslik": "İlkokul Birinci Sınıf Öğrencileriyle Hayat Bilgisi Dersinde Gazete Temelli Örnek Olay İşlemek Olanaklı mıdır?: Uygulamalı Bir Çalışma", "tur": "Özet", "etkinlik": "3. ICOESS, Bodrum", "yil": "2019", "sayfa": "", "atif": 0}, {"baslik": "Sınıf Öğretmenlerinin Hayat Bilgisi ve Sosyal Bilgiler Dersi Öğrenme Ortamlarında Gazete Haberlerini Kullanma(ma)sı: Güncelin Sınıfta Varolma Çabası", "tur": "Özet", "etkinlik": "3. ICOESS, Bodrum", "yil": "2019", "sayfa": "497–498", "atif": 0}, {"baslik": "Hayat Bilgisi Dersinde Senaryo Temelli Öğrenme Yönteminin Etkililiği: Bir Eylem Araştırması", "tur": "Özet", "etkinlik": "4. ICOESS, Bodrum", "yil": "2020", "sayfa": "361–362", "atif": 0}, {"baslik": "Sınıf Öğretmenlerinin Pandemi Sürecinde Uzaktan Eğitim İle İlgili Görüşlerinin Değerlendirilmesi", "tur": "Tam metin", "etkinlik": "4. ICOESS, Bodrum", "yil": "2020", "sayfa": "672–685", "atif": 2}, {"baslik": "Pandemi Sürecinde Uzaktan Eğitimde Yaşanan Sıkıntılar İle İlgili Veli ve Öğrenci Görüşlerinin Değerlendirilmesi", "tur": "Tam metin", "etkinlik": "4. ICOESS, Bodrum", "yil": "2020", "sayfa": "", "atif": 0}, {"baslik": "Hayat Bilgisi Dersi Öğrenme Ortamlarında Yerel ve Sözlü Tarih Yöntemlerini Kullanmak: Bir Eylem Araştırması", "tur": "Özet", "etkinlik": "5. ICOESS, çevrim içi", "yil": "2021", "sayfa": "408–409", "atif": 0}, {"baslik": "Sosyal Bilgiler Dersi Öğrenme Ortamlarında Sanal Gerçeklik Uygulamalarına İlişkin Öğretmen Görüşlerinin Değerlendirilmesi", "tur": "Tam metin", "etkinlik": "2. ISOEVA, Antalya", "yil": "2018", "sayfa": "622–", "atif": 0}, {"baslik": "3. Sınıf Fen Bilimleri Öğretim Programı Hakkında Öğretmen Görüşleri", "tur": "Tam metin", "etkinlik": "15. USOS, Muğla", "yil": "2016", "sayfa": "565–571", "atif": 0}, {"baslik": "İlk Mezunlarını Verme Sürecinde 4+4+4 Eğitim Sistemini Yeniden Değerlendirmek", "tur": "Özet", "etkinlik": "15. USOS, Muğla", "yil": "2016", "sayfa": "109", "atif": 0}], "kitaplar": [{"kitap": "Kuramdan Uygulamaya: Edebiyat, Tarih, Coğrafya", "bolum": "Editörlük (kitabın tamamı)", "yayinevi": "", "yil": "2025"}, {"kitap": "İlkokullar İçin İngilizce Eğitsel Oyunlar", "bolum": "Kitap (tamamı)", "yayinevi": "", "yil": "2025"}, {"kitap": "Hayat Bilgisi Öğretim Programı", "bolum": "8. bölüm", "yayinevi": "Ders kitabı", "yil": "2025"}, {"kitap": "Robotik Kodlama ve Akıl Yürütme", "bolum": "3. bölüm: Sensör ve Kontrol Kartlarının Tanıtımı", "yayinevi": "Nobel", "yil": "2024"}, {"kitap": "Hayat Bilgisi Dersinde Güncel Konu ve Araştırmalar", "bolum": "13. bölüm: Hayat Bilgisi Derslerinde Oyun", "yayinevi": "Vizetek", "yil": "2024"}, {"kitap": "Hayat Bilgisi Dersinde Güncel Konu ve Araştırmalar", "bolum": "8. bölüm: Teknoloji", "yayinevi": "Vizetek", "yil": "2024"}, {"kitap": "Eğitimde Disiplinlerarası Çalışmalar", "bolum": "1. bölüm", "yayinevi": "", "yil": "2024"}, {"kitap": "Sinema Filmleriyle Eğitimi Yeniden Düşünmek", "bolum": "2.5. bölüm", "yayinevi": "Ders kitabı", "yil": "2023"}, {"kitap": "Hayat Bilgisi Öğretimi", "bolum": "6. bölüm", "yayinevi": "Anı", "yil": "2022"}, {"kitap": "Dünyadaki Eğitim Temelli Sivil Toplum Kuruluşları", "bolum": "2.1. bölüm: UNESCO", "yayinevi": "", "yil": "2022"}, {"kitap": "Sosyal Bilgiler ve Tarih Eğitiminde Eylem Araştırmaları", "bolum": "2.1. bölüm: HB Dersinde Gazete Haberleriyle Desteklenmiş Örnek Olay Yönteminin Etkililiği", "yayinevi": "Pegem", "yil": "2021"}, {"kitap": "Kuramdan Uygulamaya Örnek Olay", "bolum": "1.2. bölüm: HB Dersinde Gazete Haberleriyle Desteklenmiş Örnek Olay Yöntemini Kullanmak", "yayinevi": "Pegem", "yil": "2021"}, {"kitap": "Kuramdan Uygulamaya Örnek Olay", "bolum": "2.2. bölüm", "yayinevi": "Pegem", "yil": "2021"}, {"kitap": "Demokrasinin Beşinci Gücü", "bolum": "2. bölüm", "yayinevi": "", "yil": "2020"}], "projeler": [{"baslik": "Yapay Zekâ Çağında Etik Pusula: BİLSEM Öğretmenleri İçin Bir Yol Haritası", "program": "TÜBİTAK 4005", "kod": "225B551", "rol": "Uzman", "durum": "Devam ediyor"}, {"baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji-2", "program": "TÜBİTAK 4004", "kod": "325B003", "rol": "Uzman", "durum": "Devam ediyor"}, {"baslik": "Zihinden Yörüngeye: Keşif Atlası", "program": "TÜBİTAK 4004", "kod": "225B906", "rol": "Eğitmen", "durum": "Tamamlandı"}, {"baslik": "Tekno-Pedagojiyi Sınıfa Taşımak", "program": "TÜBİTAK 4005", "kod": "224B560", "rol": "Eğitmen", "durum": "Tamamlandı"}, {"baslik": "BİLSEM Öğretmenleri İçin Yapay Zekâ Araçlarıyla İçerik Geliştirme", "program": "TÜBİTAK 4005", "kod": "224B689", "rol": "Araştırmacı", "durum": "Tamamlandı"}, {"baslik": "Bilim ve Sanat Her Yerde, Haydi Gel Sen de", "program": "TÜBİTAK 4007", "kod": "123B014", "rol": "Eğitmen", "durum": "Tamamlandı"}, {"baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji", "program": "TÜBİTAK 4004", "kod": "122B619", "rol": "Araştırmacı", "durum": "Tamamlandı"}, {"baslik": "Robotik Kodlama ile Zenginleştirilmiş Akıl Yürütme Oyunları", "program": "BAP", "kod": "", "rol": "Araştırmacı", "durum": "Tamamlandı"}, {"baslik": "SKH Kapsamında Bahçe Temelli Öğrenme", "program": "Ulusal proje", "kod": "", "rol": "", "durum": "Tamamlandı"}, {"baslik": "Dijital Oyunla Mahremiyet (1919B012512705)", "program": "TÜBİTAK 2209-A", "kod": "1919B012512705", "rol": "Danışman", "durum": ""}, {"baslik": "Eğitsel Oyunlarla Matematik (1919B012335589)", "program": "TÜBİTAK 2209-A", "kod": "1919B012335589", "rol": "Danışman", "durum": ""}, {"baslik": "SKH Eğitim Programı (1919B012332003)", "program": "TÜBİTAK 2209-A", "kod": "1919B012332003", "rol": "Danışman", "durum": ""}], "atiflar": [{"eser": "Sosyal Bilgiler Öğretiminde Kavram Karikatürlerinin Öğrenci Başarısına Etkisi", "yil": "2014", "atifYapanlar": ["Yıldırım 2025", "Ada 2021", "Karaca 2020", "Uçak 2020", "Kuru 2020", "Evrekli 2015", "Can Kaynak 2026", "Ocak 2015", "Dağdelen 2015", "Koç Akran 2018", "Artun 2019", "Kocakavak 2021", "Seyhan Çiftçi 2022", "İnel 2018", "Topkaya 2016", "Akbaş 2016", "Sel 2019", "Gündüz 2018", "Evrekli 2024", "Ceylan 2024"]}, {"eser": "Sınıf Öğretmenlerinin İYEP'e Katılacak Öğrencilerin Belirlenmesine İlişkin Görüşleri (bildiri)", "yil": "2018", "atifYapanlar": ["Kozikoğlu 2020", "Dilekçi 2019", "Cesur 2020", "Yıldız 2020", "Güder 2023"]}, {"eser": "Değerler Eğitiminde Hizmet Ederek Öğrenme Yaklaşımı", "yil": "2019", "atifYapanlar": ["Turan 2024", "Aydın 2024", "Aykırı 2022"]}, {"eser": "Kavram Karikatürleriyle Desteklenmiş Örnek Olay ve Finansal Okuryazarlık", "yil": "2024", "atifYapanlar": ["Yıldırım 2025", "Tutkun 2026", "Akar 2026"]}, {"eser": "Sınıf Öğretmeni Adaylarının Yapay Zekâ Görüşleri", "yil": "2025", "atifYapanlar": ["Sayın 2026", "Yalçın 2026", "Ishangulyyev 2026"]}, {"eser": "The Effect of Arduino-Based E-STEM Education", "yil": "2023", "atifYapanlar": ["Bentancor 2026", "Kaya 2026"]}, {"eser": "Pandemi Sürecinde Uzaktan Eğitim Öğretmen Görüşleri (bildiri)", "yil": "2020", "atifYapanlar": ["Mutluer 2023", "Mutluer 2022"]}, {"eser": "4+4+4 Eğitim Sistemini Yeniden Değerlendirmek", "yil": "2018", "atifYapanlar": ["Beşiktepe 2024"]}, {"eser": "Kültürlerarası Eğitim", "yil": "2016", "atifYapanlar": ["Doğan 2025"]}, {"eser": "Genişletilmiş Gerçeklik (XR) Teknolojisi", "yil": "2024", "atifYapanlar": ["Yıldırım 2025"]}, {"eser": "Robotics Coding Training and Scientific Reasoning", "yil": "2025", "atifYapanlar": ["Yıldırım 2026"]}], "dersler": [["2025–2026 Bahar", "Oyun ve Fiziki Etkinlikler Öğretimi", "Sınıf Eğitimi"], ["2025–2026 Güz", "Hayat Bilgisi Öğretimi", "Sınıf Eğitimi"], ["2024–2025 Bahar", "İlkokul Programı", "Sınıf Eğitimi"], ["2024–2025 Güz", "Hayat Bilgisi Öğretimi", "Sınıf Eğitimi"], ["2023–2024 Bahar", "Eğitimde Proje Hazırlama", "Türkçe Eğitimi"], ["2023–2024 Güz", "Bilişim Teknolojileri", "Sınıf Eğitimi"], ["2022–2023 Bahar", "İnsan Hakları ve Demokrasi Eğitimi", "Okul Öncesi Eğitimi"], ["2022–2023 Güz", "Eğitime Giriş", "Sınıf Eğitimi"]], "puan": [["1a: Doktora sonrası SSCI/SCIE Q1–Q3", "≥ 30", "15", "30"], ["2: Doktora sonrası ulusal makale", "≥ 2, biri TR Dizin", "4", "4"], ["3: Tezden üretilmiş yayın", "≥ 1", "19 puan", "19 puan"], ["5: Atıf (doktora sonrası)", "≥ 5", "10", "10"], ["8: Bilimsel toplantı", "≥ 5", "10", "10"], ["9: Eğitim-öğretim", "≥ 2", "4", "4"], ["Doktora sonrası toplam", "≥ 90", "75,83", "93,33"], ["Genel toplam", "≥ 100", "100,33", "117,83"]], "guncel": "2026-10-12"};
+  const $ = s => document.querySelector(s);
+  function el(tag, attrs, ...kids){
+    const n = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs||{})) {
+      if (k==="class") n.className=v; else if (k==="text") n.textContent=v;
+      else if (k.startsWith("on")) n[k]=v; else if (v!==null && v!==undefined && v!==false) n.setAttribute(k,v===true?"":v);
+    }
+    kids.flat().forEach(k => k!==null && k!==undefined && k!==false && n.append(k));
+    return n;
+  }
   const HARF = {"ı":"i","ş":"s","ç":"c","ğ":"g","ö":"o","ü":"u","â":"a","î":"i","û":"u"};
   const norm = s => [...String(s||"")].map(ch => { let c = ch.toLocaleLowerCase("tr-TR"); c = (HARF[c]||c)[0]; return /[a-z0-9]/.test(c) ? c : " "; }).join("");
-  let D = null, aktifEtiket = null, sorgu = "";
 
-  const driveLink = (url, label) => url ? `<a class="drive" href="${esc(url)}" target="_blank" rel="noopener">↗ ${label}</a>` : "";
-  const tags = arr => (arr||[]).map(t => `<span class="tag">${esc(t)}</span>`).join("");
-
-  function eslesir(o){
-    const metin = norm(Object.values(o).flat().join(" "));
-    if (sorgu && !norm(sorgu).split(" ").filter(Boolean).every(t => metin.includes(t))) return false;
-    if (aktifEtiket && !(o.etiketler||[]).includes(aktifEtiket)) return false;
-    return true;
+  /* ---------- Sekmeler ---------- */
+  const tabA = $("#tab-arsiv"), tabY = $("#tab-yayin");
+  function sekme(ad){
+    const y = ad === "yayin";
+    tabA.setAttribute("aria-selected", String(!y)); tabY.setAttribute("aria-selected", String(y));
+    const acik = !!window.__arsivAcik;
+    $("#arsivView").hidden = y || !acik; $("#kilit").hidden = y || acik; $("#yayinView").hidden = !y;
+    try { history.replaceState(null, "", y ? "#yayinlarim" : "#arsiv"); } catch(e){}
+    window.scrollTo({top:0});
   }
-  const bos = ad => `<p class="empty">Eşleşen ${ad} yok.</p>`;
+  tabA.onclick = () => sekme("arsiv"); tabY.onclick = () => sekme("yayin");
 
-  function render(){
-    const mk = D.makaleler.filter(eslesir).sort((a,b) => (b.durum==="Kabul edildi") - (a.durum==="Kabul edildi") || b.yil.localeCompare(a.yil));
-    $("#list-makale").innerHTML = mk.map(m => `
-      <article class="item">
-        <h3>${esc(m.baslik)}</h3>
-        <div class="meta">
-          <span><i>${esc(m.dergi)}</i>, ${esc(m.yil)}</span>
-          <span class="badge ${/Q1/.test(m.endeks)?"":"plain"}">${esc(m.endeks)}</span>
-          ${m.durum==="Kabul edildi" ? `<span class="badge draft">Yayına kabul edildi</span>` : ""}
-          ${m.atif ? `<span class="badge seal">${m.atif} atıf</span>` : ""}
-          ${tags(m.etiketler)}
-        </div>
-      </article>`).join("") || bos("makale");
-
-    const bl = D.bildiriler.filter(eslesir).sort((a,b) => b.yil.localeCompare(a.yil));
-    const by = [...new Set(bl.map(b => b.yil))];
-    $("#list-bildiri").innerHTML = by.map(y => `<div class="year">${y}</div><div class="list">${bl.filter(b => b.yil===y).map(b => `
-      <article class="item">
-        <h3>${esc(b.baslik)}</h3>
-        <div class="meta"><span>${esc(b.etkinlik)}</span><span class="badge plain">${esc(b.tur)}</span>${tags(b.etiketler)}</div>
-      </article>`).join("")}</div>`).join("") || bos("bildiri");
-
-    const kt = D.kitaplar.filter(eslesir);
-    $("#list-kitap").innerHTML = kt.map(k => `
-      <article class="item"><h3>${esc(k.kitap)}</h3>
-        <div class="meta"><span>${esc(k.bolum)}</span>${k.yayinevi?`<span>${esc(k.yayinevi)}</span>`:""}<span>${esc(k.yil)}</span>${tags(k.etiketler)}</div>
-      </article>`).join("") || bos("kitap");
-
-    const pr = D.projeler.filter(eslesir);
-    $("#list-proje").innerHTML = pr.map(p => `
-      <article class="item">
-        <h3>${esc(p.baslik)}</h3>
-        <div class="meta">
-          <span class="badge">${esc(p.program)}</span>${p.kod?`<span>${esc(p.kod)}</span>`:""}${p.rol?`<span>${esc(p.rol)}</span>`:""}
-          <span class="badge ${p.durum==="Devam ediyor"?"draft":"plain"}">${esc(p.durum)}</span>${tags(p.etiketler)}
-        </div>
-      </article>`).join("") || bos("proje");
-    const ek = D.etkinlikler.filter(eslesir);
-    $("#n-etk").textContent = `(${ek.length})`;
-    $("#list-etk").innerHTML = ek.map(p => `<article class="item"><h3>${esc(p.baslik)}</h3><div class="meta"><span class="badge plain">${esc(p.program)}</span><span>${esc(p.yil)}</span></div></article>`).join("");
-    $("#etkinlik-wrap").classList.toggle("hidden", ek.length === 0);
-
-    const at = D.atiflar.filter(eslesir).sort((a,b) => b.atifYapanlar.length - a.atifYapanlar.length);
-    $("#list-atif").innerHTML = at.map(a => `
-      <article class="item">
-        <h3>${esc(a.eser)}</h3>
-        <div class="meta"><span class="badge seal">${a.atifYapanlar.length} atıf</span><span>${esc(a.yil)}</span></div>
-        <div class="cites">Atıf yapanlar: ${a.atifYapanlar.map(esc).join(", ")}</div>
-      </article>`).join("") || bos("atıf");
-
-    const ds = D.dersler.filter(eslesir);
-    $("#list-ders").innerHTML = ds.length ? `<thead><tr><th>Dönem</th><th>Ders</th><th>Anabilim dalı</th></tr></thead><tbody>${ds.map(d => `<tr><td class="n">${esc(d.donem)}</td><td>${esc(d.ders)}</td><td>${esc(d.abd)}</td></tr>`).join("")}</tbody>` : `<tbody><tr><td>${bos("ders")}</td></tr></tbody>`;
-
-    const et = D.etikKurul.filter(eslesir);
-    const yillar = [...new Set(et.map(e => e.tarih.slice(0,4)))];
-    $("#list-etik").innerHTML = yillar.map(y => `
-      <div class="year">${y}</div>
-      ${et.filter(e => e.tarih.startsWith(y)).map(e => `
-        <div class="ethic">
-          <div class="no"><b>${esc(e.no)}</b><span>${tarihTR(e.tarih)}</span></div>
-          <div><h3>${esc(e.baslik)}</h3>
-            <div class="meta"><span class="ok">Etik açıdan sakınca yok · oybirliği</span>${driveLink(e.drive,"Karar sureti 🔒")}</div>
-          </div>
-        </div>`).join("")}`).join("") || bos("karar");
-    const og = D.ogrenciEtikKurul.filter(eslesir);
-    $("#n-ogr").textContent = `(${og.length})`;
-    $("#list-ogr").innerHTML = og.map(e => `
-      <div class="ethic">
-        <div class="no"><b>${esc(e.no)}</b><span>${tarihTR(e.tarih)}</span></div>
-        <div><h3>${esc(e.baslik)}</h3><div class="meta"><span>Öğrenci: ${esc(e.ogrenci)}</span></div></div>
-      </div>`).join("");
-    $("#ogrenci-wrap").classList.toggle("hidden", og.length === 0);
-
-    const toplamAtif = at.reduce((s,a) => s + a.atifYapanlar.length, 0);
-    $("#n-makale").textContent = mk.length; $("#n-bildiri").textContent = bl.length; $("#n-kitap").textContent = kt.length;
-    $("#n-proje").textContent = pr.length; $("#n-atif").textContent = toplamAtif; $("#n-ders").textContent = ds.length + " yarıyıl"; $("#n-etik").textContent = et.length;
+  /* ---------- Drive bağlantısı ---------- */
+  const dosyaAdi = p => p.split("/").pop();
+  const driveAra = p => "https://drive.google.com/drive/search?q=" + encodeURIComponent('"' + dosyaAdi(p).replace(/\.pdf$/i,"") + '"');
+  function kopyala(btn, metin){
+    const ok = () => { const e = btn.textContent; btn.textContent = "Kopyalandı"; setTimeout(() => btn.textContent = e, 1500); };
+    try { navigator.clipboard.writeText(metin).then(ok, () => sec(btn, metin)); } catch(e){ sec(btn, metin); }
+  }
+  function sec(btn, metin){ const i = el("input",{value:metin,style:"width:100%;font:12px monospace"}); btn.replaceWith(i); i.select(); }
+  function dosyaDugmeleri(p){
+    return [];
+    if (!p) return [el("span",{class:"tg",text:"Klasörde dosyası yok"})];
+    const tam = Y.klasor + "\\" + p.replace(/\//g,"\\");
+    return [
+      el("a",{class:"devam",href:driveAra(p),target:"_blank",rel:"noopener",text:"Drive'da aç"}),
+      el("button",{class:"mini",type:"button",text:"Bilgisayardaki yolu kopyala",onclick:e => kopyala(e.currentTarget, tam)})
+    ];
   }
 
-  function init(data){
-    D = data;
-    const p = D.profil;
-    $("#ad").textContent = p.ad; $("#unvan").textContent = p.unvan; $("#ozet").textContent = p.ozet;
-    document.title = p.ad + " · Araştırma Paneli";
-    $("#chips").innerHTML = p.ilgi.map(i => `<button class="chip" aria-pressed="false">${esc(i)}</button>`).join("");
-    $("#chips").addEventListener("click", e => {
-      const b = e.target.closest(".chip"); if (!b) return;
-      aktifEtiket = aktifEtiket === b.textContent ? null : b.textContent;
-      document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c.textContent === aktifEtiket)));
-      render();
-    });
-    const yay = D.makaleler.filter(m => m.durum==="Yayımlandı").length;
-    const atif = D.atiflar.reduce((s,a) => s + a.atifYapanlar.length, 0);
-    $("#stats").innerHTML = [
-      [yay, "yayımlanmış makale"], [D.bildiriler.length, "bildiri"], [D.kitaplar.length, "kitap ve bölüm"],
-      [D.projeler.length, "proje"], [atif, "atıf"], [new Set(D.etikKurul.map(e => e.no + e.baslik)).size, "etik kurul onayı"]
-    ].map(([n,l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
-    $("#guncel").textContent = "Son güncelleme: " + D.guncel.split("-").reverse().join(".");
-    $("#q").addEventListener("input", e => { sorgu = e.target.value.trim(); render(); });
-    render();
-  }
+  /* ---------- Özet ---------- */
+  const yayimlanan = Y.makaleler.filter(m => m.durum==="Yayımlandı");
+  const surec = Y.makaleler.filter(m => m.durum!=="Yayımlandı");
+  const atifToplam = Y.atiflar.reduce((s,a) => s + a.atifYapanlar.length, 0);
+  const yn = document.getElementById("tab-yayin-n"); if (yn) yn.textContent = Y.makaleler.length + Y.bildiriler.length + Y.kitaplar.length + Y.projeler.length;
+  $("#yv-stamp").textContent = "Güncelleme · " + Y.guncel.split("-").reverse().join(".");
+  $("#yv-stats").append(...[
+    [yayimlanan.length, "yayımlanmış makale"],[surec.length, "kabul / değerlendirmede"],[Y.bildiriler.length, "bildiri"],
+    [Y.kitaplar.length, "kitap ve bölüm"],[Y.projeler.length, "proje"],[atifToplam, "atıf ("+Y.atiflar.length+" esere)"]
+  ].map(([n,t]) => el("div",{class:"yv-stat"}, el("b",{text:String(n)}), el("span",{text:t}))));
 
-  fetch("data.json", {cache:"no-cache"}).then(r => r.json()).then(init).catch(() => {
-    document.querySelector("main").innerHTML = '<p class="empty" style="padding:40px 0">Veriler yüklenemedi. data.json dosyasını kontrol edin.</p>';
-  });
+
+  /* ---------- Bölümler ---------- */
+  const TABS = [["makale","Makaleler"],["bildiri","Bildiriler"],["kitap","Kitaplar"],["proje","Projeler"],["atif","Atıflar"],["ders","Dersler"]];
+  let aktif = "makale", yq = "";
+  try { aktif = localStorage.getItem("yv-sekme") || aktif; } catch(e){}
+  function ciz(){
+    const t = $("#yv-tabs"); t.textContent = "";
+    TABS.forEach(([k,ad]) => t.append(el("button",{class:"f",type:"button","aria-pressed":String(k===aktif),text:ad,onclick:() => { aktif = k; try{localStorage.setItem("yv-sekme",k)}catch(e){} ciz(); }})));
+    $(".yv-search").hidden = aktif==="puan" || aktif==="ders";
+    const b = $("#yv-body"); b.textContent = "";
+    const q = norm(yq).split(" ").filter(Boolean);
+    const uy = (...alan) => !q.length || q.every(t => norm(alan.join(" ")).includes(t));
+    const grup = (ad, satirlar, not) => { const g = el("section",{class:"group"}, el("h3",{}, el("span",{text:ad}), el("span",{text:satirlar.length+" kayıt"}))); satirlar.forEach(s => g.append(s)); if (not) g.append(el("div",{class:"not",text:not})); b.append(g); };
+    const bos = () => b.append(el("div",{class:"empty",text:`“${yq}” ile eşleşen kayıt yok.`}));
+
+    if (aktif==="makale"){
+      const satir = m => el("div",{class:"pub"},
+        el("div",{}, el("h4",{text:m.baslik}), el("div",{class:"ven",text:`${m.dergi} · ${m.yil}${m.yazar?` · ${m.yazar} yazarlı`:""}`}),
+          el("div",{class:"tags"}, el("span",{class:"tg"+(/Q1/.test(m.endeks)?" q1":""),text:m.endeks}),
+            el("span",{class:"tg "+(m.durum==="Yayımlandı"?"ok":"wait"),text:m.durum}),
+            m.atif ? el("span",{class:"tg atif",text:m.atif+" atıf"}) : null,
+            null)),
+        el("div",{class:"acts"}, dosyaDugmeleri(m.dosya)));
+      const a = surec.filter(m => uy(m.baslik,m.dergi,m.yil,m.endeks,m.no)), c = yayimlanan.filter(m => uy(m.baslik,m.dergi,m.yil,m.endeks,m.no));
+      if (!a.length && !c.length) return bos();
+      if (a.length) grup("Kabul aldı ya da değerlendirmede", a.map(satir), "Yayımlandıkça bu listeye eklenir.");
+      if (c.length) grup("Yayımlanmış makaleler · yeniden eskiye", c.map(satir));
+    }
+    if (aktif==="bildiri"){
+      const f = Y.bildiriler.filter(x => uy(x.baslik,x.etkinlik,x.yil,x.no,x.tur)).sort((a,b) => b.yil.localeCompare(a.yil));
+      if (!f.length) return bos();
+      const yillar = [...new Set(f.map(x => x.yil))];
+      yillar.forEach(y => grup(y, f.filter(x => x.yil===y).map(x => el("div",{class:"pub"},
+        el("div",{}, el("h4",{text:x.baslik}), el("div",{class:"ven",text:x.etkinlik+(x.sayfa?` · s. ${x.sayfa}`:"")}),
+          el("div",{class:"tags"}, el("span",{class:"tg",text:x.tur}), x.atif ? el("span",{class:"tg atif",text:x.atif+" atıf"}) : null, null)),
+        el("div",{class:"acts"}, dosyaDugmeleri(x.dosya))))));
+    }
+    if (aktif==="kitap"){
+      const f = Y.kitaplar.filter(x => uy(x.kitap,x.bolum,x.yayinevi,x.yil,x.no));
+      if (!f.length) return bos();
+      grup("Kitaplar ve kitap bölümleri · yeniden eskiye", f.map(x => el("div",{class:"pub"},
+        el("div",{}, el("h4",{text:x.kitap}), el("div",{class:"ven",text:[x.bolum,x.yayinevi,x.yil].filter(Boolean).join(" · ")}),
+          el("div",{class:"tags"}, null)),
+        el("div",{class:"acts"}, dosyaDugmeleri(x.dosya)))));
+    }
+    if (aktif==="proje"){
+      const f = Y.projeler.filter(x => uy(x.baslik,x.program,x.kod,x.rol,x.no));
+      if (!f.length) return bos();
+      const ad = x => x.durum==="Devam ediyor" ? "Devam eden" : x.program==="TÜBİTAK 2209-A" ? "Danışmanı olduğum öğrenci projeleri (2209-A)" : "Tamamlanan";
+      ["Devam eden","Tamamlanan","Danışmanı olduğum öğrenci projeleri (2209-A)"].forEach(g => { const s = f.filter(x => ad(x)===g); if (s.length) grup(g, s.map(x => el("div",{class:"pub"},
+        el("div",{}, el("h4",{text:x.baslik}), el("div",{class:"ven",text:[x.program,x.kod,x.rol].filter(Boolean).join(" · ")}),
+          el("div",{class:"tags"}, x.durum ? el("span",{class:"tg "+(x.durum==="Tamamlandı"?"ok":"wait"),text:x.durum}) : null, null)),
+        el("div",{class:"acts"}, dosyaDugmeleri(x.dosya))))); });
+    }
+    if (aktif==="atif"){
+      const f = Y.atiflar.filter(x => uy(x.eser,x.yil,x.no,x.atifYapanlar.join(" "))).sort((a,b) => b.atifYapanlar.length - a.atifYapanlar.length);
+      if (!f.length) return bos();
+      grup(`${atifToplam} atıf · en çok atıf alan üstte`, f.map(x => el("div",{class:"pub"},
+        el("div",{}, el("h4",{text:x.eser}), el("div",{class:"ven",text:x.yil+" · YÖKSİS "+x.no}),
+          el("div",{class:"cites",text:"Atıf yapanlar: "+x.atifYapanlar.join(", ")})),
+        el("div",{class:"acts"}, el("span",{class:"tg atif",text:x.atifYapanlar.length+" atıf"}),
+          null))),
+        "");
+    }
+    if (aktif==="ders"){
+      const tb = el("table",{class:"ptable"}, el("thead",{}, el("tr",{}, ["Dönem","Ders","Anabilim dalı"].map(t => el("th",{text:t})))),
+        el("tbody",{}, Y.dersler.map(d => el("tr",{}, el("td",{class:"n",text:d[0]}), el("td",{text:d[1]}), el("td",{text:d[2]})))));
+      const g = el("section",{class:"group"}, el("h3",{}, el("span",{text:"İstanbul 29 Mayıs Üniversitesi'nde verdiğim dersler"}), el("span",{text:Y.dersler.length+" yarıyıl"})), el("div",{class:"tw"}, tb));
+      b.append(g);
+    }
+    if (aktif==="puan"){
+      const tb = el("table",{class:"ptable"}, el("thead",{}, el("tr",{}, ["Koşul","Gereken","Bugünkü kayıtlarla","İki yeni makaleyle"].map(t => el("th",{text:t})))),
+        el("tbody",{}, Y.puan.map((p,i) => el("tr",{class:i>=6?"toplam":""}, el("td",{text:p[0]}), el("td",{class:"n",text:p[1]}), el("td",{class:"n",text:p[2]}), el("td",{class:"n",text:p[3]})))));
+      const g = el("section",{class:"group"}, el("h3",{}, el("span",{text:"ÜAK Eğitim Bilimleri asgari koşulları"}), el("span",{text:"Doçentlik Beyanname Planı'ndan"})), el("div",{class:"tw"}, tb),
+        el("div",{class:"not"}, "İki yeni makale: Journal of Intelligence (SSCI Q1) ve Frontiers in Education (ESCI). Ayrıntılar ve yapılacaklar için ",
+          el("a",{href:"https://claude.ai/artifact/SM1DbujGqRSEZXcmcD7Trx",target:"_blank",rel:"noopener",text:"Doçentlik Beyanname Planı"}), " belgesine bakın."));
+      b.append(g);
+    }
+  }
+  let zz = null;
+  $("#yq").addEventListener("input", e => { clearTimeout(zz); zz = setTimeout(() => { yq = e.target.value.trim(); ciz(); }, 120); });
+  ciz();
+
+  let ilk = "arsiv";
+  if (/yayin/i.test(location.hash)) ilk = "yayin"; else if (/arsiv/i.test(location.hash)) ilk = "arsiv";
+  sekme(ilk);
 })();
 </script>
 </body>
