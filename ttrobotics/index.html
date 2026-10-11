@@ -307,13 +307,13 @@ const lsSet=(k,v)=>{try{if(v==null)localStorage.removeItem(k);else localStorage.
 /* ===================== state ===================== */
 const state={
   db:null,user:null,downloads:null,uid:null,isOwner:false,canWrite:null,ready:false,loaded:{},dbError:null,
-  teachers:[],schools:[],assignments:[],lessons:[],monthly:[],sets:[],candidates:[],settings:null,
+  teachers:[],schools:[],assignments:[],lessons:[],monthly:[],sets:[],candidates:[],contracts:[],settings:null,ownerUnlocked:false,
   session:null,
   ui:{view:'overview',week:weekStartOf(todayISO()),month:monthKeyOf(todayISO()),fTeacher:'',fSchool:'',fStatus:'',fDistrict:'',setsLoc:'all',setsQ:'',poolQ:'',poolDistrict:'',poolDay:'',poolStatus:'',poolTag:''}
 };
 let IDX={lessons:{},sets:{}};
 let modalState=null;
-const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
+const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['finance','Finans'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
 const CAND_STATUS=[['aday','Aday'],['gorusuldu','Görüşüldü'],['deneme','Deneme dersi verdi'],['aktif','Aktif öğretmen'],['pasif','Pasif'],['uygun_degil','Uygun değil']];
 const CAND_TAGS=['Robotik kodlama','Drone','STEM','Yapay zekâ','Okul öncesi','İlkokul','Ortaokul','Lise','Scratch / blok kodlama','Python','Arduino / micro:bit','LEGO Education','3D tasarım','Maker / elektronik','İngilizce ders verebilir'];
 const TEACHER_NAV=[['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler']];
@@ -322,7 +322,9 @@ const SET_STATUS=[['aktif','Aktif'],['arizali','Arızalı'],['eksik','Eksik par�
 const SET_CATS=['LEGO SPIKE Prime','LEGO SPIKE Essential','LEGO WeDo 2.0','LEGO BricQ Motion','mBot','micro:bit','Arduino','Bee-Bot','Botley','Matatalab','Cubetto','KUBO','DJI Tello EDU','Drone Soccer','3D Kalem','Makey Makey','Pinoo','Q Scout','OLLO','Diğer'];
 const CANCEL_REASONS=['Okul iptal etti','Resmî tatil / okul kapalı','Öğretmen mazeretli','Sınav / etkinlik','Diğer'];
 
-const S=()=>Object.assign({adminPin:'1234',hourMinutes:40,holidays:[]},state.settings||{});
+const S=()=>Object.assign({adminPin:'1234',ownerPin:'2026',hourMinutes:40,holidays:[]},state.settings||{});
+const financeVisible=()=>isAdmin()&&(state.standalone?true:!!state.isOwner);
+const financeAllowed=()=>isAdmin()&&(state.standalone?!!state.ownerUnlocked:!!state.isOwner);
 const teacherById=id=>state.teachers.find(t=>t.id===id);
 const schoolById=id=>state.schools.find(s=>s.id===id);
 const tName=id=>{const t=teacherById(id);return t?t.name:'—';};
@@ -446,7 +448,7 @@ function setSession(s,remember){
 }
 function applyHash(){
   const h=(location.hash||'').replace('#','');
-  const nav=isAdmin()?ADMIN_NAV:TEACHER_NAV;
+  const nav=(isAdmin()?ADMIN_NAV:TEACHER_NAV).filter(n=>n[0]!=='finance'||financeVisible());
   if(h&&nav.some(n=>n[0]===h))state.ui.view=h;else state.ui.view=defaultView();
 }
 
@@ -485,6 +487,7 @@ function localDb(seed){
 /* ===================== boot ===================== */
 function subscribeAll(db){
   const cols=['teachers','schools','assignments','lessons','monthly','sets','candidates'];
+  if(state.standalone||state.isOwner)cols.push('contracts');else state.loaded.contracts=true;
   for(const c of cols){
     db.collection(c).onSnapshot(snap=>{state[c]=snap.docs.map(d=>Object.assign({id:d.id},d.data()));state.loaded[c]=true;onData();},e=>{state.dbError=e;render();});
   }
@@ -503,7 +506,7 @@ async function boot(){
   subscribeAll(db);
 }
 function onData(){
-  const need=['teachers','schools','assignments','lessons','monthly','sets','candidates','settings'];
+  const need=['teachers','schools','assignments','lessons','monthly','sets','candidates','contracts','settings'];
   if(!state.ready&&need.every(k=>state.loaded[k])){state.ready=true;resolveSession();applyHash();}
   if(state.ready)render();
 }
@@ -552,6 +555,7 @@ function modalChange(el){
     const v=el.value;const s=$('#loc-school'),t=$('#loc-teacher');
     if(s)s.hidden=v!=='okul';if(t)t.hidden=v!=='ogretmen';
   }
+  if(el.dataset.mchange==='pricemodel'){const w=$('#period-wrap');if(w)w.hidden=el.value!=='ogrenci';}
   if(el.dataset.mchange==='teacher-school'){
     const sel=$('#f_schoolId');if(sel){const cur=sel.value;sel.innerHTML=`<option value="">Seçin</option>`+schoolOptions(el.value).map(x=>`<option value="${esc(x.v)}" ${x.v===cur?'selected':''}>${esc(x.l)}</option>`).join('');}
   }
@@ -581,6 +585,7 @@ const ICONS={
   lessons:'<path d="M5 4h11l3 3v13H5z"/><path d="M8 12h8M8 16h8"/>',
   report:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   sets:'<path d="M3 8l9-4 9 4-9 4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/>',
+  finance:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M7 12h.01M17 12h.01"/>',
   teachers:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5A5 5 0 0 1 21.5 19"/>',
   pool:'<path d="M4 6h16v14H4z"/><path d="M8 6V4h8v2M4 11h16"/>',
   schools:'<path d="M3 21h18M5 21V8l7-4 7 4v13"/><path d="M10 21v-5h4v5"/>',
@@ -593,7 +598,7 @@ const ICONS={
 const icon=k=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]||ICONS.overview}</svg>`;
 function shell(content){
   const s=state.session;const t=s.role==='teacher'?teacherById(s.teacherId):null;
-  const nav=isAdmin()?ADMIN_NAV:TEACHER_NAV;
+  const nav=(isAdmin()?ADMIN_NAV:TEACHER_NAV).filter(n=>n[0]!=='finance'||financeVisible());
   const imp=s.via==='impersonate';
   const navLinks=nav.map(n=>`<a href="#${n[0]}" class="${state.ui.view===n[0]?'on':''}" data-act="nav" data-view="${n[0]}">${icon(n[0])}${n[1]}</a>`).join('');
   const topLinks=nav.map(n=>`<a href="#${n[0]}" class="${state.ui.view===n[0]?'on':''}" data-act="nav" data-view="${n[0]}">${n[1]}</a>`).join('');
@@ -648,6 +653,7 @@ function adminView(){
     case 'sets':return setsView(true);
     case 'teachers':return teachersView();
     case 'pool':return poolView();
+    case 'finance':return financeAllowed()?financeView():(state.standalone?financeLockView():'<p class="empty">Bu bölüm yalnızca hesap sahibine açıktır.</p>');
     case 'schools':return schoolsView();
     case 'settings':return settingsView();
     default:return overviewView();
@@ -915,6 +921,7 @@ function schoolDetailView(id){
   <section><div class="sechead"><h2>Öğretmenler</h2></div>${teachers.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th>Günler</th>${admin?'<th>İletişim</th>':''}<th class="num">Haftalık ders</th></tr></thead><tbody>${tRows}</tbody></table></div>`:'<p class="empty">Bu kuruma atanmış öğretmen yok.</p>'}</section>
   <section><div class="sechead"><h2>Bu haftaki dersler</h2>${weekNavD(ws)}</div>${weekTable(ws,wl,{groupBy:'school',assignments:as})}</section>
   <section><div class="sechead"><h2>${monthLabel(ym)}</h2><span class="muted small">${fmtNum(mdone)} onaylı ders saati · ${ml.filter(l=>lessonStatus(l)==='pending').length} onay bekliyor</span></div>${ml.length?`<div class="list">${ml.slice().reverse().slice(0,40).map(l=>lessonRow(l,{admin,showTeacher:true,locked:!admin&&l.teacherId!==me})).join('')}</div>`:'<p class="empty">Bu ayda ders yok.</p>'}</section>
+  ${contractCard(id)}
   <section><div class="sechead"><h2>Bu kurumdaki setler</h2>${btn('nav',{view:admin?'sets':'tsets'},'Tüm setler','ghost sm')}</div>${sets.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kod</th><th>Set</th><th class="num">Adet</th><th>Durum</th><th></th></tr></thead><tbody>${setRows}</tbody></table></div>`:'<p class="empty">Bu kurumda kayıtlı set yok.</p>'}</section>`;
 }
 function teacherDetailView(id){
@@ -942,6 +949,89 @@ function schoolsView(){
     return `<tr><td>${schoolLink(s.id)}${s.active===false?' '+chip('bad','Pasif'):''}<div class="muted small">${esc([kindLabel(s.kind),s.district].filter(Boolean).join(' · '))}</div>${s.note?`<div class="muted small">${esc(s.note)}</div>`:''}</td><td class="small">${days||'<span class="muted">—</span>'}</td><td class="small">${ts.map(teacherLink).join(', ')||'<span class="muted">—</span>'}</td><td>${esc(s.contact||'')}${s.phone?`<div class="mono small">${esc(s.phone)}</div>`:''}</td><td class="num">${s.rate?fmtTL(s.rate):''}</td><td class="num">${sets||''}</td><td class="act">${btn('openSchoolPage',{id:s.id},'Programı aç','primary sm')}${btn('openSchool',{id:s.id},'Düzenle')}${btn('toggleSchool',{id:s.id},s.active===false?'Aktifleştir':'Pasifleştir')}</td></tr>`;}).join('');
   return `<div class="pagehead"><div><h1>Okullar ve kurumlar</h1><p class="sub">Kurum adına tıklayınca o kurumun programı, öğretmenleri ve setleri açılır</p></div>${btn('openSchool',{},'+ Kurum ekle','primary')}</div>
   <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Günler</th><th>Öğretmenler</th><th>Yetkili</th><th class="num">Saat ücreti</th><th class="num">Set</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="muted">Henüz kurum yok.</td></tr>'}</tbody></table></div></section>`;
+}
+/* ===================== finance (owner only) ===================== */
+const PRICE_MODELS=[['ogrenci','Öğrenci başı'],['saat','Ders saati başı'],['aylik','Aylık sabit'],['donemlik','Dönemlik sabit']];
+const PERIODS=[['aylik','aylık'],['donemlik','dönemlik'],['yillik','yıllık']];
+const MONTHS_IN={aylik:1,donemlik:4.5,yillik:9};
+const modelLabel=m=>(PRICE_MODELS.find(x=>x[0]===m)||PRICE_MODELS[0])[1];
+const periodLabel=p=>(PERIODS.find(x=>x[0]===p)||PERIODS[0])[1];
+const contractFor=id=>state.contracts.find(c=>c.schoolId===id);
+const contractStudents=c=>{const cl=Array.isArray(c.classes)?c.classes:[];const n=cl.reduce((a,x)=>a+(Number(x.students)||0),0);return n||Number(c.students)||0;};
+const weeklyHoursOf=id=>liveAssignments().filter(a=>a.schoolId===id).reduce((a,x)=>a+(Number(x.hours)||0),0);
+function contractAmount(c){
+  const price=Number(c.price)||0;const st=contractStudents(c);
+  if(c.model==='ogrenci'){const per=c.period||'aylik';const tot=st*price;return {label:`${fmtNum(st)} öğrenci × ${fmtTL(price)} · ${periodLabel(per)}`,perPeriod:tot,monthly:tot/MONTHS_IN[per],perLabel:periodLabel(per)};}
+  if(c.model==='saat'){const wh=weeklyHoursOf(c.schoolId);return {label:`${fmtTL(price)} / ders saati · haftada ${fmtNum(wh)} ders`,perPeriod:price*wh*4,monthly:price*wh*4,perLabel:'aylık (4 hafta)'};}
+  if(c.model==='donemlik')return {label:`${fmtTL(price)} / dönem`,perPeriod:price,monthly:price/MONTHS_IN.donemlik,perLabel:'dönemlik'};
+  return {label:`${fmtTL(price)} / ay`,perPeriod:price,monthly:price,perLabel:'aylık'};
+}
+function realizedMonth(c,ym){
+  const [f,t]=monthRange(ym);const ls=lessonsIn(f,t).filter(l=>l.schoolId===c.schoolId&&lessonStatus(l)==='done'&&!(l.extra&&!l.approved));
+  const hours=ls.reduce((a,l)=>a+(Number(l.hours)||0),0);
+  const teacherCost=ls.reduce((a,l)=>a+(Number(l.hours)||0)*rateFor(l),0);
+  return {hours,teacherCost,revenue:c.model==='saat'?hours*(Number(c.price)||0):null};
+}
+const netOf=(gross,c)=>gross*(1-(Number(c.partnerShare)||0)/100);
+function financeLockView(){
+  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Yalnızca baş yönetici</p><h1>Finans</h1><p class="sub">Öğrenci sayıları, sözleşme ücretleri ve gelir özeti</p></div></div>
+  <section><form class="card" data-form="owner-unlock" style="max-width:460px"><div><p class="eyebrow">Kilitli bölüm</p><h2>Baş yönetici PIN'i</h2><p class="muted small" style="margin-top:4px">Bu bölüm yalnızca TT Robotics hesap sahibine açıktır. Canlı panelde hesap sahibi otomatik görür; bu önizlemede PIN ile açılır.</p></div>${field('PIN',input('pin',{type:'password',req:true,attrs:'inputmode="numeric" autocomplete="off"'}))}<p class="ferr" id="err-owner"></p><div><button type="submit" class="btn primary">Aç</button></div></form></section>`;
+}
+function financeView(){
+  const ym=state.ui.month;
+  const schools=state.schools.filter(s=>s.active!==false).sort(byName);
+  const withC=schools.filter(s=>contractFor(s.id));const without=schools.filter(s=>!contractFor(s.id));
+  let totStudents=0,totMonthly=0,totNet=0,totCost=0,totReal=0;
+  const rows=withC.map(s=>{const c=contractFor(s.id);const st=contractStudents(c);const amt=contractAmount(c);const r=realizedMonth(c,ym);const net=netOf(amt.monthly,c);
+    totStudents+=st;totMonthly+=amt.monthly;totNet+=net;totCost+=r.teacherCost;totReal+=r.revenue!=null?r.revenue:amt.monthly;
+    const cls=(c.classes||[]).filter(x=>x.name).map(x=>`${esc(x.name)} <b>${fmtNum(x.students)}</b>`).join(' · ');
+    return `<tr><td>${schoolLink(s.id)}<div class="muted small">${esc([kindLabel(s.kind),s.district].filter(Boolean).join(' · '))}</div>${c.partner?`<div class="small" style="margin-top:3px">${chip('info',esc(c.partner)+' · %'+fmtNum(c.partnerShare||0))}</div>`:''}</td>
+    <td><b class="mono">${fmtNum(st)}</b>${cls?`<div class="muted small">${cls}</div>`:''}</td>
+    <td>${chip('accent',modelLabel(c.model))}<div class="small" style="margin-top:4px">${amt.label}</div><div class="small"><b class="mono">${fmtTL(amt.perPeriod)}</b> <span class="muted">${amt.perLabel}</span></div>${c.terms?`<div class="muted small">${esc(c.terms)}</div>`:''}</td>
+    <td class="num">${fmtTL(amt.monthly)}${c.partnerShare?`<div class="muted small">net ${fmtTL(net)}</div>`:''}</td>
+    <td class="num">${r.revenue!=null?fmtTL(r.revenue):'<span class="muted">—</span>'}<div class="muted small">${fmtNum(r.hours)} ders saati</div></td>
+    <td class="num">${r.teacherCost?fmtTL(r.teacherCost):'<span class="muted">—</span>'}</td>
+    <td class="act">${btn('openContract',{id:s.id},'Düzenle')}</td></tr>`;}).join('');
+  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Yalnızca baş yönetici</p><h1>Finans</h1><p class="sub">${fmtNum(totStudents)} öğrenci · ${withC.length} sözleşmeli kurum · aylık tahmini ${fmtTL(totMonthly)}</p></div><div class="toolbar">${monthNav(ym,'month')}</div></div>
+  <section class="tiles">${tile(fmtNum(totStudents),'toplam öğrenci')}${tile(withC.length,'sözleşmeli kurum',without.length?`${without.length} kurumda sözleşme yok`:'')}${tile(fmtTL(totMonthly),'aylık tahmini gelir','brüt')}${tile(fmtTL(totNet),'aylık net','aracı payı düşülmüş')}${tile(fmtTL(totCost),monthLabel(ym)+' öğretmen maliyeti','onaylı derslerden')}</section>
+  <section><div class="sechead"><h2>Kurum sözleşmeleri</h2><span class="muted small">Aylık karşılık: dönem 4,5 ay, yıl 9 ay sayılarak</span></div>
+  ${withC.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Öğrenci</th><th>Ücret modeli</th><th class="num">Aylık karşılık</th><th class="num">${monthLabel(ym)} gerçekleşen</th><th class="num">Öğretmen maliyeti</th><th></th></tr></thead><tbody>${rows}<tr class="total"><td>Toplam</td><td class="mono">${fmtNum(totStudents)}</td><td></td><td class="num">${fmtTL(totMonthly)}</td><td class="num">${fmtTL(totReal)}</td><td class="num">${fmtTL(totCost)}</td><td></td></tr></tbody></table></div>`:'<p class="empty">Henüz sözleşme girilmedi. Aşağıdaki kurumlardan "Sözleşme ekle" ile başlayın.</p>'}
+  </section>
+  ${without.length?`<section><div class="sechead"><h2>Sözleşmesi girilmemiş kurumlar</h2></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Öğretmenler</th><th class="num">Haftalık ders</th><th></th></tr></thead><tbody>${without.map(s=>`<tr><td>${schoolLink(s.id)}<div class="muted small">${esc([kindLabel(s.kind),s.district].filter(Boolean).join(' · '))}</div></td><td class="small">${[...new Set(liveAssignments().filter(a=>a.schoolId===s.id).map(a=>a.teacherId))].map(teacherLink).join(', ')||'<span class="muted">—</span>'}</td><td class="num">${fmtNum(weeklyHoursOf(s.id))||''}</td><td class="act">${btn('openContract',{id:s.id},'Sözleşme ekle','primary sm')}</td></tr>`).join('')}</tbody></table></div></section>`:''}
+  <section class="tiles"><div class="card"><h3>Gizlilik</h3><p class="muted small">Bu bölümdeki veriler yalnızca hesap sahibi tarafından okunabilir; PIN ile giren diğer yöneticiler ve öğretmenler Finans sekmesini görmez. "Gerçekleşen" sütunu ders saati modelinde onaylı ders saatlerinden hesaplanır; öğretmen maliyeti, okul/program satırındaki öğretmen saat ücretinden gelir.</p></div>${state.standalone?`<div class="card"><h3>Baş yönetici PIN (önizleme)</h3><p class="muted small">Bu önizlemede Finans sekmesini açan PIN.</p><div class="toolbar"><span class="mono">${esc(S().ownerPin)}</span>${btn('openOwnerPin',{},'Değiştir')}</div></div>`:''}</section>`;
+}
+function contractCard(schoolId){
+  if(!financeAllowed())return '';
+  const c=contractFor(schoolId);
+  if(!c)return `<section class="card"><div class="sechead"><div><p class="eyebrow">Yalnızca baş yönetici</p><h3>Sözleşme ve öğrenciler</h3></div>${btn('openContract',{id:schoolId},'Sözleşme ekle','primary sm')}</div><p class="muted small">Bu kurum için öğrenci sayısı ve ücret bilgisi girilmedi.</p></section>`;
+  const st=contractStudents(c);const amt=contractAmount(c);const r=realizedMonth(c,monthKeyOf(todayISO()));
+  const cls=(c.classes||[]).filter(x=>x.name).map(x=>`<span class="chip info">${esc(x.name)} · ${fmtNum(x.students)}</span>`).join(' ');
+  return `<section class="card"><div class="sechead"><div><p class="eyebrow">Yalnızca baş yönetici</p><h3>Sözleşme ve öğrenciler</h3></div>${btn('openContract',{id:schoolId},'Düzenle','ghost sm')}</div>
+  <div class="tiles">${tile(fmtNum(st),'öğrenci')}${tile(fmtTL(amt.perPeriod),modelLabel(c.model),amt.label)}${tile(fmtTL(amt.monthly),'aylık karşılık',c.partnerShare?`net ${fmtTL(netOf(amt.monthly,c))}`:'')}${tile(fmtTL(r.teacherCost),'bu ay öğretmen maliyeti',`${fmtNum(r.hours)} onaylı ders saati`)}</div>
+  ${cls?`<div class="pill-row">${cls}</div>`:''}
+  <dl class="kv">${c.partner?`<dt>Aracı</dt><dd>${esc(c.partner)} · %${fmtNum(c.partnerShare||0)}</dd>`:''}${c.terms?`<dt>Ödeme düzeni</dt><dd>${esc(c.terms)}</dd>`:''}${c.startDate||c.endDate?`<dt>Sözleşme</dt><dd>${c.startDate?fmtDate(c.startDate):'—'} → ${c.endDate?fmtDate(c.endDate):'süresiz'}</dd>`:''}${c.notes?`<dt>Not</dt><dd>${esc(c.notes)}</dd>`:''}</dl></section>`;
+}
+function parseClasses(text){
+  const out=[];
+  for(const raw of String(text||'').split('\n')){const line=raw.trim();if(!line)continue;const m=line.match(/^(.+?)[\s:,;\-–]+(\d+)\s*(?:öğrenci|ogrenci|kişi)?\s*$/i);if(!m)return {error:`"${line}" satırı anlaşılamadı. Her satıra "3-A: 12" biçiminde sınıf ve öğrenci sayısı yazın.`};out.push({name:m[1].trim(),students:Number(m[2])});}
+  return {classes:out};
+}
+function openContract(schoolId){
+  const s=schoolById(schoolId);if(!s)return;
+  const c=contractFor(schoolId)||{model:'ogrenci',period:'aylik'};
+  const clsText=(c.classes||[]).map(x=>`${x.name}: ${x.students}`).join('\n');
+  openModal({title:`${esc(s.name)} · sözleşme`,meta:'Yalnızca baş yönetici görür',wide:true,
+    body:`<div class="two">${field('Ücret modeli',select('model',PRICE_MODELS.map(x=>({v:x[0],l:x[1]})),c.model||'ogrenci',{attrs:'data-mchange="pricemodel"'}))}${field('Ücret (TL)',input('price',{type:'number',value:c.price||'',min:0,step:1,req:true}))}</div>
+    <div id="period-wrap" ${(c.model||'ogrenci')==='ogrenci'?'':'hidden'}>${field('Öğrenci başı ücretin dönemi',select('period',PERIODS.map(x=>({v:x[0],l:x[1]})),c.period||'aylik'))}</div>
+    ${field('Sınıflar ve öğrenci sayıları',textarea('classes',clsText,'3-A: 12\n3-B: 14\n4-A: 10'),'Her satıra bir sınıf. Toplam öğrenci otomatik hesaplanır.')}
+    ${field('Toplam öğrenci (sınıf girmediyseniz)',input('students',{type:'number',value:c.students||'',min:0,step:1}))}
+    <div class="two">${field('Aracı / iş ortağı (varsa)',input('partner',{value:c.partner||'',ph:'BSA Akademi'}))}${field('Aracı payı (%)',input('partnerShare',{type:'number',value:c.partnerShare||'',min:0,max:100,step:1}))}</div>
+    <div class="two">${field('Sözleşme başlangıcı',input('startDate',{type:'date',value:c.startDate||''}))}${field('Sözleşme bitişi',input('endDate',{type:'date',value:c.endDate||''}))}</div>
+    ${field('Ödeme düzeni',input('terms',{value:c.terms||'',ph:'Her ayın 5\'inde fatura · dönem başı peşin…'}))}
+    ${field('Not',textarea('notes',c.notes||'','Fiyat görüşmesi, özel indirim, sözleşme dosyası bağlantısı…'))}`,
+    onSubmit:async f=>{const price=Number(f.price);if(!(price>=0))return 'Ücret girin.';const pc=parseClasses(f.classes);if(pc.error)return pc.error;
+      const rec={id:schoolId,schoolId,model:f.model||'ogrenci',price,period:f.period||'aylik',classes:pc.classes,students:Number(f.students)||0,partner:f.partner,partnerShare:f.partnerShare?Number(f.partnerShare):0,startDate:f.startDate||null,endDate:f.endDate||null,terms:f.terms,notes:f.notes,createdAt:c.createdAt||nowStamp()};
+      const err=await attempt(()=>putDoc('contracts',rec));if(err)return err;toast('Sözleşme kaydedildi.','ok');}});
 }
 function settingsView(){
   const s=S();
@@ -1053,6 +1143,8 @@ const ACT={
   openTeacher(d){openTeacher(d.id?teacherById(d.id):null);},
   openProfile(){const t=teacherById(myTeacherId());if(t)openTeacher(t,true);},
   openCandidate(d){openCandidate(d.id?state.candidates.find(c=>c.id===d.id):null);},
+  openContract(d){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openContract(d.id);},
+  openOwnerPin(){if(!financeAllowed())return;openModal({title:'Baş yönetici PIN değiştir',body:field('Yeni PIN (4-6 rakam)',input('pin',{req:true,attrs:'inputmode="numeric" minlength="4" maxlength="6"'})),onSubmit:async f=>{if(!/^\d{4,6}$/.test(f.pin))return 'PIN 4-6 rakamdan oluşmalı.';const err=await attempt(()=>saveSettings({ownerPin:f.pin}));if(err)return err;toast('PIN güncellendi.','ok');}});},
   delCandidate(d){const c=state.candidates.find(x=>x.id===d.id);if(!c)return;confirmModal('Arşiv kaydını sil',`${esc(c.name)} arşivden silinecek.${c.teacherId?' Öğretmenler listesindeki kaydı silinmez.':''}`,async()=>{const err=await attempt(()=>delDoc('candidates',c.id));if(err)return err;toast('Kayıt silindi.','ok');},'Sil');},
   promoteCandidate(d){const c=state.candidates.find(x=>x.id===d.id);if(!c)return;
     confirmModal('Aktif öğretmen yap',`${esc(c.name)} Öğretmenler listesine eklenecek, giriş PIN'i oluşturulacak ve müsait günleri Müsaitlik tablosuna "Boş" olarak işlenecek.`,async()=>{
@@ -1089,6 +1181,11 @@ $('#app').addEventListener('submit',async e=>{
   if(f.dataset.form==='login-admin'){
     if(data.pin!==String(S().adminPin)){$('#err-admin').textContent='Yönetici PIN hatalı.';return;}
     setSession({role:'admin',via:'pin'});
+  }
+  if(f.dataset.form==='owner-unlock'){
+    if(!state.standalone||!isAdmin())return;
+    if(data.pin!==String(S().ownerPin)){$('#err-owner').textContent='PIN hatalı.';return;}
+    state.ownerUnlocked=true;render();toast('Finans bölümü açıldı.','ok');
   }
 });
 
