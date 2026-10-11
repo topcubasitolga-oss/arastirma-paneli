@@ -1,0 +1,162 @@
+{
+  "profil": {
+    "ad": "Dr. Öğr. Üyesi Tolga Topçubaşı",
+    "unvan": "İstanbul 29 Mayıs Üniversitesi · Eğitim Fakültesi · Sınıf Öğretmenliği",
+    "ozet": "Yapay zekâ okuryazarlığı, yapay zekâ etiği, çocuklar için felsefe (P4C), robotik kodlama ve değerler eğitimi üzerine araştırmalar.",
+    "ilgi": ["Yapay Zekâ Okuryazarlığı", "Yapay Zekâ Etiği", "P4C", "Robotik Kodlama", "Ölçek Geliştirme", "Değerler Eğitimi"]
+  },
+
+  "makaleler": [
+    {
+      "baslik": "Yapay Zekâ Okuryazarlığının Yapay Zekâ Etik Farkındalığına Katkısı: Yapay Zekâ Tutumu ve Psikolojik Esnekliğin Seri Aracılık Rolü",
+      "durum": "Gönderime hazır",
+      "yil": 2026,
+      "etiketler": ["Yapay Zekâ Etiği", "Yapay Zekâ Okuryazarlığı"],
+      "drive": "https://drive.google.com/drive/folders/1dtgVHt1ZdpNpXFA1XsEf_M4fMYykKnnA",
+      "etik": "2026/04-8"
+    },
+    {
+      "baslik": "Yapay Zekâ Destekli Dijital Materyal Tasarlama Eğitiminin Okul Öncesi Öğretmen Adaylarının Üretken Yapay Zekâ Okuryazarlığına Etkisi",
+      "durum": "Gönderime hazır",
+      "yil": 2026,
+      "etiketler": ["Yapay Zekâ Okuryazarlığı", "Öğretmen Eğitimi"],
+      "drive": "https://drive.google.com/drive/folders/1ED21BYn13ZE4zWkztuvyplQSdrL5jakC"
+    },
+    {
+      "baslik": "Yapay Zekâ Yetkinlik Kaygısından Pedagojik Yetkinliğe: Psikolojik Sağlamlık, Başarı Motivasyonu ve Akademik Motivasyon Üzerinden Bir Model",
+      "durum": "Gönderime hazır",
+      "yil": 2026,
+      "etiketler": ["Yapay Zekâ Okuryazarlığı", "Öğretmen Eğitimi"],
+      "drive": "https://drive.google.com/drive/folders/1pnPUG1VPBGC7chZa5xxMiYMpg3UetE7L"
+    },
+    {
+      "baslik": "Yapay Zekâ Öz Yeterliği ve Motivasyonel Süreçlerin Problemli Dijital Cihaz Kullanımı Üzerindeki Rolü",
+      "durum": "Gönderime hazır",
+      "yil": 2026,
+      "etiketler": ["Yapay Zekâ Okuryazarlığı", "Dijital Bağımlılık"],
+      "drive": "https://drive.google.com/drive/folders/1Jg5EB_GH2Rk99eDV2Trds9TBCLllpV0-"
+    },
+    {
+      "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması",
+      "durum": "Yazım aşamasında",
+      "yil": 2026,
+      "etiketler": ["P4C", "Yapay Zekâ Etiği"],
+      "drive": "https://drive.google.com/drive/folders/1Y1czh1YiQlHJoOBtqgpwdNzUgxthFi6A",
+      "etik": "2026/07-3"
+    },
+    {
+      "baslik": "PictoBlox Tabanlı Makine Öğrenmesi Destekli Robotik Kodlamanın Özel Yetenekli 4. Sınıf Öğrencilerinin Bilgi İşlemsel Düşünme Becerilerine Etkisi",
+      "durum": "Yazım aşamasında",
+      "yil": 2026,
+      "etiketler": ["Robotik Kodlama", "Özel Yetenek"],
+      "drive": "https://drive.google.com/drive/folders/1sDDeI97ZaF9whPPhCaLHDPulgHKesVrL"
+    },
+    {
+      "baslik": "Türkiye Yüzyılı Maarif Modeli'nde Değerler Eğitimi",
+      "durum": "Yazım aşamasında",
+      "yil": 2026,
+      "etiketler": ["Değerler Eğitimi", "TYMM"],
+      "drive": "https://docs.google.com/document/d/1MghSZwR3DYFqMDZUIeuL2JXoMt47thJgJ4ILNFAAfs0/edit"
+    },
+    {
+      "baslik": "AI Literacy in Primary Education",
+      "durum": "Yazım aşamasında",
+      "yil": 2026,
+      "etiketler": ["Yapay Zekâ Okuryazarlığı", "İlkokul"],
+      "drive": "https://drive.google.com/file/d/1jnp5IgEKyTOcrFTnq7qI6mCup-mcAbkC/view"
+    }
+  ],
+
+  "bildiriler": [
+    {
+      "baslik": "Sınıf Öğretmeni Adaylarının Yapay Zekâ Okuryazarlık Düzeylerinin Çeşitli Değişkenler Açısından İncelenmesi",
+      "etkinlik": "USOS Sempozyumu",
+      "yil": 2026,
+      "etiketler": ["Yapay Zekâ Okuryazarlığı"],
+      "drive": "https://docs.google.com/document/d/1B56Cu7OOXziY5812jkzu7L4GF2epkwZaOp8wu747QX8/edit"
+    }
+  ],
+
+  "projeler": [
+    {
+      "baslik": "Yapay Zekâ Çağında Etik Pusula: BİLSEM Öğretmenleri İçin Bir Yol Haritası",
+      "program": "TÜBİTAK 4005",
+      "yil": 2026,
+      "etiketler": ["Yapay Zekâ Etiği", "Öğretmen Eğitimi"],
+      "drive": "https://drive.google.com/drive/folders/1Leozkt5sIQpYdoG1wADjQaEJ5QOjuq-z",
+      "etik": "2026/05-46"
+    },
+    {
+      "baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji-2",
+      "program": "TÜBİTAK 4004",
+      "yil": 2026,
+      "etiketler": ["Bilim İletişimi"],
+      "drive": "https://drive.google.com/drive/folders/1jWYvuSVf1FEBg3ra7X00oqlgmgbMh-6k",
+      "etik": "2026/08-9"
+    },
+    {
+      "baslik": "TÜBİTAK 2237 Eğitim Etkinliği",
+      "program": "TÜBİTAK 2237",
+      "yil": 2026,
+      "etiketler": [],
+      "drive": "https://drive.google.com/drive/folders/1_boNfYYuzIf0spy5rsFKAY6M3fW34DMV"
+    },
+    {
+      "baslik": "TÜBİTAK 2219 Yurt Dışı Doktora Sonrası Araştırma",
+      "program": "TÜBİTAK 2219",
+      "yil": 2025,
+      "etiketler": [],
+      "drive": "https://drive.google.com/drive/folders/1vsKFJ19kPZy_cTLKykwKGXq-u5XijF9K"
+    },
+    {
+      "baslik": "Robotik Kodlama ve Yapay Zekâ Atölyesi",
+      "program": "Atölye",
+      "yil": 2026,
+      "etiketler": ["Robotik Kodlama"],
+      "drive": "https://drive.google.com/drive/folders/1qCgbCikPH5FiAe1DHMV6lxX8Al4BkIla"
+    },
+    {
+      "baslik": "LEGO Education ile Robotik Kodlama Atölyesi",
+      "program": "Atölye",
+      "yil": 2026,
+      "etiketler": ["Robotik Kodlama"],
+      "drive": "https://drive.google.com/drive/folders/1HdjpViamYmMzj6e6ommCFGwYRuHkqWA_"
+    },
+    {
+      "baslik": "Robotik Kodlama Eğitmen Eğitimleri",
+      "program": "Eğitmen eğitimi",
+      "yil": 2025,
+      "etiketler": ["Robotik Kodlama"],
+      "drive": "https://drive.google.com/drive/folders/1jEhN_BLcTiXNZfoNiGpaak_SKNQcR7XX"
+    }
+  ],
+
+  "etikKurul": [
+    { "no": "2026/08-9",  "tarih": "2026-07-31", "baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji-2", "drive": "https://drive.google.com/file/d/1r26WfHzTPyGRO8ytHE2eGLSLzvAzBN8B/view" },
+    { "no": "2026/07-7",  "tarih": "2026-07-03", "baslik": "Turkish Digital Children's Rights Scale (T-GKOS) Ölçeğinin Türkçeye Uyarlanması: İlkokul Öğrencileri Üzerinde Geçerlik ve Güvenirlik Çalışması", "drive": "https://drive.google.com/file/d/1VTfgqn47HAL_nUiHNtW5llDU1NXd8pID/view" },
+    { "no": "2026/07-6",  "tarih": "2026-07-03", "baslik": "Yapay Zekâ Okuryazarlığı Eğitim Programının Öğretmen Adaylarının Yapay Zekâ Okuryazarlığı ve Yapay Zekâ Temelli Teknolojik Pedagojik Alan Bilgisi Yeterliklerine Etkisi", "drive": "https://drive.google.com/file/d/1dE4Nzbgf6JuzmlklhgQvTEYnSE22mxos/view" },
+    { "no": "2026/07-5",  "tarih": "2026-07-03", "baslik": "Erken Çocuklukta Yapay Zekâ Okuryazarlık Eğitiminin Etkililiği", "drive": "https://drive.google.com/file/d/18ZXLAIiTYmkMOoqCP6a2pWmyg1UVHOPO/view" },
+    { "no": "2026/07-4",  "tarih": "2026-07-03", "baslik": "Öğretmenlere Yönelik Yapay Zekâ Öz Yeterliği Ölçeğinin Geliştirilmesi ve Geçerlik-Güvenirlik Çalışması", "drive": "https://drive.google.com/file/d/1lVQlf3QD5aMx1KCUaS8vIaxmUpDr68lG/view" },
+    { "no": "2026/07-3",  "tarih": "2026-07-03", "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması", "drive": "https://drive.google.com/file/d/1eDEHFiyNo0VRnqHGGgpiiiBU0aHQl7dl/view" },
+    { "no": "2026/07-2",  "tarih": "2026-07-03", "baslik": "Öğretmenler İçin Yapay Zekâ Kullanımına Yönelik Etik Farkındalık Ölçeğinin Geliştirilmesi: Geçerlik ve Güvenirlik Çalışması", "drive": "https://drive.google.com/file/d/1HA4OJW0BGBthO4sWqYycShM6VtdmRIuZ/view" },
+    { "no": "2026/05-48", "tarih": "2026-05-04", "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması", "drive": "https://drive.google.com/file/d/1aVPoNq4xKo1fe49WSdwvmAzDqFkor0oW/view" },
+    { "no": "2026/05-46", "tarih": "2026-05-04", "baslik": "Yapay Zekâ Çağında Etik Pusula: BİLSEM Öğretmenleri İçin Bir Yol Haritası", "drive": "https://drive.google.com/file/d/1XHsZFhWgTRjw7op584Ut5Rp1ngp_22CL/view" },
+    { "no": "2026/04-8",  "tarih": "2026-04-06", "baslik": "Yapay Zekâ Okuryazarlığının Yapay Zekâ Etik Farkındalığına Katkısı: Yapay Zekâ Tutumu ve Psikolojik Esnekliğin Seri Aracılık Rolü", "drive": "https://drive.google.com/file/d/1TRPvOkhG2fK8udGuHq1CIozTDOy5Hbzt/view" },
+    { "no": "2025/06-7",  "tarih": "2025-06-26", "baslik": "Sınıf Öğretmeni Adaylarının Yapay Zekânın Eğitim Ortamlarında Kullanımına Yönelik Görüşlerinin İncelenmesi", "drive": "https://drive.google.com/file/d/16OHLDZfExCs4MPhEg40-qxTMAyNmjN7N/view" },
+    { "no": "2022/09-7",  "tarih": "2022-09-05", "baslik": "İlkokul Birinci Sınıf Öğrencileriyle Hayat Bilgisi Dersinde Gazete Temelli Örnek Olay İşlemek Olanaklı mıdır?: Uygulamalı Bir Çalışma", "drive": "https://drive.google.com/file/d/1vasxvpVip2HzhA1iHh6EnhFkzj0NYZJZ/view" },
+    { "no": "2022/09-7",  "tarih": "2022-09-05", "baslik": "Sınıf Öğretmenlerinin Değerler Eğitiminin Uygulanmasına Yönelik Görüşlerinin Değerlendirilmesi", "drive": "https://drive.google.com/file/d/1vasxvpVip2HzhA1iHh6EnhFkzj0NYZJZ/view" }
+  ],
+
+  "ogrenciEtikKurul": [
+    { "no": "2026/05-12", "tarih": "2026-05-04", "ogrenci": "G. Ç.", "baslik": "Sınıf Öğretmeni Adaylarının Bilişimsel Düşünme Düzeylerinin İncelenmesi: Betimsel Bir Tarama Çalışması" },
+    { "no": "2026/05-5",  "tarih": "2026-05-04", "ogrenci": "S. S. C.", "baslik": "Sınıf Öğretmeni Adaylarının Dijital Yeterlik Düzeylerinin İncelenmesi: Betimsel Bir Tarama Çalışması" },
+    { "no": "2024/07-5",  "tarih": "2024-07-01", "ogrenci": "Ş. U.", "baslik": "İlkokul 3. Sınıf Matematik Dersinde Eğitsel Oyun Kullanımının Öğrencilerin Matematik Dersine Karşı Tutumlarına ve Akademik Başarısına Etkisi" }
+  ],
+
+  "kitaplar": [
+    { "baslik": "Matemoji", "goster": false, "drive": "https://drive.google.com/file/d/19beOJPGseKh_nM8QAdlYaNKPMXbd3Q6R/view" },
+    { "baslik": "Bidomeg", "goster": false, "drive": "https://drive.google.com/file/d/1fAllI_dpG0BTgXd8y9K6QUhjL-KutJnl/view" },
+    { "baslik": "Okullarda Oyun Kültürü", "goster": false, "drive": "https://drive.google.com/file/d/16JaToHf11-16eyqP77fAHYbdSf8XkYlu/view" },
+    { "baslik": "Elif ile Alp", "goster": false, "drive": "https://drive.google.com/file/d/1sPj63Yy5fxxIXhIZRJsldV-gGe92YbJA/view" }
+  ]
+}

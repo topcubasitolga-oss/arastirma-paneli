@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tolga Topçubaşı · Araştırma Paneli</title>
+<meta name="description" content="Dr. Öğr. Üyesi Tolga Topçubaşı'nın makaleleri, projeleri, bildirileri ve etik kurul onayları.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5f1e8; --card:#fffdf8; --ink:#1e1b16; --muted:#6b6457; --line:#e2dccd;
+  --accent:#1f5c58; --accent-soft:#e1ece9; --seal:#8a5a1c; --seal-soft:#f3e7d3;
+  --draft:#6d5a9c; --draft-soft:#ebe6f5;
+  --serif:"Fraunces",Georgia,serif; --sans:"IBM Plex Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#15130f; --card:#1d1a15; --ink:#efe9dc; --muted:#a39b8b; --line:#332e26;
+    --accent:#7cc2ba; --accent-soft:#1f3331; --seal:#e0b071; --seal-soft:#3a2c18;
+    --draft:#b6a6e6; --draft-soft:#2b2540;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px}
+
+/* Kapak */
+header.hero{padding:64px 0 36px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(34px,6vw,56px);line-height:1.05;margin:10px 0 8px;letter-spacing:-.01em}
+.unvan{color:var(--muted);margin:0 0 18px}
+.ozet{font-family:var(--serif);font-size:20px;line-height:1.5;max-width:44ch;margin:0 0 22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:13px;padding:4px 11px;border:1px solid var(--line);border-radius:99px;background:var(--card);cursor:pointer;color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:34px}
+.stat{background:var(--card);padding:16px 18px}
+.stat b{display:block;font-family:var(--serif);font-size:32px;font-weight:600;line-height:1}
+.stat span{font-size:13px;color:var(--muted)}
+
+/* Gezinme */
+nav.bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;gap:6px;align-items:center;padding-top:10px;padding-bottom:10px;overflow-x:auto}
+nav a{flex:none;text-decoration:none;font-size:14px;font-weight:500;padding:6px 12px;border-radius:8px;color:var(--muted)}
+nav a:hover{background:var(--card);color:var(--ink)}
+.search{margin-left:auto;flex:none}
+.search input{font:inherit;font-size:14px;width:200px;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+
+/* Bölümler */
+section{padding:44px 0 8px;scroll-margin-top:56px}
+h2{font-family:var(--serif);font-weight:600;font-size:28px;margin:0 0 4px;display:flex;align-items:baseline;gap:10px}
+h2 small{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--muted)}
+.lede{color:var(--muted);margin:0 0 20px;font-size:15px}
+.list{display:grid;gap:12px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;gap:8px}
+.item h3{font-family:var(--serif);font-weight:600;font-size:18px;line-height:1.35;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;color:var(--muted)}
+.badge{font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.badge.draft{background:var(--draft-soft);color:var(--draft)}
+.badge.seal{background:var(--seal-soft);color:var(--seal)}
+.drive{font-size:13px;font-weight:500;text-decoration:none;color:var(--accent);display:inline-flex;gap:5px;align-items:center}
+.drive:hover{text-decoration:underline}
+.tag{font-size:12px;color:var(--muted)}
+.tag::before{content:"#"}
+
+/* Etik kurul zaman çizelgesi */
+.year{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--seal);margin:26px 0 10px}
+.ethic{display:grid;grid-template-columns:118px 1fr;gap:16px;padding:14px 0;border-top:1px solid var(--line)}
+.ethic:last-child{border-bottom:1px solid var(--line)}
+.ethic .no{font-variant-numeric:tabular-nums}
+.ethic .no b{display:block;font-size:15px}
+.ethic .no span{font-size:13px;color:var(--muted)}
+.ethic h3{font-family:var(--serif);font-weight:400;font-size:17px;line-height:1.4;margin:0 0 6px}
+.ok{font-size:13px;color:var(--muted)}
+.ok::before{content:"✓ ";color:var(--accent);font-weight:700}
+details{margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px}
+summary{cursor:pointer;font-weight:500}
+
+.empty{color:var(--muted);font-style:italic;padding:8px 0}
+footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.hidden{display:none!important}
+
+@media (max-width:640px){
+  header.hero{padding-top:40px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .search input{width:140px}
+  .ethic{grid-template-columns:1fr;gap:4px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Araştırma Paneli</div>
+    <h1 id="ad">…</h1>
+    <p class="unvan" id="unvan"></p>
+    <p class="ozet" id="ozet"></p>
+    <div class="chips" id="chips"></div>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<nav class="bar">
+  <div class="wrap">
+    <a href="#makaleler">Makaleler</a>
+    <a href="#projeler">Projeler</a>
+    <a href="#bildiriler">Bildiriler</a>
+    <a href="#etik">Etik Kurul Onayları</a>
+    <a href="#kitaplar" id="nav-kitaplar">Kitaplar</a>
+    <label class="search"><input id="q" type="search" placeholder="Ara…" aria-label="Çalışmalarda ara"></label>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section id="makaleler">
+    <h2>Makaleler <small id="n-makale"></small></h2>
+    <p class="lede">Dergiye gönderime hazır ve yazım aşamasındaki çalışmalar.</p>
+    <div class="list" id="list-makale"></div>
+  </section>
+
+  <section id="projeler">
+    <h2>Projeler <small id="n-proje"></small></h2>
+    <p class="lede">TÜBİTAK projeleri, atölyeler ve eğitmen eğitimleri.</p>
+    <div class="list" id="list-proje"></div>
+  </section>
+
+  <section id="bildiriler">
+    <h2>Bildiriler <small id="n-bildiri"></small></h2>
+    <div class="list" id="list-bildiri"></div>
+  </section>
+
+  <section id="etik">
+    <h2>Etik Kurul Onayları <small id="n-etik"></small></h2>
+    <p class="lede">İstanbul 29 Mayıs Üniversitesi Bilimsel Araştırma ve Yayın Etiği Kurulu kararları. Tümü oybirliğiyle “etik açıdan sakınca yoktur” kararıyla sonuçlanmıştır. Karar suretleri gizlidir; yalnızca yetkili hesap açabilir.</p>
+    <div id="list-etik"></div>
+    <details id="ogrenci-wrap">
+      <summary>Danışmanlık yapılan öğrenci çalışmaları <span id="n-ogr"></span></summary>
+      <div id="list-ogr"></div>
+    </details>
+  </section>
+
+  <section id="kitaplar">
+    <h2>Kitaplar <small id="n-kitap"></small></h2>
+    <div class="list" id="list-kitap"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span id="guncel"></span> · Veriler <code>data.json</code> dosyasından okunur; yeni çalışma eklemek için o dosyayı düzenlemek yeterli.
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const tarihTR = iso => new Date(iso + "T12:00:00").toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"});
+  const lc = s => String(s||"").toLocaleLowerCase("tr-TR");
+  let D = null, aktifEtiket = null, sorgu = "";
+
+  const driveLink = (url, label) => url ? `<a class="drive" href="${esc(url)}" target="_blank" rel="noopener">↗ ${label || "Drive'da aç"}</a>` : "";
+  const tags = arr => (arr||[]).map(t => `<span class="tag">${esc(t)}</span>`).join("");
+
+  function eslesir(o){
+    const metin = lc([o.baslik,o.durum,o.program,o.etkinlik,o.no,(o.etiketler||[]).join(" ")].join(" "));
+    if (sorgu && !metin.includes(lc(sorgu))) return false;
+    if (aktifEtiket && !(o.etiketler||[]).includes(aktifEtiket) && !lc(o.baslik).includes(lc(aktifEtiket).split(" ").pop())) return false;
+    return true;
+  }
+
+  function render(){
+    const mk = D.makaleler.filter(eslesir);
+    $("#list-makale").innerHTML = mk.map(m => `
+      <article class="item">
+        <h3>${esc(m.baslik)}</h3>
+        <div class="meta">
+          <span class="badge ${m.durum.includes("hazır") ? "" : "draft"}">${esc(m.durum)}</span>
+          ${m.etik ? `<span class="badge seal">Etik onay ${esc(m.etik)}</span>` : ""}
+          ${tags(m.etiketler)}
+          ${driveLink(m.drive, "Dosyalar")}
+        </div>
+      </article>`).join("") || `<p class="empty">Eşleşen makale yok.</p>`;
+
+    const pr = D.projeler.filter(eslesir);
+    $("#list-proje").innerHTML = pr.map(p => `
+      <article class="item">
+        <h3>${esc(p.baslik)}</h3>
+        <div class="meta">
+          <span class="badge">${esc(p.program)}</span><span>${esc(p.yil)}</span>
+          ${p.etik ? `<span class="badge seal">Etik onay ${esc(p.etik)}</span>` : ""}
+          ${tags(p.etiketler)}
+          ${driveLink(p.drive, "Proje dosyası")}
+        </div>
+      </article>`).join("") || `<p class="empty">Eşleşen proje yok.</p>`;
+
+    const bl = D.bildiriler.filter(eslesir);
+    $("#list-bildiri").innerHTML = bl.map(b => `
+      <article class="item">
+        <h3>${esc(b.baslik)}</h3>
+        <div class="meta"><span class="badge">${esc(b.etkinlik)}</span><span>${esc(b.yil)}</span>${tags(b.etiketler)}${driveLink(b.drive,"Özet")}</div>
+      </article>`).join("") || `<p class="empty">Eşleşen bildiri yok.</p>`;
+
+    const et = D.etikKurul.filter(eslesir);
+    const yillar = [...new Set(et.map(e => e.tarih.slice(0,4)))];
+    $("#list-etik").innerHTML = yillar.map(y => `
+      <div class="year">${y}</div>
+      ${et.filter(e => e.tarih.startsWith(y)).map(e => `
+        <div class="ethic">
+          <div class="no"><b>${esc(e.no)}</b><span>${tarihTR(e.tarih)}</span></div>
+          <div><h3>${esc(e.baslik)}</h3>
+            <div class="meta"><span class="ok">Etik açıdan sakınca yok · oybirliği</span>${driveLink(e.drive,"Karar sureti 🔒")}</div>
+          </div>
+        </div>`).join("")}`).join("") || `<p class="empty">Eşleşen karar yok.</p>`;
+
+    const og = D.ogrenciEtikKurul.filter(eslesir);
+    $("#n-ogr").textContent = `(${og.length})`;
+    $("#list-ogr").innerHTML = og.map(e => `
+      <div class="ethic">
+        <div class="no"><b>${esc(e.no)}</b><span>${tarihTR(e.tarih)}</span></div>
+        <div><h3>${esc(e.baslik)}</h3><div class="meta"><span>Öğrenci: ${esc(e.ogrenci)}</span></div></div>
+      </div>`).join("");
+    $("#ogrenci-wrap").classList.toggle("hidden", og.length === 0);
+
+    const kt = D.kitaplar.filter(k => k.goster !== false).filter(eslesir);
+    $("#kitaplar").classList.toggle("hidden", kt.length === 0 && !sorgu);
+    $("#nav-kitaplar").classList.toggle("hidden", D.kitaplar.every(k => k.goster === false));
+    $("#list-kitap").innerHTML = kt.map(k => `
+      <article class="item"><h3>${esc(k.baslik)}</h3><div class="meta">${k.yayinevi?`<span>${esc(k.yayinevi)}</span>`:""}${k.yil?`<span>${esc(k.yil)}</span>`:""}${driveLink(k.drive)}</div></article>`).join("") || `<p class="empty">Eşleşen kitap yok.</p>`;
+
+    $("#n-makale").textContent = `${mk.length}`;
+    $("#n-proje").textContent = `${pr.length}`;
+    $("#n-bildiri").textContent = `${bl.length}`;
+    $("#n-etik").textContent = `${et.length}`;
+    $("#n-kitap").textContent = `${kt.length}`;
+  }
+
+  function init(data){
+    D = data;
+    const p = D.profil;
+    $("#ad").textContent = p.ad;
+    $("#unvan").textContent = p.unvan;
+    $("#ozet").textContent = p.ozet;
+    document.title = p.ad + " · Araştırma Paneli";
+    $("#chips").innerHTML = p.ilgi.map(i => `<button class="chip" aria-pressed="false">${esc(i)}</button>`).join("");
+    $("#chips").addEventListener("click", e => {
+      const b = e.target.closest(".chip"); if (!b) return;
+      const t = b.textContent;
+      aktifEtiket = aktifEtiket === t ? null : t;
+      document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c.textContent === aktifEtiket)));
+      render();
+    });
+    const toplamEtik = new Set([...D.etikKurul, ...D.ogrenciEtikKurul].map(e => e.no)).size;
+    $("#stats").innerHTML = [
+      [D.makaleler.length, "makale"],
+      [D.projeler.length, "proje ve atölye"],
+      [D.bildiriler.length, "bildiri"],
+      [toplamEtik, "etik kurul kararı"]
+    ].map(([n,l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+    $("#guncel").textContent = "Son güncelleme: " + new Date(document.lastModified).toLocaleDateString("tr-TR");
+    $("#q").addEventListener("input", e => { sorgu = e.target.value.trim(); render(); });
+    render();
+  }
+
+  fetch("data.json", {cache:"no-cache"}).then(r => r.json()).then(init).catch(() => {
+    document.querySelector("main").innerHTML = '<p class="empty" style="padding:40px 0">Veriler yüklenemedi. data.json dosyasını kontrol edin.</p>';
+  });
+})();
+</script>
+</body>
+</html>
