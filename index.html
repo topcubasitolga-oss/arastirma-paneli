@@ -28,6 +28,7 @@
   --accent:#86a7ff; --accent-soft:#1c2a4a;
   --chat:#5fd0c0; --chat-soft:#123631; --page:#f0b46a; --page-soft:#3a2810; --drive:#9fd28a; --drive-soft:#1f3418; color-scheme:dark}
 *{box-sizing:border-box}
+html{scroll-padding-top:72px}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--body);margin:0}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 60px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px}
@@ -151,9 +152,8 @@ details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
 .kilit input{font:16px var(--body);padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink)}
 .kilit button{font:600 15px var(--body);padding:11px 16px;border:0;border-radius:10px;background:var(--accent);color:var(--bg);cursor:pointer;justify-self:start}
 .kilit .hata{color:#b3261e;font-size:14px}
-.statik .chk,.statik #bar,.statik details.menu,.statik .side-h button,.statik #yv-drive{display:none!important}
-.statik .row{grid-template-columns:72px minmax(0,1fr) auto}
-@media (max-width:760px){.statik .row{grid-template-columns:1fr}.statik .row .kind,.statik .row .title,.statik .row .side{grid-column:1}}
+.statik .side-h button,.statik #yv-drive{display:none!important}
+.yerel-not{font-size:13px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:8px 12px}
 .apptabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
 .apptabs .in{max-width:1180px;margin:0 auto;padding-inline:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .apptabs .marka{font:700 15px var(--display);color:var(--ink);padding:12px 0;margin-right:6px;white-space:nowrap}
@@ -382,7 +382,7 @@ details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
     box.append(secBtn("Tümü", ak.length, g.tip==="bolum" && g.k==="hepsi" && !q, () => git({tip:"bolum",k:"hepsi"})));
     box.append(secBtn("Yazışmaya devam et", ak.filter(it => it.tur==="sohbet").length, g.tip==="bolum" && g.k==="devam", () => git({tip:"bolum",k:"devam"}), "vurgu"));
 
-    if (db) {
+    if (db && !db.yerel) {
     const fh = el("div",{class:"side-h"}, el("h2",{text:"Dosyalarım"}),
       el("button",{class:"mini",type:"button",text:"+ Yeni dosya",onclick:() => { yeniKlasorAcik = !yeniKlasorAcik; yeniKlasorUst = ""; renderSecs(); }}));
     box.append(fh); }
@@ -391,7 +391,7 @@ details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
       const f = el("form",{class:"newf",onsubmit:e => { e.preventDefault(); klasorOlustur(inp.value, ""); }}, inp, el("button",{class:"mini",type:"submit",text:"Oluştur"}));
       box.append(f); setTimeout(() => inp.focus(), 0);
     }
-    if (db && !klasorler.length && !yeniKlasorAcik) box.append(el("div",{class:"bilgi",style:"padding:0 10px 4px",text:"Henüz dosya yok. Bir dosya açıp kayıtları içine toplayın."}));
+    if (db && !db.yerel && !klasorler.length && !yeniKlasorAcik) box.append(el("div",{class:"bilgi",style:"padding:0 10px 4px",text:"Henüz dosya yok. Bir dosya açıp kayıtları içine toplayın."}));
     (function r(ust, d){ cocuklar(ust).forEach(k => {
       const b = secBtn(k.ad, klasorSayisi(k.id), g.tip==="klasor" && g.id===k.id, () => git({tip:"klasor", id:k.id}), null, true);
       b.style.paddingLeft = (10 + d*16) + "px"; box.append(b); r(k.id, d+1); }); })("",0);
@@ -454,7 +454,8 @@ details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
       const bs = el("select",{id:"b_"+it.id,"aria-label":"Bölüm"}); BOLUMLER.forEach(([k,ad]) => bs.append(el("option",{value:k,text:ad,selected:k===it.bolum})));
       bs.onchange = () => bolumDegis([it], bs.value);
       const onay = el("div",{});
-      pop.append(el("label",{for:"f_"+it.id,text:"Dosyaya ekle"}), fs, el("label",{for:"b_"+it.id,text:"Bölüm"}), bs,
+      if (!db.yerel) pop.append(el("label",{for:"f_"+it.id,text:"Dosyaya ekle"}), fs);
+      pop.append(el("label",{for:"b_"+it.id,text:"Bölüm"}), bs,
         el("div",{class:"btns"},
           it.gizli ? el("button",{class:"mini",type:"button",text:"Göster",onclick:() => goster([it])}) : el("button",{class:"mini",type:"button",text:"Gizle",onclick:() => gizle([it])}),
           gorunum.tip==="klasor" && (it.klasorler||[]).includes(gorunum.id) ? el("button",{class:"mini",type:"button",text:"Bu dosyadan çıkar",onclick:() => klasordenCikar([it], gorunum.id)}) : null,
@@ -488,7 +489,7 @@ details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
     else {
       const fs = el("select",{id:"toplu-dosya","aria-label":"Seçilenleri dosyaya ekle"}); agacSecenekleri(fs, klasorler.length ? "Dosyaya ekle…" : "Önce bir dosya açın");
       fs.onchange = () => { if (fs.value) klasoreEkle(list, fs.value); };
-      bar.append(fs);
+      if (!db.yerel) bar.append(fs);
       if (gorunum.tip==="klasor") bar.append(el("button",{type:"button",text:"Bu dosyadan çıkar",onclick:() => klasordenCikar(list, gorunum.id)}));
       bar.append(gorunum.tip==="gizli" ? el("button",{type:"button",text:"Göster",onclick:() => goster(list)}) : el("button",{type:"button",text:"Gizle",onclick:() => gizle(list)}));
       const silB = el("button",{class:"tehlike",type:"button",text:"Sil",onclick:() => {
@@ -548,6 +549,7 @@ details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
     if (f.length > gosterilen) list.append(el("button",{class:"more",type:"button",text:`${f.length-gosterilen} kayıt daha göster`,onclick:() => { gosterilen += 200; renderList(); }}));
   }
   function hepsiniCiz(){
+    if (db && db.yerel){ const ak = aktifler(); const tn = document.getElementById("tab-arsiv-n"); if (tn) tn.textContent = ak.length; const st = $("#stamp"); if (st && window.__arsivAcik) st.textContent = st.textContent.replace(/^\d+ kayıt/, ak.length + " kayıt"); }
     if (gorunum.tip==="klasor" && !kById(gorunum.id) && klasorlerGeldi) gorunum = {tip:"bolum",k:"hepsi"};
     renderSecs(); renderFhead(); renderResume(); renderList(); renderBar();
   }
@@ -577,6 +579,15 @@ details.menu[open]>summary{border-color:var(--accent);color:var(--accent)}
       if (!encVeri) encVeri = await (await fetch("arsiv.enc.json", {cache:"no-cache"})).json();
       const veri = await coz($("#parola").value.trim(), encVeri);
       items = veri.kayitlar || []; klasorler = veri.klasorler || [];
+      const YK = "arsiv-yerel-degisiklik";
+      let yerelDeg = {}; try { yerelDeg = JSON.parse(localStorage.getItem(YK) || "{}"); } catch(e){}
+      items.forEach(it => { if (yerelDeg[it.id]) Object.assign(it, yerelDeg[it.id]); });
+      db = { yerel: true, collection: () => ({ doc: id => ({ update: async f => {
+        yerelDeg[id] = Object.assign(yerelDeg[id] || {}, f);
+        try { localStorage.setItem(YK, JSON.stringify(yerelDeg)); } catch(e){ throw new Error("Tarayıcı saklamaya izin vermiyor"); }
+      } }) }) };
+      const notEl = el("div",{class:"yerel-not",text:"Silme, gizleme ve bölüm değişiklikleri bu tarayıcıda saklanır; Claude'daki paneli etkilemez. Panelde de uygulanmasını isterseniz Claude'a söylemeniz yeterli."});
+      $("#resume").before(notEl);
       const ak = aktifler(); const son = ak.reduce((m,it) => it.tur!=="drive" && it.tarih > m ? it.tarih : m, "");
       $("#stamp").textContent = `${ak.length} kayıt · en yeni ${son ? tarihYaz({tarih:son}) : "—"}` + (veri.guncel ? " · kilitlendi " + veri.guncel.split("-").reverse().join(".") : "");
       const tn = document.getElementById("tab-arsiv-n"); if (tn) tn.textContent = ak.length;
