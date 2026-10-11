@@ -1,162 +1,1171 @@
 {
-  "profil": {
-    "ad": "Dr. Öğr. Üyesi Tolga Topçubaşı",
-    "unvan": "İstanbul 29 Mayıs Üniversitesi · Eğitim Fakültesi · Sınıf Öğretmenliği",
-    "ozet": "Yapay zekâ okuryazarlığı, yapay zekâ etiği, çocuklar için felsefe (P4C), robotik kodlama ve değerler eğitimi üzerine araştırmalar.",
-    "ilgi": ["Yapay Zekâ Okuryazarlığı", "Yapay Zekâ Etiği", "P4C", "Robotik Kodlama", "Ölçek Geliştirme", "Değerler Eğitimi"]
-  },
-
-  "makaleler": [
-    {
-      "baslik": "Yapay Zekâ Okuryazarlığının Yapay Zekâ Etik Farkındalığına Katkısı: Yapay Zekâ Tutumu ve Psikolojik Esnekliğin Seri Aracılık Rolü",
-      "durum": "Gönderime hazır",
-      "yil": 2026,
-      "etiketler": ["Yapay Zekâ Etiği", "Yapay Zekâ Okuryazarlığı"],
-      "drive": "https://drive.google.com/drive/folders/1dtgVHt1ZdpNpXFA1XsEf_M4fMYykKnnA",
-      "etik": "2026/04-8"
-    },
-    {
-      "baslik": "Yapay Zekâ Destekli Dijital Materyal Tasarlama Eğitiminin Okul Öncesi Öğretmen Adaylarının Üretken Yapay Zekâ Okuryazarlığına Etkisi",
-      "durum": "Gönderime hazır",
-      "yil": 2026,
-      "etiketler": ["Yapay Zekâ Okuryazarlığı", "Öğretmen Eğitimi"],
-      "drive": "https://drive.google.com/drive/folders/1ED21BYn13ZE4zWkztuvyplQSdrL5jakC"
-    },
-    {
-      "baslik": "Yapay Zekâ Yetkinlik Kaygısından Pedagojik Yetkinliğe: Psikolojik Sağlamlık, Başarı Motivasyonu ve Akademik Motivasyon Üzerinden Bir Model",
-      "durum": "Gönderime hazır",
-      "yil": 2026,
-      "etiketler": ["Yapay Zekâ Okuryazarlığı", "Öğretmen Eğitimi"],
-      "drive": "https://drive.google.com/drive/folders/1pnPUG1VPBGC7chZa5xxMiYMpg3UetE7L"
-    },
-    {
-      "baslik": "Yapay Zekâ Öz Yeterliği ve Motivasyonel Süreçlerin Problemli Dijital Cihaz Kullanımı Üzerindeki Rolü",
-      "durum": "Gönderime hazır",
-      "yil": 2026,
-      "etiketler": ["Yapay Zekâ Okuryazarlığı", "Dijital Bağımlılık"],
-      "drive": "https://drive.google.com/drive/folders/1Jg5EB_GH2Rk99eDV2Trds9TBCLllpV0-"
-    },
-    {
-      "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması",
-      "durum": "Yazım aşamasında",
-      "yil": 2026,
-      "etiketler": ["P4C", "Yapay Zekâ Etiği"],
-      "drive": "https://drive.google.com/drive/folders/1Y1czh1YiQlHJoOBtqgpwdNzUgxthFi6A",
-      "etik": "2026/07-3"
-    },
-    {
-      "baslik": "PictoBlox Tabanlı Makine Öğrenmesi Destekli Robotik Kodlamanın Özel Yetenekli 4. Sınıf Öğrencilerinin Bilgi İşlemsel Düşünme Becerilerine Etkisi",
-      "durum": "Yazım aşamasında",
-      "yil": 2026,
-      "etiketler": ["Robotik Kodlama", "Özel Yetenek"],
-      "drive": "https://drive.google.com/drive/folders/1sDDeI97ZaF9whPPhCaLHDPulgHKesVrL"
-    },
-    {
-      "baslik": "Türkiye Yüzyılı Maarif Modeli'nde Değerler Eğitimi",
-      "durum": "Yazım aşamasında",
-      "yil": 2026,
-      "etiketler": ["Değerler Eğitimi", "TYMM"],
-      "drive": "https://docs.google.com/document/d/1MghSZwR3DYFqMDZUIeuL2JXoMt47thJgJ4ILNFAAfs0/edit"
-    },
-    {
-      "baslik": "AI Literacy in Primary Education",
-      "durum": "Yazım aşamasında",
-      "yil": 2026,
-      "etiketler": ["Yapay Zekâ Okuryazarlığı", "İlkokul"],
-      "drive": "https://drive.google.com/file/d/1jnp5IgEKyTOcrFTnq7qI6mCup-mcAbkC/view"
-    }
-  ],
-
-  "bildiriler": [
-    {
-      "baslik": "Sınıf Öğretmeni Adaylarının Yapay Zekâ Okuryazarlık Düzeylerinin Çeşitli Değişkenler Açısından İncelenmesi",
-      "etkinlik": "USOS Sempozyumu",
-      "yil": 2026,
-      "etiketler": ["Yapay Zekâ Okuryazarlığı"],
-      "drive": "https://docs.google.com/document/d/1B56Cu7OOXziY5812jkzu7L4GF2epkwZaOp8wu747QX8/edit"
-    }
-  ],
-
-  "projeler": [
-    {
-      "baslik": "Yapay Zekâ Çağında Etik Pusula: BİLSEM Öğretmenleri İçin Bir Yol Haritası",
-      "program": "TÜBİTAK 4005",
-      "yil": 2026,
-      "etiketler": ["Yapay Zekâ Etiği", "Öğretmen Eğitimi"],
-      "drive": "https://drive.google.com/drive/folders/1Leozkt5sIQpYdoG1wADjQaEJ5QOjuq-z",
-      "etik": "2026/05-46"
-    },
-    {
-      "baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji-2",
-      "program": "TÜBİTAK 4004",
-      "yil": 2026,
-      "etiketler": ["Bilim İletişimi"],
-      "drive": "https://drive.google.com/drive/folders/1jWYvuSVf1FEBg3ra7X00oqlgmgbMh-6k",
-      "etik": "2026/08-9"
-    },
-    {
-      "baslik": "TÜBİTAK 2237 Eğitim Etkinliği",
-      "program": "TÜBİTAK 2237",
-      "yil": 2026,
-      "etiketler": [],
-      "drive": "https://drive.google.com/drive/folders/1_boNfYYuzIf0spy5rsFKAY6M3fW34DMV"
-    },
-    {
-      "baslik": "TÜBİTAK 2219 Yurt Dışı Doktora Sonrası Araştırma",
-      "program": "TÜBİTAK 2219",
-      "yil": 2025,
-      "etiketler": [],
-      "drive": "https://drive.google.com/drive/folders/1vsKFJ19kPZy_cTLKykwKGXq-u5XijF9K"
-    },
-    {
-      "baslik": "Robotik Kodlama ve Yapay Zekâ Atölyesi",
-      "program": "Atölye",
-      "yil": 2026,
-      "etiketler": ["Robotik Kodlama"],
-      "drive": "https://drive.google.com/drive/folders/1qCgbCikPH5FiAe1DHMV6lxX8Al4BkIla"
-    },
-    {
-      "baslik": "LEGO Education ile Robotik Kodlama Atölyesi",
-      "program": "Atölye",
-      "yil": 2026,
-      "etiketler": ["Robotik Kodlama"],
-      "drive": "https://drive.google.com/drive/folders/1HdjpViamYmMzj6e6ommCFGwYRuHkqWA_"
-    },
-    {
-      "baslik": "Robotik Kodlama Eğitmen Eğitimleri",
-      "program": "Eğitmen eğitimi",
-      "yil": 2025,
-      "etiketler": ["Robotik Kodlama"],
-      "drive": "https://drive.google.com/drive/folders/1jEhN_BLcTiXNZfoNiGpaak_SKNQcR7XX"
-    }
-  ],
-
-  "etikKurul": [
-    { "no": "2026/08-9",  "tarih": "2026-07-31", "baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji-2", "drive": "https://drive.google.com/file/d/1r26WfHzTPyGRO8ytHE2eGLSLzvAzBN8B/view" },
-    { "no": "2026/07-7",  "tarih": "2026-07-03", "baslik": "Turkish Digital Children's Rights Scale (T-GKOS) Ölçeğinin Türkçeye Uyarlanması: İlkokul Öğrencileri Üzerinde Geçerlik ve Güvenirlik Çalışması", "drive": "https://drive.google.com/file/d/1VTfgqn47HAL_nUiHNtW5llDU1NXd8pID/view" },
-    { "no": "2026/07-6",  "tarih": "2026-07-03", "baslik": "Yapay Zekâ Okuryazarlığı Eğitim Programının Öğretmen Adaylarının Yapay Zekâ Okuryazarlığı ve Yapay Zekâ Temelli Teknolojik Pedagojik Alan Bilgisi Yeterliklerine Etkisi", "drive": "https://drive.google.com/file/d/1dE4Nzbgf6JuzmlklhgQvTEYnSE22mxos/view" },
-    { "no": "2026/07-5",  "tarih": "2026-07-03", "baslik": "Erken Çocuklukta Yapay Zekâ Okuryazarlık Eğitiminin Etkililiği", "drive": "https://drive.google.com/file/d/18ZXLAIiTYmkMOoqCP6a2pWmyg1UVHOPO/view" },
-    { "no": "2026/07-4",  "tarih": "2026-07-03", "baslik": "Öğretmenlere Yönelik Yapay Zekâ Öz Yeterliği Ölçeğinin Geliştirilmesi ve Geçerlik-Güvenirlik Çalışması", "drive": "https://drive.google.com/file/d/1lVQlf3QD5aMx1KCUaS8vIaxmUpDr68lG/view" },
-    { "no": "2026/07-3",  "tarih": "2026-07-03", "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması", "drive": "https://drive.google.com/file/d/1eDEHFiyNo0VRnqHGGgpiiiBU0aHQl7dl/view" },
-    { "no": "2026/07-2",  "tarih": "2026-07-03", "baslik": "Öğretmenler İçin Yapay Zekâ Kullanımına Yönelik Etik Farkındalık Ölçeğinin Geliştirilmesi: Geçerlik ve Güvenirlik Çalışması", "drive": "https://drive.google.com/file/d/1HA4OJW0BGBthO4sWqYycShM6VtdmRIuZ/view" },
-    { "no": "2026/05-48", "tarih": "2026-05-04", "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması", "drive": "https://drive.google.com/file/d/1aVPoNq4xKo1fe49WSdwvmAzDqFkor0oW/view" },
-    { "no": "2026/05-46", "tarih": "2026-05-04", "baslik": "Yapay Zekâ Çağında Etik Pusula: BİLSEM Öğretmenleri İçin Bir Yol Haritası", "drive": "https://drive.google.com/file/d/1XHsZFhWgTRjw7op584Ut5Rp1ngp_22CL/view" },
-    { "no": "2026/04-8",  "tarih": "2026-04-06", "baslik": "Yapay Zekâ Okuryazarlığının Yapay Zekâ Etik Farkındalığına Katkısı: Yapay Zekâ Tutumu ve Psikolojik Esnekliğin Seri Aracılık Rolü", "drive": "https://drive.google.com/file/d/1TRPvOkhG2fK8udGuHq1CIozTDOy5Hbzt/view" },
-    { "no": "2025/06-7",  "tarih": "2025-06-26", "baslik": "Sınıf Öğretmeni Adaylarının Yapay Zekânın Eğitim Ortamlarında Kullanımına Yönelik Görüşlerinin İncelenmesi", "drive": "https://drive.google.com/file/d/16OHLDZfExCs4MPhEg40-qxTMAyNmjN7N/view" },
-    { "no": "2022/09-7",  "tarih": "2022-09-05", "baslik": "İlkokul Birinci Sınıf Öğrencileriyle Hayat Bilgisi Dersinde Gazete Temelli Örnek Olay İşlemek Olanaklı mıdır?: Uygulamalı Bir Çalışma", "drive": "https://drive.google.com/file/d/1vasxvpVip2HzhA1iHh6EnhFkzj0NYZJZ/view" },
-    { "no": "2022/09-7",  "tarih": "2022-09-05", "baslik": "Sınıf Öğretmenlerinin Değerler Eğitiminin Uygulanmasına Yönelik Görüşlerinin Değerlendirilmesi", "drive": "https://drive.google.com/file/d/1vasxvpVip2HzhA1iHh6EnhFkzj0NYZJZ/view" }
-  ],
-
-  "ogrenciEtikKurul": [
-    { "no": "2026/05-12", "tarih": "2026-05-04", "ogrenci": "G. Ç.", "baslik": "Sınıf Öğretmeni Adaylarının Bilişimsel Düşünme Düzeylerinin İncelenmesi: Betimsel Bir Tarama Çalışması" },
-    { "no": "2026/05-5",  "tarih": "2026-05-04", "ogrenci": "S. S. C.", "baslik": "Sınıf Öğretmeni Adaylarının Dijital Yeterlik Düzeylerinin İncelenmesi: Betimsel Bir Tarama Çalışması" },
-    { "no": "2024/07-5",  "tarih": "2024-07-01", "ogrenci": "Ş. U.", "baslik": "İlkokul 3. Sınıf Matematik Dersinde Eğitsel Oyun Kullanımının Öğrencilerin Matematik Dersine Karşı Tutumlarına ve Akademik Başarısına Etkisi" }
-  ],
-
-  "kitaplar": [
-    { "baslik": "Matemoji", "goster": false, "drive": "https://drive.google.com/file/d/19beOJPGseKh_nM8QAdlYaNKPMXbd3Q6R/view" },
-    { "baslik": "Bidomeg", "goster": false, "drive": "https://drive.google.com/file/d/1fAllI_dpG0BTgXd8y9K6QUhjL-KutJnl/view" },
-    { "baslik": "Okullarda Oyun Kültürü", "goster": false, "drive": "https://drive.google.com/file/d/16JaToHf11-16eyqP77fAHYbdSf8XkYlu/view" },
-    { "baslik": "Elif ile Alp", "goster": false, "drive": "https://drive.google.com/file/d/1sPj63Yy5fxxIXhIZRJsldV-gGe92YbJA/view" }
+ "profil": {
+  "ad": "Dr. Öğr. Üyesi Tolga Topçubaşı",
+  "unvan": "İstanbul 29 Mayıs Üniversitesi · Eğitim Fakültesi · Sınıf Öğretmenliği",
+  "ozet": "Yapay zekâ okuryazarlığı, yapay zekâ etiği, çocuklar için felsefe (P4C), robotik kodlama ve değerler eğitimi üzerine araştırmalar.",
+  "ilgi": [
+   "Yapay Zekâ",
+   "Robotik Kodlama",
+   "Değerler Eğitimi",
+   "Hayat Bilgisi",
+   "Sosyal Bilgiler",
+   "Sürdürülebilirlik",
+   "Örnek Olay",
+   "Kavram Karikatürü",
+   "STEM"
   ]
+ },
+ "makaleler": [
+  {
+   "baslik": "Learning When AI Is—and Is Not—Needed",
+   "dergi": "Journal of Intelligence",
+   "endeks": "SSCI Q1",
+   "yil": "2026",
+   "durum": "Kabul edildi",
+   "atif": 0,
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Teachers' Artificial Intelligence Self-Efficacy: Development and Validation of a Multidimensional Scale",
+   "dergi": "Frontiers in Education",
+   "endeks": "ESCI · Scopus Q1",
+   "yil": "2026",
+   "durum": "Kabul edildi",
+   "atif": 0,
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Yükseköğretimde Yapay Zekâya Hazırlık",
+   "dergi": "Ankara Uluslararası Sosyal Bilimler Dergisi",
+   "endeks": "ERIH PLUS",
+   "yil": "2026",
+   "durum": "Kabul edildi",
+   "atif": 0,
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Sınıf Öğretmeni Adaylarının Üretken Yapay Zekâ Okuryazarlık Düzeyleri",
+   "dergi": "Temel Eğitim Araştırmaları Dergisi",
+   "endeks": "ERIH PLUS",
+   "yil": "2026",
+   "durum": "Kabul edildi",
+   "atif": 0,
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Tracing the Development of Primary Students' Expressed Sustainability Conceptions",
+   "dergi": "Frontiers in Psychology",
+   "endeks": "SSCI Q1",
+   "yil": "2026",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Sürdürülebilirlik"
+   ]
+  },
+  {
+   "baslik": "Digital Competence of Preservice Primary School Teachers",
+   "dergi": "Turkish Journal of Science and Technology",
+   "endeks": "TR Dizin",
+   "yil": "2026",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Dijital Yeterlik"
+   ]
+  },
+  {
+   "baslik": "Sürdürülebilir Kalkınma Hedefleri Eğitim Programının İlkokul Öğrencilerinin Sürdürülebilir Yaşama Yönelik Farkındalıklarına Etkisi",
+   "dergi": "Batı Anadolu Eğitim Bilimleri Dergisi",
+   "endeks": "TR Dizin",
+   "yil": "2026",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Sürdürülebilirlik"
+   ]
+  },
+  {
+   "baslik": "Sınıf Öğretmeni Adaylarının Yapay Zekânın Eğitim Ortamlarında Kullanımına Yönelik Görüşleri",
+   "dergi": "Uluslararası Temel Eğitim Çalışmaları Dergisi (IJPES)",
+   "endeks": "Alan endeksi",
+   "yil": "2025",
+   "durum": "Yayımlandı",
+   "atif": 3,
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Robotics Coding Training and Scientific Reasoning",
+   "dergi": "International Journal of Scholars in Education",
+   "endeks": "Alan endeksi",
+   "yil": "2025",
+   "durum": "Yayımlandı",
+   "atif": 1,
+   "etiketler": [
+    "Robotik Kodlama"
+   ]
+  },
+  {
+   "baslik": "Hayat Bilgisi ve Sosyal Bilgiler Öğretiminde Genişletilmiş Gerçeklik (XR) Teknolojisi",
+   "dergi": "Trakya Eğitim Dergisi",
+   "endeks": "TR Dizin",
+   "yil": "2024",
+   "durum": "Yayımlandı",
+   "atif": 1,
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Sosyal Bilgiler"
+   ]
+  },
+  {
+   "baslik": "Sosyal Bilgiler Dersinde Kavram Karikatürleriyle Desteklenmiş Örnek Olay Yönteminin Finansal Okuryazarlığa Etkisi",
+   "dergi": "Trakya Eğitim Dergisi",
+   "endeks": "TR Dizin",
+   "yil": "2024",
+   "durum": "Yayımlandı",
+   "atif": 3,
+   "etiketler": [
+    "Sosyal Bilgiler",
+    "Örnek Olay",
+    "Kavram Karikatürü"
+   ]
+  },
+  {
+   "baslik": "Öğretmen Adaylarının Öğretmenlik Meslek Statüsüne İlişkin Görüşleri",
+   "dergi": "IJETSAR",
+   "endeks": "Education Full Text",
+   "yil": "2024",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": []
+  },
+  {
+   "baslik": "Hayat Bilgisi Dersinde Gazete Haberleriyle Desteklenmiş Örnek Olay Yönteminin Etkililiği",
+   "dergi": "IJOESS",
+   "endeks": "Alan endeksi",
+   "yil": "2024",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Örnek Olay"
+   ]
+  },
+  {
+   "baslik": "The Effect of Arduino-Based E-STEM Education",
+   "dergi": "Journal of Science Learning",
+   "endeks": "ERIC",
+   "yil": "2023",
+   "durum": "Yayımlandı",
+   "atif": 2,
+   "etiketler": [
+    "STEM"
+   ]
+  },
+  {
+   "baslik": "Gazete Haberleriyle Desteklenmiş Örnek Olay Çoklu Bakış Açısı Kazandırır Mı?",
+   "dergi": "Batı Anadolu Eğitim Bilimleri Dergisi",
+   "endeks": "TR Dizin",
+   "yil": "2022",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Örnek Olay"
+   ]
+  },
+  {
+   "baslik": "Sınıf Öğretmenlerinin Hayat Bilgisi ve Sosyal Bilgiler Öğrenme Ortamlarında Gazete Haberlerini Kullanma(ma)sı",
+   "dergi": "IJOEEC",
+   "endeks": "Alan endeksi",
+   "yil": "2019",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Sosyal Bilgiler",
+    "Örnek Olay"
+   ]
+  },
+  {
+   "baslik": "Değerler Eğitiminde Hizmet Ederek Öğrenme Yaklaşımı",
+   "dergi": "Kırşehir Eğitim Fakültesi Dergisi",
+   "endeks": "Alan endeksi",
+   "yil": "2019",
+   "durum": "Yayımlandı",
+   "atif": 3,
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Farklılıklara Saygı Eğitim Programının Etkisi",
+   "dergi": "Kalem Eğitim ve İnsan Bilimleri Dergisi",
+   "endeks": "Alan endeksi",
+   "yil": "2018",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "İlk Mezunlarını Verme Sürecinde 4+4+4 Eğitim Sistemini Yeniden Değerlendirmek",
+   "dergi": "EKUAD",
+   "endeks": "Alan endeksi",
+   "yil": "2018",
+   "durum": "Yayımlandı",
+   "atif": 1,
+   "etiketler": [
+    "STEM",
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Kültürlerarası Eğitim",
+   "dergi": "IJETSAR",
+   "endeks": "Alan endeksi · derleme",
+   "yil": "2016",
+   "durum": "Yayımlandı",
+   "atif": 1,
+   "etiketler": []
+  },
+  {
+   "baslik": "Farklılıklara Saygı Eğitiminde Öğrenme Ortamı",
+   "dergi": "IJOEEC",
+   "endeks": "Alan endeksi · derleme",
+   "yil": "2016",
+   "durum": "Yayımlandı",
+   "atif": 0,
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Sosyal Bilgiler Öğretiminde Kavram Karikatürlerinin Öğrenci Başarısına Etkisi",
+   "dergi": "IJTASE",
+   "endeks": "Alan endeksi",
+   "yil": "2014",
+   "durum": "Yayımlandı",
+   "atif": 20,
+   "etiketler": [
+    "Sosyal Bilgiler",
+    "Kavram Karikatürü"
+   ]
+  }
+ ],
+ "bildiriler": [
+  {
+   "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglarla Yapay Zekâ Etiği",
+   "etkinlik": "USOS",
+   "yil": "2026",
+   "tur": "Bildiri",
+   "etiketler": [
+    "Yapay Zekâ",
+    "P4C"
+   ]
+  },
+  {
+   "baslik": "Sürdürülebilir Kalkınma Hedefleri Eğitim Programının İlkokul Öğrencilerinin Sürdürülebilir Yaşama Yönelik Farkındalıklarına Etkisi",
+   "etkinlik": "23. Uluslararası Sınıf Öğretmenliği Eğitimi Sempozyumu (USOS), Gazi Üniv.",
+   "yil": "2025",
+   "tur": "Özet",
+   "etiketler": [
+    "Sürdürülebilirlik"
+   ]
+  },
+  {
+   "baslik": "İlkokul 3. Sınıf Matematik Dersinde Eğitsel Oyun Kullanımının Öğrencilerin Matematik Dersine Karşı Tutumlarına ve Akademik Başarısına Etkisi",
+   "etkinlik": "23. USOS, Gazi Üniv.",
+   "yil": "2025",
+   "tur": "Özet",
+   "etiketler": [
+    "Oyun"
+   ]
+  },
+  {
+   "baslik": "Hayat Bilgisi Dersinde e-STEAM Yaklaşımının 3. Sınıf Öğrencilerinin Eleştirel Düşünme, Problem Çözme ve Girişimcilik Becerilerine Etkisi",
+   "etkinlik": "23. USOS, Gazi Üniv.",
+   "yil": "2025",
+   "tur": "Özet",
+   "etiketler": [
+    "STEM",
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "baslik": "Dijital Oyunların Eğitsel Katkılarının Öğrenci, Öğretmen ve Veli Görüşleri Doğrultusunda İncelenmesi",
+   "etkinlik": "Uluslararası Oyun Kongresi, Üsküdar Üniv. (YÖKSİS'te 'Ü.Ü.')",
+   "yil": "2025",
+   "tur": "Tam metin",
+   "etiketler": [
+    "Oyun",
+    "Dijital Yeterlik"
+   ]
+  },
+  {
+   "baslik": "Türkiye Yüzyılı Maarif Modeli Çerçevesinde İlkokul Düzeyinde Robotik Kodlama Eğitiminin Öğrencilere Kazandırdığı Beceriler, Eğilimler ve Değerler",
+   "etkinlik": "İstanbul Eğitim Araştırmaları Kongresi (MEB İstanbul İl MEM)",
+   "yil": "2025",
+   "tur": "Özet",
+   "etiketler": [
+    "Robotik Kodlama",
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Eğitimde Yapay Zeka Kullanımı Üzerine Sınıf Öğretmeni Görüşlerinin İncelenmesi",
+   "etkinlik": "22. USOS, Harran Üniv.",
+   "yil": "2024",
+   "tur": "Özet",
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Sosyal Bilgiler Dersinde Üretken Yapay Zeka Destekli Hazırlanan Ders İçeriklerinin Öğrencilerin Akademik Başarısına ve Sosyal Bilgiler Dersine Yönelik Tutumuna Etkisi",
+   "etkinlik": "22. USOS, Harran Üniv.",
+   "yil": "2024",
+   "tur": "Özet",
+   "etiketler": [
+    "Yapay Zekâ",
+    "Sosyal Bilgiler"
+   ]
+  },
+  {
+   "baslik": "Robotik Kodlama Eğitimi Almış Sınıf Eğitimi ve Fen Bilgisi Eğitimi Anabilim Dalındaki Akademisyen ve Öğrencilerin Bilimsel Muhakeme ve Problem Çözme Becerileri Hakkındaki Görüşleri",
+   "etkinlik": "16. Ulusal Fen Bilimleri ve Matematik Eğitimi Kongresi (UFBMEK), Trakya Üniv.",
+   "yil": "2024",
+   "tur": "Özet",
+   "etiketler": [
+    "Robotik Kodlama"
+   ]
+  },
+  {
+   "baslik": "İlkokul Öğrencilerinin Rekabetli ve Rekabetsiz Oyunlara İlişkin Tercihlerinin ve Deneyimlerinin İncelemesi",
+   "etkinlik": "21. USOS, Antalya",
+   "yil": "2023",
+   "tur": "Özet",
+   "etiketler": [
+    "Oyun"
+   ]
+  },
+  {
+   "baslik": "İlkokul 4. Sınıf Öğrencilerinin Yapay Zekanın Toplumsal Etkilerine Yönelik Algı Değişimlerinin İncelenmesi",
+   "etkinlik": "21. USOS, Antalya",
+   "yil": "2023",
+   "tur": "Özet",
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Hayat Bilgisi ve Sosyal Bilgiler Öğretiminde Genişletilmiş Gerçeklik (XR) Teknolojisi Kullanımı ile İlgili Sınıf Öğretmenlerinin Görüşlerinin İncelenmesi",
+   "etkinlik": "12. Uluslararası Sosyal Bilgiler Eğitimi Sempozyumu (USBES), Trakya Üniv.",
+   "yil": "2024",
+   "tur": "Özet",
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Sosyal Bilgiler"
+   ]
+  },
+  {
+   "baslik": "Kavram Karikatürleriyle Desteklenmiş Örnek Olay Yönteminin Öğrencilerin Finansal Okuryazarlık Becerilerine Etkisi",
+   "etkinlik": "12. USBES, Trakya Üniv.",
+   "yil": "2024",
+   "tur": "Özet",
+   "etiketler": [
+    "Örnek Olay",
+    "Kavram Karikatürü"
+   ]
+  },
+  {
+   "baslik": "İnsan Hakları, Yurttaşlık ve Demokrasi Ders Kitabının Dijital Vatandaşlık Kapsamında İncelenmesi",
+   "etkinlik": "11. USBES, Fırat Üniv.",
+   "yil": "2023",
+   "tur": "Özet",
+   "etiketler": [
+    "Dijital Yeterlik"
+   ]
+  },
+  {
+   "baslik": "Sınıf Öğretmenlerinin Mesleki Kariyer Basamaklarına Yönelik Görüşlerinin İncelenmesi",
+   "etkinlik": "20. USOS, Antalya",
+   "yil": "2022",
+   "tur": "Tam metin",
+   "etiketler": []
+  },
+  {
+   "baslik": "Hayat Bilgisi Dersinde Müzede Drama Yönteminin Vatanseverlik Değerini Kazandırmadaki Etkililiği",
+   "etkinlik": "20. USOS, Antalya",
+   "yil": "2022",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi",
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "baslik": "İlkokul 3. Sınıf Hayat Bilgisi Dersinde Kullanılan Eğitsel Dijital Oyunların Öğrencilerin Akademik Başarılarına Etkisi",
+   "etkinlik": "20. USOS, Antalya",
+   "yil": "2022",
+   "tur": "Özet",
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Oyun",
+    "Dijital Yeterlik"
+   ]
+  },
+  {
+   "baslik": "Öğretmen Adaylarının Öğretmenlik Meslek Statüsüne İlişkin Görüşlerinin Belirlenmesi",
+   "etkinlik": "X. EJER Kongresi, TED Üniv.",
+   "yil": "2023",
+   "tur": "Özet",
+   "etiketler": []
+  },
+  {
+   "baslik": "Lego İle Yapılan Matematik Öğretiminin Öğrencilerin Matematik Tutumuna ve Matematik Başarısına Etkisi",
+   "etkinlik": "2. Uluslararası Avrasya Sosyal Bilimler Kongresi (ICOESS)",
+   "yil": "2018",
+   "tur": "Özet",
+   "etiketler": []
+  },
+  {
+   "baslik": "Sınıf Öğretmenlerinin İlkokullarda Yetiştirme Programına Katılacak Öğrencilerin Belirlenmesi İle İlgili Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "2. ICOESS",
+   "yil": "2018",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "İlkokul 4. Sınıf Öğretmenlerinin Yenilenen 4. Sınıf Sosyal Bilgiler Taslak Öğretim Programına Yönelik Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "2. ICOESS",
+   "yil": "2018",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi",
+    "Sosyal Bilgiler"
+   ]
+  },
+  {
+   "baslik": "İlkokul 4. Sınıf Öğrencileriyle Yapılan Robotik Tasarım ve Kodlama Eğitiminin Öğrencilerin Bilimsel Süreç Becerilerine ve Fene Karşı Tutumlarına Etkisi",
+   "etkinlik": "1. Uluslararası Eğitim ve Değerler Sempozyumu (ISOEVA), Bodrum",
+   "yil": "2017",
+   "tur": "Özet",
+   "etiketler": [
+    "Robotik Kodlama"
+   ]
+  },
+  {
+   "baslik": "Sınıf Öğretmenlerinin Değerler Eğitiminin Uygulanmasına Yönelik Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "1. ISOEVA, Bodrum",
+   "yil": "2017",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Yeni Nesil İlkokul Sınıf Öğretmenlerinin Okullarda Kazandırılmasını Arzuladığı Değerler",
+   "etkinlik": "1. ISOEVA, Bodrum",
+   "yil": "2017",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Öğretmen Performans Değerlendirme Sistemi Hakkında Öğretmen, İdareci, Veli, Öğrenci Görüşlerinin İncelenmesi",
+   "etkinlik": "17. USOS, Gazi Üniv.",
+   "yil": "2018",
+   "tur": "Özet",
+   "etiketler": [
+    "STEM",
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "İlkokul Türkçe Ders Kitaplarında Yer Alan Şiirlerin Değerler Açısından İncelenmesi",
+   "etkinlik": "17. USOS, Gazi Üniv.",
+   "yil": "2018",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "İlköğretim Programının Farklılıklara Saygı Tutumunu Kazandırmadaki Etkisi",
+   "etkinlik": "15. USOS, Muğla Sıtkı Koçman Üniv.",
+   "yil": "2016",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Ortaokul 8. Sınıf Öğrencilerinin Madde Bağımlılığı ve Medya Bağımlılığı ile İlgili Düşünceleri",
+   "etkinlik": "1. ICOESS, Alanya",
+   "yil": "2017",
+   "tur": "Özet",
+   "etiketler": []
+  },
+  {
+   "baslik": "İlkokul Öğretmenlerinin Mahremiyet Eğitimine İlişkin Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "2. ISOEVA, Antalya",
+   "yil": "2018",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "İlkokul 4. Sınıf Öğrencilerine Yönelik Yapılan Scratch Programlama Eğitiminin Öğrencilerin Programlama Becerilerine Etkisi",
+   "etkinlik": "2. ISOEVA, Antalya",
+   "yil": "2018",
+   "tur": "Özet",
+   "etiketler": [
+    "Robotik Kodlama"
+   ]
+  },
+  {
+   "baslik": "İlkokulda Ev Ödevlerinin Verimliliği Hakkında Sınıf Öğretmenlerinin Görüşleri",
+   "etkinlik": "16. USOS, Lefke Avrupa Üniv.",
+   "yil": "2017",
+   "tur": "Özet",
+   "etiketler": []
+  },
+  {
+   "baslik": "İlkokul 4. Sınıf Öğrencileriyle Yapılan Fetemm Etkinliklerinin Öğrencilerin Bilimsel Süreç Becerilerine ve Fene Karşı Tutumlarına Etkisi",
+   "etkinlik": "16. USOS, Lefke Avrupa Üniv.",
+   "yil": "2017",
+   "tur": "Özet",
+   "etiketler": [
+    "STEM"
+   ]
+  },
+  {
+   "baslik": "Bitişik Eğik El Yazısından Dik Yazıya Geçiş Hakkında Öğretmen, Öğrenci, Veli Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "16. USOS, Lefke Avrupa Üniv.",
+   "yil": "2017",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Hizmet Ederek Öğrenme Yaklaşımıyla Öğrencilere Kazandırılabilecek Değerler",
+   "etkinlik": "3. ICOESS, Bodrum",
+   "yil": "2019",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Hayat Bilgisi Dersinde Hizmet Ederek Öğrenme Yaklaşımının Etkililiği: Örnek Bir Uygulama",
+   "etkinlik": "3. ICOESS, Bodrum",
+   "yil": "2019",
+   "tur": "Özet",
+   "etiketler": [
+    "Değerler Eğitimi",
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "baslik": "İlkokul Birinci Sınıf Öğrencileriyle Hayat Bilgisi Dersinde Gazete Temelli Örnek Olay İşlemek Olanaklı mıdır?: Uygulamalı Bir Çalışma",
+   "etkinlik": "3. ICOESS, Bodrum",
+   "yil": "2019",
+   "tur": "Özet",
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Örnek Olay"
+   ]
+  },
+  {
+   "baslik": "Sınıf Öğretmenlerinin Hayat Bilgisi ve Sosyal Bilgiler Dersi Öğrenme Ortamlarında Gazete Haberlerini Kullanma(ma)sı: Güncelin Sınıfta Varolma Çabası",
+   "etkinlik": "3. ICOESS, Bodrum",
+   "yil": "2019",
+   "tur": "Özet",
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Sosyal Bilgiler",
+    "Örnek Olay"
+   ]
+  },
+  {
+   "baslik": "Hayat Bilgisi Dersinde Senaryo Temelli Öğrenme Yönteminin Etkililiği: Bir Eylem Araştırması",
+   "etkinlik": "4. ICOESS, Bodrum",
+   "yil": "2020",
+   "tur": "Özet",
+   "etiketler": [
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "baslik": "Sınıf Öğretmenlerinin Pandemi Sürecinde Uzaktan Eğitim İle İlgili Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "4. ICOESS, Bodrum",
+   "yil": "2020",
+   "tur": "Tam metin",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Pandemi Sürecinde Uzaktan Eğitimde Yaşanan Sıkıntılar İle İlgili Veli ve Öğrenci Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "4. ICOESS, Bodrum",
+   "yil": "2020",
+   "tur": "Tam metin",
+   "etiketler": [
+    "Değerler Eğitimi"
+   ]
+  },
+  {
+   "baslik": "Hayat Bilgisi Dersi Öğrenme Ortamlarında Yerel ve Sözlü Tarih Yöntemlerini Kullanmak: Bir Eylem Araştırması",
+   "etkinlik": "5. ICOESS, çevrim içi",
+   "yil": "2021",
+   "tur": "Özet",
+   "etiketler": [
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "baslik": "Sosyal Bilgiler Dersi Öğrenme Ortamlarında Sanal Gerçeklik Uygulamalarına İlişkin Öğretmen Görüşlerinin Değerlendirilmesi",
+   "etkinlik": "2. ISOEVA, Antalya",
+   "yil": "2018",
+   "tur": "Tam metin",
+   "etiketler": [
+    "Değerler Eğitimi",
+    "Sosyal Bilgiler"
+   ]
+  },
+  {
+   "baslik": "3. Sınıf Fen Bilimleri Öğretim Programı Hakkında Öğretmen Görüşleri",
+   "etkinlik": "15. USOS, Muğla",
+   "yil": "2016",
+   "tur": "Tam metin",
+   "etiketler": []
+  },
+  {
+   "baslik": "İlk Mezunlarını Verme Sürecinde 4+4+4 Eğitim Sistemini Yeniden Değerlendirmek",
+   "etkinlik": "15. USOS, Muğla",
+   "yil": "2016",
+   "tur": "Özet",
+   "etiketler": [
+    "STEM",
+    "Değerler Eğitimi"
+   ]
+  }
+ ],
+ "kitaplar": [
+  {
+   "kitap": "Kuramdan Uygulamaya: Edebiyat, Tarih, Coğrafya",
+   "bolum": "Editörlük (kitabın tamamı)",
+   "yayinevi": "",
+   "yil": "2025",
+   "etiketler": []
+  },
+  {
+   "kitap": "İlkokullar İçin İngilizce Eğitsel Oyunlar",
+   "bolum": "Kitap (tamamı)",
+   "yayinevi": "",
+   "yil": "2025",
+   "etiketler": [
+    "Oyun"
+   ]
+  },
+  {
+   "kitap": "Hayat Bilgisi Öğretim Programı",
+   "bolum": "8. bölüm",
+   "yayinevi": "Ders kitabı",
+   "yil": "2025",
+   "etiketler": [
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "kitap": "Robotik Kodlama ve Akıl Yürütme",
+   "bolum": "3. bölüm: Sensör ve Kontrol Kartlarının Tanıtımı",
+   "yayinevi": "Nobel",
+   "yil": "2024",
+   "etiketler": [
+    "Robotik Kodlama"
+   ]
+  },
+  {
+   "kitap": "Hayat Bilgisi Dersinde Güncel Konu ve Araştırmalar",
+   "bolum": "13. bölüm: Hayat Bilgisi Derslerinde Oyun",
+   "yayinevi": "Vizetek",
+   "yil": "2024",
+   "etiketler": [
+    "Hayat Bilgisi",
+    "Oyun"
+   ]
+  },
+  {
+   "kitap": "Hayat Bilgisi Dersinde Güncel Konu ve Araştırmalar",
+   "bolum": "8. bölüm: Teknoloji",
+   "yayinevi": "Vizetek",
+   "yil": "2024",
+   "etiketler": [
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "kitap": "Eğitimde Disiplinlerarası Çalışmalar",
+   "bolum": "1. bölüm",
+   "yayinevi": "",
+   "yil": "2024",
+   "etiketler": []
+  },
+  {
+   "kitap": "Sinema Filmleriyle Eğitimi Yeniden Düşünmek",
+   "bolum": "2.5. bölüm",
+   "yayinevi": "Ders kitabı",
+   "yil": "2023",
+   "etiketler": []
+  },
+  {
+   "kitap": "Hayat Bilgisi Öğretimi",
+   "bolum": "6. bölüm",
+   "yayinevi": "Anı",
+   "yil": "2022",
+   "etiketler": [
+    "Hayat Bilgisi"
+   ]
+  },
+  {
+   "kitap": "Dünyadaki Eğitim Temelli Sivil Toplum Kuruluşları",
+   "bolum": "2.1. bölüm: UNESCO",
+   "yayinevi": "",
+   "yil": "2022",
+   "etiketler": []
+  },
+  {
+   "kitap": "Sosyal Bilgiler ve Tarih Eğitiminde Eylem Araştırmaları",
+   "bolum": "2.1. bölüm: HB Dersinde Gazete Haberleriyle Desteklenmiş Örnek Olay Yönteminin Etkililiği",
+   "yayinevi": "Pegem",
+   "yil": "2021",
+   "etiketler": [
+    "Sosyal Bilgiler",
+    "Örnek Olay"
+   ]
+  },
+  {
+   "kitap": "Kuramdan Uygulamaya Örnek Olay",
+   "bolum": "1.2. bölüm: HB Dersinde Gazete Haberleriyle Desteklenmiş Örnek Olay Yöntemini Kullanmak",
+   "yayinevi": "Pegem",
+   "yil": "2021",
+   "etiketler": [
+    "Örnek Olay"
+   ]
+  },
+  {
+   "kitap": "Kuramdan Uygulamaya Örnek Olay",
+   "bolum": "2.2. bölüm",
+   "yayinevi": "Pegem",
+   "yil": "2021",
+   "etiketler": [
+    "Örnek Olay"
+   ]
+  },
+  {
+   "kitap": "Demokrasinin Beşinci Gücü",
+   "bolum": "2. bölüm",
+   "yayinevi": "",
+   "yil": "2020",
+   "etiketler": []
+  }
+ ],
+ "projeler": [
+  {
+   "baslik": "Yapay Zekâ Çağında Etik Pusula: BİLSEM Öğretmenleri İçin Bir Yol Haritası",
+   "program": "TÜBİTAK 4005",
+   "kod": "225B551",
+   "rol": "Uzman",
+   "durum": "Devam ediyor",
+   "etiketler": [
+    "Yapay Zekâ",
+    "Etik"
+   ]
+  },
+  {
+   "baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji-2",
+   "program": "TÜBİTAK 4004",
+   "kod": "325B003",
+   "rol": "Uzman",
+   "durum": "Devam ediyor",
+   "etiketler": []
+  },
+  {
+   "baslik": "Zihinden Yörüngeye: Keşif Atlası",
+   "program": "TÜBİTAK 4004",
+   "kod": "225B906",
+   "rol": "Eğitmen",
+   "durum": "Tamamlandı",
+   "etiketler": []
+  },
+  {
+   "baslik": "Tekno-Pedagojiyi Sınıfa Taşımak",
+   "program": "TÜBİTAK 4005",
+   "kod": "224B560",
+   "rol": "Eğitmen",
+   "durum": "Tamamlandı",
+   "etiketler": []
+  },
+  {
+   "baslik": "BİLSEM Öğretmenleri İçin Yapay Zekâ Araçlarıyla İçerik Geliştirme",
+   "program": "TÜBİTAK 4005",
+   "kod": "224B689",
+   "rol": "Araştırmacı",
+   "durum": "Tamamlandı",
+   "etiketler": [
+    "Yapay Zekâ"
+   ]
+  },
+  {
+   "baslik": "Bilim ve Sanat Her Yerde, Haydi Gel Sen de",
+   "program": "TÜBİTAK 4007",
+   "kod": "123B014",
+   "rol": "Eğitmen",
+   "durum": "Tamamlandı",
+   "etiketler": []
+  },
+  {
+   "baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji",
+   "program": "TÜBİTAK 4004",
+   "kod": "122B619",
+   "rol": "Araştırmacı",
+   "durum": "Tamamlandı",
+   "etiketler": []
+  },
+  {
+   "baslik": "Robotik Kodlama ile Zenginleştirilmiş Akıl Yürütme Oyunları",
+   "program": "BAP",
+   "kod": "",
+   "rol": "Araştırmacı",
+   "durum": "Tamamlandı",
+   "etiketler": [
+    "Robotik Kodlama",
+    "Oyun"
+   ]
+  },
+  {
+   "baslik": "SKH Kapsamında Bahçe Temelli Öğrenme",
+   "program": "Ulusal proje",
+   "kod": "",
+   "rol": "",
+   "durum": "Tamamlandı",
+   "etiketler": []
+  },
+  {
+   "baslik": "Dijital Oyunla Mahremiyet (1919B012512705)",
+   "program": "TÜBİTAK 2209-A",
+   "kod": "1919B012512705",
+   "rol": "Danışman",
+   "durum": "Tamamlandı",
+   "etiketler": [
+    "Oyun",
+    "Dijital Yeterlik"
+   ]
+  },
+  {
+   "baslik": "Eğitsel Oyunlarla Matematik (1919B012335589)",
+   "program": "TÜBİTAK 2209-A",
+   "kod": "1919B012335589",
+   "rol": "Danışman",
+   "durum": "Tamamlandı",
+   "etiketler": [
+    "Oyun"
+   ]
+  },
+  {
+   "baslik": "SKH Eğitim Programı (1919B012332003)",
+   "program": "TÜBİTAK 2209-A",
+   "kod": "1919B012332003",
+   "rol": "Danışman",
+   "durum": "Tamamlandı",
+   "etiketler": []
+  }
+ ],
+ "etkinlikler": [
+  {
+   "baslik": "Robotik Kodlama ve Yapay Zekâ Atölyesi",
+   "program": "Atölye",
+   "yil": 2026
+  },
+  {
+   "baslik": "LEGO Education ile Robotik Kodlama Atölyesi",
+   "program": "Atölye",
+   "yil": 2026
+  },
+  {
+   "baslik": "Robotik Kodlama Eğitmen Eğitimleri",
+   "program": "Eğitmen eğitimi",
+   "yil": 2025
+  }
+ ],
+ "atiflar": [
+  {
+   "eser": "Sosyal Bilgiler Öğretiminde Kavram Karikatürlerinin Öğrenci Başarısına Etkisi",
+   "yil": "2014",
+   "atifYapanlar": [
+    "Yıldırım 2025",
+    "Ada 2021",
+    "Karaca 2020",
+    "Uçak 2020",
+    "Kuru 2020",
+    "Evrekli 2015",
+    "Can Kaynak 2026",
+    "Ocak 2015",
+    "Dağdelen 2015",
+    "Koç Akran 2018",
+    "Artun 2019",
+    "Kocakavak 2021",
+    "Seyhan Çiftçi 2022",
+    "İnel 2018",
+    "Topkaya 2016",
+    "Akbaş 2016",
+    "Sel 2019",
+    "Gündüz 2018",
+    "Evrekli 2024",
+    "Ceylan 2024"
+   ]
+  },
+  {
+   "eser": "Sınıf Öğretmenlerinin İYEP'e Katılacak Öğrencilerin Belirlenmesine İlişkin Görüşleri (bildiri)",
+   "yil": "2018",
+   "atifYapanlar": [
+    "Kozikoğlu 2020",
+    "Dilekçi 2019",
+    "Cesur 2020",
+    "Yıldız 2020",
+    "Güder 2023"
+   ]
+  },
+  {
+   "eser": "Değerler Eğitiminde Hizmet Ederek Öğrenme Yaklaşımı",
+   "yil": "2019",
+   "atifYapanlar": [
+    "Turan 2024",
+    "Aydın 2024",
+    "Aykırı 2022"
+   ]
+  },
+  {
+   "eser": "Kavram Karikatürleriyle Desteklenmiş Örnek Olay ve Finansal Okuryazarlık",
+   "yil": "2024",
+   "atifYapanlar": [
+    "Yıldırım 2025",
+    "Tutkun 2026",
+    "Akar 2026"
+   ]
+  },
+  {
+   "eser": "Sınıf Öğretmeni Adaylarının Yapay Zekâ Görüşleri",
+   "yil": "2025",
+   "atifYapanlar": [
+    "Sayın 2026",
+    "Yalçın 2026",
+    "Ishangulyyev 2026"
+   ]
+  },
+  {
+   "eser": "The Effect of Arduino-Based E-STEM Education",
+   "yil": "2023",
+   "atifYapanlar": [
+    "Bentancor 2026",
+    "Kaya 2026"
+   ]
+  },
+  {
+   "eser": "Pandemi Sürecinde Uzaktan Eğitim Öğretmen Görüşleri (bildiri)",
+   "yil": "2020",
+   "atifYapanlar": [
+    "Mutluer 2023",
+    "Mutluer 2022"
+   ]
+  },
+  {
+   "eser": "4+4+4 Eğitim Sistemini Yeniden Değerlendirmek",
+   "yil": "2018",
+   "atifYapanlar": [
+    "Beşiktepe 2024"
+   ]
+  },
+  {
+   "eser": "Kültürlerarası Eğitim",
+   "yil": "2016",
+   "atifYapanlar": [
+    "Doğan 2025"
+   ]
+  },
+  {
+   "eser": "Genişletilmiş Gerçeklik (XR) Teknolojisi",
+   "yil": "2024",
+   "atifYapanlar": [
+    "Yıldırım 2025"
+   ]
+  },
+  {
+   "eser": "Robotics Coding Training and Scientific Reasoning",
+   "yil": "2025",
+   "atifYapanlar": [
+    "Yıldırım 2026"
+   ]
+  }
+ ],
+ "dersler": [
+  {
+   "donem": "2025–2026 Bahar",
+   "ders": "Oyun ve Fiziki Etkinlikler Öğretimi",
+   "abd": "Sınıf Eğitimi"
+  },
+  {
+   "donem": "2025–2026 Güz",
+   "ders": "Hayat Bilgisi Öğretimi",
+   "abd": "Sınıf Eğitimi"
+  },
+  {
+   "donem": "2024–2025 Bahar",
+   "ders": "İlkokul Programı",
+   "abd": "Sınıf Eğitimi"
+  },
+  {
+   "donem": "2024–2025 Güz",
+   "ders": "Hayat Bilgisi Öğretimi",
+   "abd": "Sınıf Eğitimi"
+  },
+  {
+   "donem": "2023–2024 Bahar",
+   "ders": "Eğitimde Proje Hazırlama",
+   "abd": "Türkçe Eğitimi"
+  },
+  {
+   "donem": "2023–2024 Güz",
+   "ders": "Bilişim Teknolojileri",
+   "abd": "Sınıf Eğitimi"
+  },
+  {
+   "donem": "2022–2023 Bahar",
+   "ders": "İnsan Hakları ve Demokrasi Eğitimi",
+   "abd": "Okul Öncesi Eğitimi"
+  },
+  {
+   "donem": "2022–2023 Güz",
+   "ders": "Eğitime Giriş",
+   "abd": "Sınıf Eğitimi"
+  }
+ ],
+ "etikKurul": [
+  {
+   "no": "2026/08-9",
+   "tarih": "2026-07-31",
+   "baslik": "Yeni Bir Gelecek Fikri: Alternatif Enerji-2",
+   "drive": "https://drive.google.com/file/d/1r26WfHzTPyGRO8ytHE2eGLSLzvAzBN8B/view"
+  },
+  {
+   "no": "2026/07-7",
+   "tarih": "2026-07-03",
+   "baslik": "Turkish Digital Children's Rights Scale (T-GKOS) Ölçeğinin Türkçeye Uyarlanması: İlkokul Öğrencileri Üzerinde Geçerlik ve Güvenirlik Çalışması",
+   "drive": "https://drive.google.com/file/d/1VTfgqn47HAL_nUiHNtW5llDU1NXd8pID/view"
+  },
+  {
+   "no": "2026/07-6",
+   "tarih": "2026-07-03",
+   "baslik": "Yapay Zekâ Okuryazarlığı Eğitim Programının Öğretmen Adaylarının Yapay Zekâ Okuryazarlığı ve Yapay Zekâ Temelli Teknolojik Pedagojik Alan Bilgisi Yeterliklerine Etkisi",
+   "drive": "https://drive.google.com/file/d/1dE4Nzbgf6JuzmlklhgQvTEYnSE22mxos/view"
+  },
+  {
+   "no": "2026/07-5",
+   "tarih": "2026-07-03",
+   "baslik": "Erken Çocuklukta Yapay Zekâ Okuryazarlık Eğitiminin Etkililiği",
+   "drive": "https://drive.google.com/file/d/18ZXLAIiTYmkMOoqCP6a2pWmyg1UVHOPO/view"
+  },
+  {
+   "no": "2026/07-4",
+   "tarih": "2026-07-03",
+   "baslik": "Öğretmenlere Yönelik Yapay Zekâ Öz Yeterliği Ölçeğinin Geliştirilmesi ve Geçerlik-Güvenirlik Çalışması",
+   "drive": "https://drive.google.com/file/d/1lVQlf3QD5aMx1KCUaS8vIaxmUpDr68lG/view"
+  },
+  {
+   "no": "2026/07-3",
+   "tarih": "2026-07-03",
+   "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması",
+   "drive": "https://drive.google.com/file/d/1eDEHFiyNo0VRnqHGGgpiiiBU0aHQl7dl/view"
+  },
+  {
+   "no": "2026/07-2",
+   "tarih": "2026-07-03",
+   "baslik": "Öğretmenler İçin Yapay Zekâ Kullanımına Yönelik Etik Farkındalık Ölçeğinin Geliştirilmesi: Geçerlik ve Güvenirlik Çalışması",
+   "drive": "https://drive.google.com/file/d/1HA4OJW0BGBthO4sWqYycShM6VtdmRIuZ/view"
+  },
+  {
+   "no": "2026/05-48",
+   "tarih": "2026-05-04",
+   "baslik": "Çocuklar İçin Felsefe (P4C) Temelli Diyaloglar Aracılığıyla Yapay Zekâ Etiğine Yönelik Öğrenci Muhakemesinin İncelenmesi: İlkokul Düzeyinde Bir Eylem Araştırması",
+   "drive": "https://drive.google.com/file/d/1aVPoNq4xKo1fe49WSdwvmAzDqFkor0oW/view"
+  },
+  {
+   "no": "2026/05-46",
+   "tarih": "2026-05-04",
+   "baslik": "Yapay Zekâ Çağında Etik Pusula: BİLSEM Öğretmenleri İçin Bir Yol Haritası",
+   "drive": "https://drive.google.com/file/d/1XHsZFhWgTRjw7op584Ut5Rp1ngp_22CL/view"
+  },
+  {
+   "no": "2026/04-8",
+   "tarih": "2026-04-06",
+   "baslik": "Yapay Zekâ Okuryazarlığının Yapay Zekâ Etik Farkındalığına Katkısı: Yapay Zekâ Tutumu ve Psikolojik Esnekliğin Seri Aracılık Rolü",
+   "drive": "https://drive.google.com/file/d/1TRPvOkhG2fK8udGuHq1CIozTDOy5Hbzt/view"
+  },
+  {
+   "no": "2025/06-7",
+   "tarih": "2025-06-26",
+   "baslik": "Sınıf Öğretmeni Adaylarının Yapay Zekânın Eğitim Ortamlarında Kullanımına Yönelik Görüşlerinin İncelenmesi",
+   "drive": "https://drive.google.com/file/d/16OHLDZfExCs4MPhEg40-qxTMAyNmjN7N/view"
+  },
+  {
+   "no": "2022/09-7",
+   "tarih": "2022-09-05",
+   "baslik": "İlkokul Birinci Sınıf Öğrencileriyle Hayat Bilgisi Dersinde Gazete Temelli Örnek Olay İşlemek Olanaklı mıdır?: Uygulamalı Bir Çalışma",
+   "drive": "https://drive.google.com/file/d/1vasxvpVip2HzhA1iHh6EnhFkzj0NYZJZ/view"
+  },
+  {
+   "no": "2022/09-7",
+   "tarih": "2022-09-05",
+   "baslik": "Sınıf Öğretmenlerinin Değerler Eğitiminin Uygulanmasına Yönelik Görüşlerinin Değerlendirilmesi",
+   "drive": "https://drive.google.com/file/d/1vasxvpVip2HzhA1iHh6EnhFkzj0NYZJZ/view"
+  }
+ ],
+ "ogrenciEtikKurul": [
+  {
+   "no": "2026/05-12",
+   "tarih": "2026-05-04",
+   "ogrenci": "G. Ç.",
+   "baslik": "Sınıf Öğretmeni Adaylarının Bilişimsel Düşünme Düzeylerinin İncelenmesi: Betimsel Bir Tarama Çalışması"
+  },
+  {
+   "no": "2026/05-5",
+   "tarih": "2026-05-04",
+   "ogrenci": "S. S. C.",
+   "baslik": "Sınıf Öğretmeni Adaylarının Dijital Yeterlik Düzeylerinin İncelenmesi: Betimsel Bir Tarama Çalışması"
+  },
+  {
+   "no": "2024/07-5",
+   "tarih": "2024-07-01",
+   "ogrenci": "Ş. U.",
+   "baslik": "İlkokul 3. Sınıf Matematik Dersinde Eğitsel Oyun Kullanımının Öğrencilerin Matematik Dersine Karşı Tutumlarına ve Akademik Başarısına Etkisi"
+  }
+ ],
+ "guncel": "2026-10-12"
 }

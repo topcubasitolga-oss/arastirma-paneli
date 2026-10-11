@@ -91,9 +91,24 @@ footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);colo
   .search input{width:140px}
   .ethic{grid-template-columns:1fr;gap:4px}
 }
+
+.badge.plain{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:500}
+.cites{font-size:13.5px;color:var(--muted)}
+.list+.year,.year:first-child{margin-top:0}
+#list-bildiri .year{margin:22px 0 10px}
+.tw{overflow-x:auto}
+.dtable{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:15px}
+.dtable th,.dtable td{text-align:left;padding:10px 14px;border-top:1px solid var(--line)}
+.dtable th{border-top:0;font-size:13px;color:var(--muted);font-weight:600}
+.dtable td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.stats{grid-template-columns:repeat(6,1fr)}
+@media (max-width:860px){.stats{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+section{scroll-margin-top:56px}
 </style>
 </head>
 <body>
+
 
 <header class="hero">
   <div class="wrap">
@@ -109,10 +124,12 @@ footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);colo
 <nav class="bar">
   <div class="wrap">
     <a href="#makaleler">Makaleler</a>
-    <a href="#projeler">Projeler</a>
     <a href="#bildiriler">Bildiriler</a>
-    <a href="#etik">Etik Kurul Onayları</a>
-    <a href="#kitaplar" id="nav-kitaplar">Kitaplar</a>
+    <a href="#kitaplar">Kitaplar</a>
+    <a href="#projeler">Projeler</a>
+    <a href="#atiflar">Atıflar</a>
+    <a href="#dersler">Dersler</a>
+    <a href="#etik">Etik Kurul</a>
     <label class="search"><input id="q" type="search" placeholder="Ara…" aria-label="Çalışmalarda ara"></label>
   </div>
 </nav>
@@ -120,19 +137,41 @@ footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);colo
 <main class="wrap">
   <section id="makaleler">
     <h2>Makaleler <small id="n-makale"></small></h2>
-    <p class="lede">Dergiye gönderime hazır ve yazım aşamasındaki çalışmalar.</p>
+    <p class="lede">Hakemli dergilerde yayımlanan ve yayına kabul edilen makaleler, yeniden eskiye.</p>
     <div class="list" id="list-makale"></div>
-  </section>
-
-  <section id="projeler">
-    <h2>Projeler <small id="n-proje"></small></h2>
-    <p class="lede">TÜBİTAK projeleri, atölyeler ve eğitmen eğitimleri.</p>
-    <div class="list" id="list-proje"></div>
   </section>
 
   <section id="bildiriler">
     <h2>Bildiriler <small id="n-bildiri"></small></h2>
-    <div class="list" id="list-bildiri"></div>
+    <p class="lede">Ulusal ve uluslararası sempozyum ve kongrelerde sunulan bildiriler.</p>
+    <div id="list-bildiri"></div>
+  </section>
+
+  <section id="kitaplar">
+    <h2>Kitaplar ve kitap bölümleri <small id="n-kitap"></small></h2>
+    <div class="list" id="list-kitap"></div>
+  </section>
+
+  <section id="projeler">
+    <h2>Projeler <small id="n-proje"></small></h2>
+    <p class="lede">TÜBİTAK, BAP ve ulusal projeler; danışmanlık yapılan TÜBİTAK 2209-A öğrenci projeleri.</p>
+    <div class="list" id="list-proje"></div>
+    <details id="etkinlik-wrap">
+      <summary>Atölyeler ve eğitmen eğitimleri <span id="n-etk"></span></summary>
+      <div class="list" id="list-etk" style="margin-top:12px"></div>
+    </details>
+  </section>
+
+  <section id="atiflar">
+    <h2>Atıflar <small id="n-atif"></small></h2>
+    <p class="lede">Çalışmalarıma diğer araştırmacıların yaptığı atıflar, en çok atıf alan eser üstte.</p>
+    <div class="list" id="list-atif"></div>
+  </section>
+
+  <section id="dersler">
+    <h2>Verdiğim dersler <small id="n-ders"></small></h2>
+    <p class="lede">İstanbul 29 Mayıs Üniversitesi, Eğitim Fakültesi.</p>
+    <div class="tw"><table class="dtable" id="list-ders"></table></div>
   </section>
 
   <section id="etik">
@@ -143,11 +182,6 @@ footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);colo
       <summary>Danışmanlık yapılan öğrenci çalışmaları <span id="n-ogr"></span></summary>
       <div id="list-ogr"></div>
     </details>
-  </section>
-
-  <section id="kitaplar">
-    <h2>Kitaplar <small id="n-kitap"></small></h2>
-    <div class="list" id="list-kitap"></div>
   </section>
 </main>
 
@@ -162,50 +196,73 @@ footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);colo
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const tarihTR = iso => new Date(iso + "T12:00:00").toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"});
-  const lc = s => String(s||"").toLocaleLowerCase("tr-TR");
+  const HARF = {"ı":"i","ş":"s","ç":"c","ğ":"g","ö":"o","ü":"u","â":"a","î":"i","û":"u"};
+  const norm = s => [...String(s||"")].map(ch => { let c = ch.toLocaleLowerCase("tr-TR"); c = (HARF[c]||c)[0]; return /[a-z0-9]/.test(c) ? c : " "; }).join("");
   let D = null, aktifEtiket = null, sorgu = "";
 
-  const driveLink = (url, label) => url ? `<a class="drive" href="${esc(url)}" target="_blank" rel="noopener">↗ ${label || "Drive'da aç"}</a>` : "";
+  const driveLink = (url, label) => url ? `<a class="drive" href="${esc(url)}" target="_blank" rel="noopener">↗ ${label}</a>` : "";
   const tags = arr => (arr||[]).map(t => `<span class="tag">${esc(t)}</span>`).join("");
 
   function eslesir(o){
-    const metin = lc([o.baslik,o.durum,o.program,o.etkinlik,o.no,(o.etiketler||[]).join(" ")].join(" "));
-    if (sorgu && !metin.includes(lc(sorgu))) return false;
-    if (aktifEtiket && !(o.etiketler||[]).includes(aktifEtiket) && !lc(o.baslik).includes(lc(aktifEtiket).split(" ").pop())) return false;
+    const metin = norm(Object.values(o).flat().join(" "));
+    if (sorgu && !norm(sorgu).split(" ").filter(Boolean).every(t => metin.includes(t))) return false;
+    if (aktifEtiket && !(o.etiketler||[]).includes(aktifEtiket)) return false;
     return true;
   }
+  const bos = ad => `<p class="empty">Eşleşen ${ad} yok.</p>`;
 
   function render(){
-    const mk = D.makaleler.filter(eslesir);
+    const mk = D.makaleler.filter(eslesir).sort((a,b) => (b.durum==="Kabul edildi") - (a.durum==="Kabul edildi") || b.yil.localeCompare(a.yil));
     $("#list-makale").innerHTML = mk.map(m => `
       <article class="item">
         <h3>${esc(m.baslik)}</h3>
         <div class="meta">
-          <span class="badge ${m.durum.includes("hazır") ? "" : "draft"}">${esc(m.durum)}</span>
-          ${m.etik ? `<span class="badge seal">Etik onay ${esc(m.etik)}</span>` : ""}
+          <span><i>${esc(m.dergi)}</i>, ${esc(m.yil)}</span>
+          <span class="badge ${/Q1/.test(m.endeks)?"":"plain"}">${esc(m.endeks)}</span>
+          ${m.durum==="Kabul edildi" ? `<span class="badge draft">Yayına kabul edildi</span>` : ""}
+          ${m.atif ? `<span class="badge seal">${m.atif} atıf</span>` : ""}
           ${tags(m.etiketler)}
-          ${driveLink(m.drive, "Dosyalar")}
         </div>
-      </article>`).join("") || `<p class="empty">Eşleşen makale yok.</p>`;
+      </article>`).join("") || bos("makale");
+
+    const bl = D.bildiriler.filter(eslesir).sort((a,b) => b.yil.localeCompare(a.yil));
+    const by = [...new Set(bl.map(b => b.yil))];
+    $("#list-bildiri").innerHTML = by.map(y => `<div class="year">${y}</div><div class="list">${bl.filter(b => b.yil===y).map(b => `
+      <article class="item">
+        <h3>${esc(b.baslik)}</h3>
+        <div class="meta"><span>${esc(b.etkinlik)}</span><span class="badge plain">${esc(b.tur)}</span>${tags(b.etiketler)}</div>
+      </article>`).join("")}</div>`).join("") || bos("bildiri");
+
+    const kt = D.kitaplar.filter(eslesir);
+    $("#list-kitap").innerHTML = kt.map(k => `
+      <article class="item"><h3>${esc(k.kitap)}</h3>
+        <div class="meta"><span>${esc(k.bolum)}</span>${k.yayinevi?`<span>${esc(k.yayinevi)}</span>`:""}<span>${esc(k.yil)}</span>${tags(k.etiketler)}</div>
+      </article>`).join("") || bos("kitap");
 
     const pr = D.projeler.filter(eslesir);
     $("#list-proje").innerHTML = pr.map(p => `
       <article class="item">
         <h3>${esc(p.baslik)}</h3>
         <div class="meta">
-          <span class="badge">${esc(p.program)}</span><span>${esc(p.yil)}</span>
-          ${p.etik ? `<span class="badge seal">Etik onay ${esc(p.etik)}</span>` : ""}
-          ${tags(p.etiketler)}
-          ${driveLink(p.drive, "Proje dosyası")}
+          <span class="badge">${esc(p.program)}</span>${p.kod?`<span>${esc(p.kod)}</span>`:""}${p.rol?`<span>${esc(p.rol)}</span>`:""}
+          <span class="badge ${p.durum==="Devam ediyor"?"draft":"plain"}">${esc(p.durum)}</span>${tags(p.etiketler)}
         </div>
-      </article>`).join("") || `<p class="empty">Eşleşen proje yok.</p>`;
+      </article>`).join("") || bos("proje");
+    const ek = D.etkinlikler.filter(eslesir);
+    $("#n-etk").textContent = `(${ek.length})`;
+    $("#list-etk").innerHTML = ek.map(p => `<article class="item"><h3>${esc(p.baslik)}</h3><div class="meta"><span class="badge plain">${esc(p.program)}</span><span>${esc(p.yil)}</span></div></article>`).join("");
+    $("#etkinlik-wrap").classList.toggle("hidden", ek.length === 0);
 
-    const bl = D.bildiriler.filter(eslesir);
-    $("#list-bildiri").innerHTML = bl.map(b => `
+    const at = D.atiflar.filter(eslesir).sort((a,b) => b.atifYapanlar.length - a.atifYapanlar.length);
+    $("#list-atif").innerHTML = at.map(a => `
       <article class="item">
-        <h3>${esc(b.baslik)}</h3>
-        <div class="meta"><span class="badge">${esc(b.etkinlik)}</span><span>${esc(b.yil)}</span>${tags(b.etiketler)}${driveLink(b.drive,"Özet")}</div>
-      </article>`).join("") || `<p class="empty">Eşleşen bildiri yok.</p>`;
+        <h3>${esc(a.eser)}</h3>
+        <div class="meta"><span class="badge seal">${a.atifYapanlar.length} atıf</span><span>${esc(a.yil)}</span></div>
+        <div class="cites">Atıf yapanlar: ${a.atifYapanlar.map(esc).join(", ")}</div>
+      </article>`).join("") || bos("atıf");
+
+    const ds = D.dersler.filter(eslesir);
+    $("#list-ders").innerHTML = ds.length ? `<thead><tr><th>Dönem</th><th>Ders</th><th>Anabilim dalı</th></tr></thead><tbody>${ds.map(d => `<tr><td class="n">${esc(d.donem)}</td><td>${esc(d.ders)}</td><td>${esc(d.abd)}</td></tr>`).join("")}</tbody>` : `<tbody><tr><td>${bos("ders")}</td></tr></tbody>`;
 
     const et = D.etikKurul.filter(eslesir);
     const yillar = [...new Set(et.map(e => e.tarih.slice(0,4)))];
@@ -217,8 +274,7 @@ footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);colo
           <div><h3>${esc(e.baslik)}</h3>
             <div class="meta"><span class="ok">Etik açıdan sakınca yok · oybirliği</span>${driveLink(e.drive,"Karar sureti 🔒")}</div>
           </div>
-        </div>`).join("")}`).join("") || `<p class="empty">Eşleşen karar yok.</p>`;
-
+        </div>`).join("")}`).join("") || bos("karar");
     const og = D.ogrenciEtikKurul.filter(eslesir);
     $("#n-ogr").textContent = `(${og.length})`;
     $("#list-ogr").innerHTML = og.map(e => `
@@ -228,42 +284,30 @@ footer{margin-top:60px;padding:28px 0 48px;border-top:1px solid var(--line);colo
       </div>`).join("");
     $("#ogrenci-wrap").classList.toggle("hidden", og.length === 0);
 
-    const kt = D.kitaplar.filter(k => k.goster !== false).filter(eslesir);
-    $("#kitaplar").classList.toggle("hidden", kt.length === 0 && !sorgu);
-    $("#nav-kitaplar").classList.toggle("hidden", D.kitaplar.every(k => k.goster === false));
-    $("#list-kitap").innerHTML = kt.map(k => `
-      <article class="item"><h3>${esc(k.baslik)}</h3><div class="meta">${k.yayinevi?`<span>${esc(k.yayinevi)}</span>`:""}${k.yil?`<span>${esc(k.yil)}</span>`:""}${driveLink(k.drive)}</div></article>`).join("") || `<p class="empty">Eşleşen kitap yok.</p>`;
-
-    $("#n-makale").textContent = `${mk.length}`;
-    $("#n-proje").textContent = `${pr.length}`;
-    $("#n-bildiri").textContent = `${bl.length}`;
-    $("#n-etik").textContent = `${et.length}`;
-    $("#n-kitap").textContent = `${kt.length}`;
+    const toplamAtif = at.reduce((s,a) => s + a.atifYapanlar.length, 0);
+    $("#n-makale").textContent = mk.length; $("#n-bildiri").textContent = bl.length; $("#n-kitap").textContent = kt.length;
+    $("#n-proje").textContent = pr.length; $("#n-atif").textContent = toplamAtif; $("#n-ders").textContent = ds.length + " yarıyıl"; $("#n-etik").textContent = et.length;
   }
 
   function init(data){
     D = data;
     const p = D.profil;
-    $("#ad").textContent = p.ad;
-    $("#unvan").textContent = p.unvan;
-    $("#ozet").textContent = p.ozet;
+    $("#ad").textContent = p.ad; $("#unvan").textContent = p.unvan; $("#ozet").textContent = p.ozet;
     document.title = p.ad + " · Araştırma Paneli";
     $("#chips").innerHTML = p.ilgi.map(i => `<button class="chip" aria-pressed="false">${esc(i)}</button>`).join("");
     $("#chips").addEventListener("click", e => {
       const b = e.target.closest(".chip"); if (!b) return;
-      const t = b.textContent;
-      aktifEtiket = aktifEtiket === t ? null : t;
+      aktifEtiket = aktifEtiket === b.textContent ? null : b.textContent;
       document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c.textContent === aktifEtiket)));
       render();
     });
-    const toplamEtik = new Set([...D.etikKurul, ...D.ogrenciEtikKurul].map(e => e.no)).size;
+    const yay = D.makaleler.filter(m => m.durum==="Yayımlandı").length;
+    const atif = D.atiflar.reduce((s,a) => s + a.atifYapanlar.length, 0);
     $("#stats").innerHTML = [
-      [D.makaleler.length, "makale"],
-      [D.projeler.length, "proje ve atölye"],
-      [D.bildiriler.length, "bildiri"],
-      [toplamEtik, "etik kurul kararı"]
+      [yay, "yayımlanmış makale"], [D.bildiriler.length, "bildiri"], [D.kitaplar.length, "kitap ve bölüm"],
+      [D.projeler.length, "proje"], [atif, "atıf"], [new Set(D.etikKurul.map(e => e.no + e.baslik)).size, "etik kurul onayı"]
     ].map(([n,l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
-    $("#guncel").textContent = "Son güncelleme: " + new Date(document.lastModified).toLocaleDateString("tr-TR");
+    $("#guncel").textContent = "Son güncelleme: " + D.guncel.split("-").reverse().join(".");
     $("#q").addEventListener("input", e => { sorgu = e.target.value.trim(); render(); });
     render();
   }
