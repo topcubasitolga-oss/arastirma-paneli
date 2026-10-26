@@ -1160,7 +1160,7 @@ function teacherPay(ym){
   if(PAYMEMO[ym])return PAYMEMO[ym];
   const t=tariff();const [f,to]=monthRange(ym);
   const fixed={};for(const sc of (state.raw&&state.raw.schools)||state.schools)for(const x of fixedPayOf(sc.id))fixed[sc.id+'|'+x.teacherId]=Number(x.monthly)||0;
-  const dealDay={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='gunluk'&&Number(d.perDay)>0)dealDay[(c.schoolId||c.id)+'|'+d.teacherId]=Number(d.perDay);
+  const dealDay={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='gunluk'){const v=Number((d.perDayByStudents&&c.students&&d.perDayByStudents[c.students])||d.perDay)||0;if(v>0)dealDay[(c.schoolId||c.id)+'|'+d.teacherId]=v;}
   const done=lessonsIn(f,to).filter(l=>lessonStatus(l)==='done'&&!needsVerify(l)&&!fixed[l.schoolId+'|'+l.teacherId]);
   const dayLs=done.filter(l=>dealDay[l.schoolId+'|'+l.teacherId]);const all=done.filter(l=>!dealDay[l.schoolId+'|'+l.teacherId]);
   const srate=id=>Number((schoolById(id)||((state.raw&&state.raw.schools)||[]).find(x=>x.id===id)||{}).payRate)||0;
