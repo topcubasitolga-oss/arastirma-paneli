@@ -342,7 +342,7 @@ function scopeFilter(c,docs){
   const tset=new Set((raw.assignments||[]).filter(a=>inS(a.schoolId)).map(a=>a.teacherId).concat((raw.lessons||[]).filter(l=>inS(l.schoolId)).map(l=>l.teacherId)));
   if(c==='schools')return docs.filter(x=>inS(x.id));
   if(c==='assignments'||c==='lessons')return docs.filter(x=>inS(x.schoolId));
-  if(c==='teachers')return docs.filter(x=>tset.has(x.id));
+  if(c==='teachers')return docs.filter(x=>tset.has(x.id)||(Array.isArray(x.schoolIds)&&x.schoolIds.some(inS)));
   if(c==='monthly')return docs.filter(x=>tset.has(x.teacherId));
   if(c==='sets')return docs.filter(x=>(x.locType==='okul'&&inS(x.locId))||(x.locType!=='okul'&&tset.has(x.locId)));
   if(c==='candidates')return [];
@@ -517,7 +517,7 @@ function subscribeAll(db){
   const cols=['teachers','schools','assignments','lessons','monthly','sets','candidates'];
   if(state.standalone||state.isOwner)cols.push('contracts','payments','files');else{state.loaded.contracts=true;state.loaded.payments=true;state.loaded.files=true;}
   for(const c of cols){
-    db.collection(c).onSnapshot(snap=>{const docs=snap.docs.map(d=>Object.assign({id:d.id},d.data()));state.raw=state.raw||{};state.raw[c]=docs;state[c]=SCOPE_COLS.includes(c)?scopeFilter(c,docs):docs;if(c==='assignments'||c==='lessons')rescope();state.loaded[c]=true;onData();},e=>{state.dbError=e;render();});
+    db.collection(c).onSnapshot(snap=>{const docs=snap.docs.map(d=>Object.assign({id:d.id},d.data()));state.raw=state.raw||{};state.raw[c]=docs;state[c]=SCOPE_COLS.includes(c)?scopeFilter(c,docs):docs;if(c==='assignments'||c==='lessons')rescope();if(c==='teachers'&&state.raw.teachers)state.teachers=scopeFilter('teachers',state.raw.teachers);state.loaded[c]=true;onData();},e=>{state.dbError=e;render();});
   }
   db.doc('settings/main').onSnapshot(s=>{state.settings=s.exists?s.data():null;state.loaded.settings=true;onData();},e=>{state.dbError=e;render();});
 }
@@ -904,7 +904,7 @@ function availView(){
 }
 function teachersView(){
   const rows=state.teachers.slice().sort(byName).map(t=>{const as=state.assignments.filter(a=>a.teacherId===t.id&&a.active!==false&&!(a.validTo&&a.validTo<todayISO()));const prog=as.map(a=>`${DAYS_S[Number(a.weekday)-1]} ${schoolLink(a.schoolId)}`).join(', ');const free=freeDays(t).map(wd=>DAYS_S[wd-1]).join(' ');
-    return `<tr><td>${teacherLink(t.id)}${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="small"><div class="mono">${esc(t.phone||'')}</div>${t.email?`<div>${esc(t.email)}</div>`:''}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${prog||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('openTeacherPage',{id:t.id},'Programı aç','primary sm')}${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')}</td></tr>`;}).join('');
+    return `<tr><td>${teacherLink(t.id)}${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="small"><div class="mono">${esc(t.phone||'')}</div>${t.email?`<div>${esc(t.email)}</div>`:''}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${prog||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('openTeacherPage',{id:t.id},'Programı aç','primary sm')}${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')+btn('delTeacher',{id:t.id},isScoped()?'Kurumdan çıkar':'Sil')}</td></tr>`;}).join('');
   return `<div class="pagehead"><div><h1>Öğretmenler</h1><p class="sub">Giriş için her öğretmenin bir PIN'i olur; ilk girişte hesabı otomatik bağlanır</p></div>${btn('openTeacher',{},'+ Öğretmen ekle','primary')}</div>
   <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ad soyad</th><th>Telefon</th><th>İkamet</th><th>Boş günleri</th><th>Haftalık program</th><th>PIN</th><th>Hesap</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Henüz öğretmen yok.</td></tr>'}</tbody></table></div>
   <p class="note">Öğretmene panel bağlantısını gönderirken claude.ai paylaşım menüsünden e-posta ile ve <b>Düzenleyen</b> yetkisiyle davet edin; herkese açık bağlantı ile paylaşırsanız öğretmenler ders onayı kaydedemez. "Panelini aç" ile öğretmenin göreceği ekranı kendiniz görebilirsiniz.</p></section>`;
@@ -1448,6 +1448,14 @@ const ACT={
   openMove(d){const s=state.sets.find(x=>x.id===d.id);if(s)openMove(s);},
   openHistory(d){const s=state.sets.find(x=>x.id===d.id);if(!s)return;const h=(s.history||[]).slice().reverse();openModal({title:`${esc(s.code||'')} ${esc(s.name)} · hareketler`,body:h.length?`<div class="hist">${h.map(x=>`<div><div class="mono">${fmtStamp(x.at)} · ${esc(x.by||'')}</div>${x.from?`${esc(x.from)} → `:''}<b>${esc(x.to||'')}</b>${x.note?`<div class="muted">${esc(x.note)}</div>`:''}</div>`).join('')}</div>`:'<p class="muted">Hareket kaydı yok.</p>',submit:false,cancel:'Kapat'});},
   openTeacher(d){openTeacher(d.id?teacherById(d.id):null);},
+  delTeacher(d){const t=teacherById(d.id);if(!t)return;const raw=(state.raw&&state.raw.assignments)||state.assignments;
+    const sc=isScoped()?state.session.scope:null;
+    const mine=raw.filter(a=>a.teacherId===t.id&&(!sc||sc.includes(a.schoolId)));
+    const elsewhere=sc?raw.some(a=>a.teacherId===t.id&&!sc.includes(a.schoolId)):false;
+    const msg=sc?(elsewhere?`${esc(t.name)} bu kurumun programından çıkarılır (${mine.length} program satırı silinir). Başka okullarda çalıştığı için öğretmen kaydı silinmez.`:`${esc(t.name)} sistemden silinir ve bu kurumdaki ${mine.length} program satırı kaldırılır. Geçmiş ders kayıtları raporlarda kalır.`):`${esc(t.name)} sistemden silinir ve tüm program satırları (${mine.length}) kaldırılır. Geçmiş ders kayıtları raporlarda kalır.`;
+    confirmModal(sc?'Öğretmeni kurumdan çıkar':'Öğretmeni sil',msg,async()=>{const err=await attempt(async()=>{for(const a of mine)await delDoc('assignments',a.id);
+      if(!elsewhere){await delDoc('teachers',t.id);}else if(Array.isArray(t.schoolIds)){await putDoc('teachers',Object.assign({},t,{schoolIds:t.schoolIds.filter(x=>!sc.includes(x))}));}});
+      if(err)return err;toast(elsewhere?'Öğretmen kurumdan çıkarıldı.':'Öğretmen silindi.','ok');},sc?'Evet, çıkar':'Evet, sil');},
   openProfile(){const t=teacherById(myTeacherId());if(t)openTeacher(t,true);},
   openCandidate(d){openCandidate(d.id?state.candidates.find(c=>c.id===d.id):null);},
   openFixedPay(d){if(!isAdmin())return;openFixedPay(d.id);},
@@ -1564,6 +1572,7 @@ function openTeacher(t,self){
     onSubmit:async f=>{if(!f.name)return 'Ad soyad girin.';if(!/^\d{4,6}$/.test(f.pin))return 'PIN 4-6 rakamdan oluşmalı.';
       const rec=Object.assign({},t,{id:t.id||uid(),name:f.name,phone:f.phone,email:f.email,pin:f.pin,district:f.district,semt:f.semt,otherDistricts:f.otherDistricts,active:t.active!==false,createdAt:t.createdAt||nowStamp()});
       if(!self)rec.note=f.note;
+      if(isNew&&isScoped())rec.schoolIds=state.session.scope.slice();
       const err=await attempt(()=>putDoc('teachers',rec));if(err)return err;toast(self?'Bilgileriniz güncellendi.':isNew?'Öğretmen eklendi.':'Öğretmen güncellendi.','ok');}});
 }
 function openCandidate(c){
