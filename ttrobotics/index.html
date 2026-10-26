@@ -592,7 +592,7 @@ function modalChange(el){
 
 /* ===================== render ===================== */
 function render(){
-  IDX={lessons:{},sets:{},pay:{},files:{}};
+  IDX={lessons:{},sets:{},pay:{},files:{}};PAYMEMO={};
   const app=$('#app');
   if(!state.booted){app.innerHTML='<div class="boot">Panel yükleniyor…</div>';return;}
   if(!state.db){app.innerHTML=noDbView();return;}
@@ -995,7 +995,7 @@ function schoolsView(){
   ${grpSel}<section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Günler</th><th>Öğretmenler</th><th>Yetkili</th><th class="num">Öğretmen saat ücreti</th><th class="num">Set</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="7" class="muted">Henüz kurum yok.</td></tr>'}</tbody></table></div></section>`;
 }
 /* ===================== finance (owner only) ===================== */
-const PRICE_MODELS=[['ogrenci','Öğrenci başı'],['saat','Ders saati başı'],['gunluk','Günlük (eğitmen başı)'],['aylik','Aylık sabit'],['donemlik','Dönemlik sabit']];
+const PRICE_MODELS=[['kademeli','Yıllık program (kademeli, taban korumalı)'],['ogrenci','Öğrenci başı'],['saat','Ders saati başı'],['gunluk','Günlük (eğitmen başı)'],['aylik','Aylık sabit'],['donemlik','Dönemlik sabit']];
 const teacherDaysPerWeek=id=>new Set(liveAssignments().filter(a=>a.schoolId===id).map(a=>a.teacherId+'_'+a.weekday)).size;
 const PERIODS=[['aylik','aylık'],['donemlik','dönemlik'],['yillik','yıllık']];
 const MONTHS_IN={aylik:1,donemlik:4.5,yillik:9};
@@ -1007,6 +1007,7 @@ const weeklyHoursOf=id=>liveAssignments().filter(a=>a.schoolId===id).reduce((a,x
 function contractAmount(c){
   const price=Number(c.price)||0;const st=contractStudents(c);
   if(c.model==='ogrenci'){const per=c.period||'aylik';const tot=st*price;return {label:`${fmtNum(st)} öğrenci × ${fmtTL(price)} · ${periodLabel(per)}`,perPeriod:tot,monthly:tot/MONTHS_IN[per],perLabel:periodLabel(per)};}
+  if(c.model==='kademeli'){const m=kademeliMonthly(st,c);return {label:`${fmtNum(st)} öğrenci · kademe ${st<=20?'2.000':st<=26?'sabit 40.000':st<=50?'1.500':st<=60?'sabit 75.000':st<=100?'1.250':st<=125?'sabit 125.000':'1.000'} · asgari ${fmtTL(Number(c.minFee)||30000)}`,perPeriod:m,monthly:m,perLabel:'aylık'};}
   if(c.model==='saat'){const wh=weeklyHoursOf(c.schoolId);return {label:`${fmtTL(price)} / ders saati · haftada ${fmtNum(wh)} ders`,perPeriod:price*wh*4,monthly:price*wh*4,perLabel:'aylık (4 hafta)'};}
   if(c.model==='gunluk'){const td=teacherDaysPerWeek(c.schoolId);return {label:`${fmtTL(price)} / eğitmen-gün · haftada ${fmtNum(td)} eğitmen-gün`,perPeriod:price*td*4,monthly:price*td*4,perLabel:'aylık (4 hafta)'};}
   if(c.model==='donemlik')return {label:`${fmtTL(price)} / dönem`,perPeriod:price,monthly:price/MONTHS_IN.donemlik,perLabel:'dönemlik'};
@@ -1015,7 +1016,7 @@ function contractAmount(c){
 function realizedMonth(c,ym){
   const [f,t]=monthRange(ym);const ls=lessonsIn(f,t).filter(l=>l.schoolId===c.schoolId&&lessonStatus(l)==='done'&&!(l.extra&&!l.approved));
   const hours=ls.reduce((a,l)=>a+(Number(l.hours)||0),0);
-  const teacherCost=ls.reduce((a,l)=>a+(Number(l.hours)||0)*rateFor(l),0);
+  const teacherCost=tariff()?(teacherPay(ym).schoolCost[c.schoolId]||0):ls.reduce((a,l)=>a+(Number(l.hours)||0)*rateFor(l),0);
   const tdays=new Set(ls.map(l=>l.teacherId+'_'+l.date)).size;
   return {hours,teacherCost,tdays,revenue:c.model==='saat'?hours*(Number(c.price)||0):c.model==='gunluk'?tdays*(Number(c.price)||0):null};
 }
@@ -1038,16 +1039,70 @@ function financeView(){
     <td class="num">${fmtTL(amt.monthly)}${c.partnerShare?`<div class="muted small">net ${fmtTL(net)}</div>`:''}</td>
     <td class="num">${r.revenue!=null?fmtTL(r.revenue):'<span class="muted">—</span>'}<div class="muted small">${fmtNum(r.hours)} ders saati</div></td>
     <td class="num">${r.teacherCost?fmtTL(r.teacherCost):'<span class="muted">—</span>'}</td>
+    <td class="num">${(()=>{const mh=weeklyHoursOf(s.id)*4;if(!mh||!amt.monthly)return '<span class="muted">—</span>';const per=amt.monthly/mh;const tr=tariff()||TARIFF_DEFAULT;const need=(Number(tr.golden)||3)*Math.max(...tr.tiers.map(x=>x.rate));return chip(per>=need?'ok':'bad',fmtTL(Math.round(per)))+`<div class="muted small">${fmtNum(mh)} sa/ay</div>`;})()}</td>
     <td class="act">${btn('openContract',{id:s.id},'Düzenle')}</td></tr>`;}).join('');
   return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Yalnızca baş yönetici</p><h1>Finans</h1><p class="sub">${fmtNum(totStudents)} öğrenci · ${withC.length} sözleşmeli kurum · aylık tahmini ${fmtTL(totMonthly)}</p></div><div class="toolbar">${monthNav(ym,'month')}${btn('nav',{view:'bsa'},'BSA Akademi →','sm')}</div></div>
   <section class="tiles">${tile(fmtNum(totStudents),'toplam öğrenci')}${tile(withC.length,'sözleşmeli kurum',without.length?`${without.length} kurumda sözleşme yok`:'')}${tile(fmtTL(totMonthly),'aylık tahmini gelir','brüt')}${tile(fmtTL(totNet),'aylık net','aracı payı düşülmüş')}${tile(fmtTL(totCost),monthLabel(ym)+' öğretmen maliyeti','onaylı derslerden')}</section>
   <section><div class="sechead"><h2>Kurum sözleşmeleri</h2><span class="muted small">Aylık karşılık: dönem 4,5 ay, yıl 9 ay sayılarak</span></div>
-  ${withC.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Öğrenci</th><th>Ücret modeli</th><th class="num">Aylık karşılık</th><th class="num">${monthLabel(ym)} gerçekleşen</th><th class="num">Öğretmen maliyeti</th><th></th></tr></thead><tbody>${rows}<tr class="total"><td>Toplam</td><td class="mono">${fmtNum(totStudents)}</td><td></td><td class="num">${fmtTL(totMonthly)}</td><td class="num">${fmtTL(totReal)}</td><td class="num">${fmtTL(totCost)}</td><td></td></tr></tbody></table></div>`:'<p class="empty">Henüz sözleşme girilmedi. Aşağıdaki kurumlardan "Sözleşme ekle" ile başlayın.</p>'}
+  ${withC.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Öğrenci</th><th>Ücret modeli</th><th class="num">Aylık karşılık</th><th class="num">${monthLabel(ym)} gerçekleşen</th><th class="num">Öğretmen maliyeti</th><th class="num" title="Altın kural: ders saati başı gelir ≥ 3 × saat maliyeti (2.250 TL)">Ders saati başı gelir</th><th></th></tr></thead><tbody>${rows}<tr class="total"><td>Toplam</td><td class="mono">${fmtNum(totStudents)}</td><td></td><td class="num">${fmtTL(totMonthly)}</td><td class="num">${fmtTL(totReal)}</td><td class="num">${fmtTL(totCost)}</td><td></td><td></td></tr></tbody></table></div>`:'<p class="empty">Henüz sözleşme girilmedi. Aşağıdaki kurumlardan "Sözleşme ekle" ile başlayın.</p>'}
   </section>
   ${without.length?`<section><div class="sechead"><h2>Sözleşmesi girilmemiş kurumlar</h2></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Öğretmenler</th><th class="num">Haftalık ders</th><th></th></tr></thead><tbody>${without.map(s=>`<tr><td>${schoolLink(s.id)}<div class="muted small">${esc([kindLabel(s.kind),s.district].filter(Boolean).join(' · '))}</div></td><td class="small">${[...new Set(liveAssignments().filter(a=>a.schoolId===s.id).map(a=>a.teacherId))].map(teacherLink).join(', ')||'<span class="muted">—</span>'}</td><td class="num">${fmtNum(weeklyHoursOf(s.id))||''}</td><td class="act">${btn('openContract',{id:s.id},'Sözleşme ekle','primary sm')}</td></tr>`).join('')}</tbody></table></div></section>`:''}
+  ${teacherPaySection(ym)}
   ${paymentsSection(ym)}
   <section class="tiles"><div class="card"><h3>Gizlilik</h3><p class="muted small">Bu bölümdeki veriler yalnızca hesap sahibi tarafından okunabilir; PIN ile giren diğer yöneticiler ve öğretmenler Finans sekmesini görmez. "Gerçekleşen" sütunu ders saati modelinde onaylı ders saatlerinden hesaplanır; öğretmen maliyeti, okul/program satırındaki öğretmen saat ücretinden gelir.</p></div>${state.standalone?`<div class="card"><h3>Baş yönetici PIN (önizleme)</h3><p class="muted small">Bu önizlemede Finans sekmesini açan PIN.</p><div class="toolbar"><span class="mono">${esc(S().ownerPin)}</span>${btn('openOwnerPin',{},'Değiştir')}</div></div>`:''}</section>`;
 }
+/* ===================== teacher pay tariff (owner only, devir dosyası §2) ===================== */
+const TARIFF_DEFAULT={tiers:[{min:1,rate:750},{min:3,rate:650},{min:6,rate:600}],load:22,golden:3};
+const tariff=()=>{const d=(state.contracts||[]).find(c=>c.id==='cfg_tariff');return d&&Array.isArray(d.tiers)&&d.tiers.length?Object.assign({},TARIFF_DEFAULT,d):(d?Object.assign({},TARIFF_DEFAULT,d,{tiers:TARIFF_DEFAULT.tiers}):null);};
+const tierRate=(t,h)=>{let r=t.tiers[0].rate;for(const x of t.tiers.slice().sort((a,b)=>a.min-b.min))if(h>=x.min)r=x.rate;return r;};
+const explicitRate=l=>{if(l.rate!=null&&l.rate!=='')return Number(l.rate)||0;const a=state.assignments.find(x=>x.id===l.assignmentId);return a&&a.rate?Number(a.rate):null;};
+let PAYMEMO={};
+function teacherPay(ym){
+  if(PAYMEMO[ym])return PAYMEMO[ym];
+  const t=tariff();const [f,to]=monthRange(ym);
+  const ls=lessonsIn(f,to).filter(l=>lessonStatus(l)==='done'&&!(l.extra&&!l.approved));
+  const byTD={};for(const l of ls){const k=l.teacherId+'|'+l.date;(byTD[k]=byTD[k]||[]).push(l);}
+  const teachers={};const schoolCost={};
+  for(const [k,arr] of Object.entries(byTD)){
+    const tid=k.split('|')[0];const dayH=arr.reduce((a,l)=>a+(Number(l.hours)||0),0);
+    const r=teachers[tid]||(teachers[tid]={teacherId:tid,days:0,hours:0,gross:0,tierDays:{}});
+    r.days++;r.hours+=dayH;
+    const rate=t?tierRate(t,dayH):null;if(t){const tk=rate;r.tierDays[tk]=(r.tierDays[tk]||0)+1;}
+    for(const l of arr){const h=Number(l.hours)||0;const ex=explicitRate(l);const amt=h*(ex!=null?ex:(t?rate:rateFor(l)));r.gross+=amt;schoolCost[l.schoolId]=(schoolCost[l.schoolId]||0)+amt;}
+  }
+  const load=t?(Number(t.load)||0)/100:0;
+  for(const r of Object.values(teachers)){r.cost=r.gross*(1+load);r.avgRate=r.hours?r.gross/r.hours:0;r.avgDay=r.days?r.hours/r.days:0;}
+  return PAYMEMO[ym]={tariff:t,teachers:Object.values(teachers).sort((a,b)=>tName(a.teacherId).localeCompare(tName(b.teacherId),'tr')),schoolCost,load};
+}
+function teacherPaySection(ym){
+  const p=teacherPay(ym);const t=p.tariff;
+  if(!t)return `<section><div class="sechead"><h2>Öğretmen ücretleri</h2>${btn('openTariff',{},'Ücret tarifesini tanımla','primary sm')}</div><p class="empty">Kademeli öğretmen ücret tarifesi henüz tanımlı değil.</p></section>`;
+  const tiers=t.tiers.slice().sort((a,b)=>a.min-b.min);
+  const tierTxt=tiers.map((x,i)=>{const nx=tiers[i+1];return `${x.min}${nx?'–'+(nx.min-1):'+'} saat <b>${fmtTL(x.rate)}</b>`;}).join(' · ');
+  let G=0,C=0,H=0,D=0;
+  const rows=p.teachers.map(r=>{G+=r.gross;C+=r.cost;H+=r.hours;D+=r.days;
+    const warn=r.avgDay<3?'bad':r.avgDay<5?'warn':'ok';
+    return `<tr><td>${teacherLink(r.teacherId)}</td><td class="num">${fmtNum(r.days)}</td><td class="num">${fmtNum(r.hours)}</td><td class="num">${chip(warn,fmtNum(Math.round(r.avgDay*10)/10)+' sa/gün')}</td><td class="small">${tiers.map(x=>r.tierDays[x.rate]?`${fmtTL(x.rate)}: ${r.tierDays[x.rate]} gün`:'').filter(Boolean).join('<br>')||'—'}</td><td class="num">${fmtTL(Math.round(r.avgRate))}</td><td class="num"><b>${fmtTL(r.gross)}</b></td><td class="num">${fmtTL(r.cost)}</td></tr>`;}).join('');
+  return `<section><div class="sechead"><h2>${monthLabel(ym)} öğretmen ücretleri</h2><span class="muted small">Kademe, öğretmenin o gün tüm okullarda girdiği toplam onaylı ders saatine göre belirlenir ve o günün tüm saatlerine uygulanır · ${tierTxt} · işveren yükü %${fmtNum(t.load)}</span>${btn('openTariff',{},'Tarife','sm')}</div>
+  ${rows?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th class="num">Gün</th><th class="num">Ders saati</th><th class="num">Ort. günlük</th><th>Kademe dağılımı</th><th class="num">Ort. saat ücreti</th><th class="num">Brüt</th><th class="num">İşveren maliyeti</th></tr></thead><tbody>${rows}<tr class="total"><td>Toplam</td><td class="num">${fmtNum(D)}</td><td class="num">${fmtNum(H)}</td><td></td><td></td><td class="num">${H?fmtTL(Math.round(G/H)):''}</td><td class="num">${fmtTL(G)}</td><td class="num">${fmtTL(C)}</td></tr></tbody></table></div><p class="muted small">Ort. günlük hedef 5+ saat; 3'ün altı kırmızı. Ort. saat ücreti 750'ye yakınsa öğretmen az saatli günlere dağılmış demektir; günleri birleştirmek maliyeti düşürür (8 saat: 2 güne 5.200 TL, 4 güne 6.000 TL).</p>`:'<p class="empty">Bu ayda onaylı ders yok. Öğretmenler ders onayladıkça burası dolar.</p>'}</section>`;
+}
+function openTariff(){
+  const t=tariff()||TARIFF_DEFAULT;const tiers=t.tiers.slice().sort((a,b)=>a.min-b.min);
+  openModal({title:'Öğretmen ücret tarifesi',meta:'Yalnızca baş yönetici görür · brüt',
+    body:`${field('Kademeler (her satır: günlük asgari saat = saat ücreti)',textarea('tiers',tiers.map(x=>`${x.min} = ${x.rate}`).join('\n'),'1 = 750\n3 = 650\n6 = 600'),'Öğretmenin o gün girdiği toplam saat bu eşiği geçince o kademe günün tüm saatlerine uygulanır.')}
+    <div class="two">${field('İşveren yükü SGK + vergi (%)',input('load',{type:'number',value:t.load,min:0,max:100,step:0.5}))}${field('Altın kural çarpanı',input('golden',{type:'number',value:t.golden,min:1,step:0.1}),'Ders saati başı gelir ≥ çarpan × saat maliyeti')}</div>`,
+    onSubmit:async f=>{const tiers=String(f.tiers||'').split('\n').map(x=>x.trim()).filter(Boolean).map(x=>{const m=x.match(/^(\d+(?:[.,]\d+)?)\s*[=:]\s*(\d+)/);return m?{min:Number(m[1].replace(',','.')),rate:Number(m[2])}:null;});
+      if(!tiers.length||tiers.some(x=>!x))return 'Her satır "saat = ücret" biçiminde olmalı.';
+      const cur=(state.contracts||[]).find(c=>c.id==='cfg_tariff')||{};
+      const err=await attempt(()=>putDoc('contracts',Object.assign({},cur,{id:'cfg_tariff',kind:'config',tiers,load:Number(f.load)||0,golden:Number(f.golden)||3})));if(err)return err;PAYMEMO={};toast('Tarife kaydedildi.','ok');}});
+}
+/* Yıllık program (öğrenci başı, kademeli + taban koruma) — devir dosyası §3.1–3.2 */
+function kademeliMonthly(n,c){
+  const min=Number(c&&c.minFee)||30000;n=Number(n)||0;if(!n)return 0;
+  let v;if(n<=20)v=n*2000;else if(n<=26)v=40000;else if(n<=50)v=n*1500;else if(n<=60)v=75000;else if(n<=100)v=n*1250;else if(n<=125)v=125000;else v=n*1000;
+  return Math.max(v,min);
+}
+
 /* ===================== BSA Akademi partnership (owner only) ===================== */
 const ttShareOf=c=>100-(Number(c.partnerShare)||0);
 const bsaContracts=()=>state.schools.filter(s=>s.active!==false&&isBsaSchool(s)).map(s=>({s,c:contractFor(s.id)})).filter(x=>x.c).sort((a,b)=>byName(a.s,b.s));
@@ -1139,6 +1194,7 @@ function openContract(schoolId){
   const clsText=(c.classes||[]).map(x=>`${x.name}: ${x.students}`).join('\n');
   openModal({title:`${esc(s.name)} · sözleşme`,meta:'Yalnızca baş yönetici görür',wide:true,
     body:`<div class="two">${field('Ücret modeli',select('model',PRICE_MODELS.map(x=>({v:x[0],l:x[1]})),c.model||'ogrenci',{attrs:'data-mchange="pricemodel"'}))}${field('Ücret (TL)',input('price',{type:'number',value:c.price||'',min:0,step:1,req:true}))}</div>
+    ${field('Aylık asgari fatura (yıllık program için, TL)',input('minFee',{type:'number',value:c.minFee||'',min:0,step:1000,ph:'30.000 (tam set: 40.000)'}))}
     <div id="period-wrap" ${(c.model||'ogrenci')==='ogrenci'?'':'hidden'}>${field('Öğrenci başı ücretin dönemi',select('period',PERIODS.map(x=>({v:x[0],l:x[1]})),c.period||'aylik'))}</div>
     ${field('Sınıflar ve öğrenci sayıları',textarea('classes',clsText,'3-A: 12\n3-B: 14\n4-A: 10'),'Her satıra bir sınıf. Toplam öğrenci otomatik hesaplanır.')}
     ${field('Toplam öğrenci (sınıf girmediyseniz)',input('students',{type:'number',value:c.students||'',min:0,step:1}))}
@@ -1148,7 +1204,7 @@ function openContract(schoolId){
     ${field('Ödeme düzeni',input('terms',{value:c.terms||'',ph:'Her ayın 5\'inde fatura · dönem başı peşin…'}))}
     ${field('Not',textarea('notes',c.notes||'','Fiyat görüşmesi, özel indirim, sözleşme dosyası bağlantısı…'))}`,
     onSubmit:async f=>{const price=Number(f.price);if(!(price>=0))return 'Ücret girin.';const pc=parseClasses(f.classes);if(pc.error)return pc.error;
-      const di=String(f.daysInfo||'').split(/[·,\/]/).map(x=>Number(x.trim())||null);const rec=Object.assign({},c,{id:schoolId,schoolId,model:f.model||'ogrenci',price,period:f.period||'aylik',classes:pc.classes,students:Number(f.students)||0,partner:f.partner,partnerShare:f.partnerShare?Number(f.partnerShare):0,teacherRate:f.teacherRate?Number(f.teacherRate):null,daysPerWeek:di[0]||null,teacherCount:di[1]||null,startDate:f.startDate||null,endDate:f.endDate||null,terms:f.terms,notes:f.notes,createdAt:c.createdAt||nowStamp()});
+      const di=String(f.daysInfo||'').split(/[·,\/]/).map(x=>Number(x.trim())||null);const rec=Object.assign({},c,{id:schoolId,schoolId,model:f.model||'ogrenci',price,period:f.period||'aylik',classes:pc.classes,students:Number(f.students)||0,partner:f.partner,partnerShare:f.partnerShare?Number(f.partnerShare):0,teacherRate:f.teacherRate?Number(f.teacherRate):null,minFee:f.minFee?Number(f.minFee):null,daysPerWeek:di[0]||null,teacherCount:di[1]||null,startDate:f.startDate||null,endDate:f.endDate||null,terms:f.terms,notes:f.notes,createdAt:c.createdAt||nowStamp()});
       const err=await attempt(()=>putDoc('contracts',rec));if(err)return err;toast('Sözleşme kaydedildi.','ok');}});
 }
 /* ===================== student payments (owner only) ===================== */
@@ -1364,6 +1420,7 @@ const ACT={
   openTeacher(d){openTeacher(d.id?teacherById(d.id):null);},
   openProfile(){const t=teacherById(myTeacherId());if(t)openTeacher(t,true);},
   openCandidate(d){openCandidate(d.id?state.candidates.find(c=>c.id===d.id):null);},
+  openTariff(){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openTariff();},
   openBsaLedger(d){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openBsaLedger(d.id,d.ym||state.ui.month);},
   openContract(d){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openContract(d.id);},
   openPayment(d){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openPayment(d.id?state.payments.find(p=>p.id===d.id):null);},
