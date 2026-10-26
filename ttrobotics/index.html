@@ -322,7 +322,7 @@ let modalState=null;
 const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['finance','Finans'],['bsa','BSA Akademi'],['files','Dosyalar'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
 const CAND_STATUS=[['aday','Aday'],['gorusuldu','Görüşüldü'],['deneme','Deneme dersi verdi'],['aktif','Aktif öğretmen'],['pasif','Pasif'],['uygun_degil','Uygun değil']];
 const CAND_TAGS=['Robotik kodlama','Drone','STEM','Yapay zekâ','Okul öncesi','İlkokul','Ortaokul','Lise','Scratch / blok kodlama','Python','Arduino / micro:bit','LEGO Education','3D tasarım','Maker / elektronik','İngilizce ders verebilir'];
-const TEACHER_NAV=[['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler']];
+const TEACHER_NAV=[['tprog','Programım'],['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler']];
 const WEEKDAYS6=[1,2,3,4,5,6];
 const SET_STATUS=[['aktif','Aktif'],['arizali','Arızalı'],['eksik','Eksik parça'],['kayip','Kayıp']];
 const SET_CATS=['LEGO SPIKE Prime','LEGO SPIKE Essential','LEGO WeDo 2.0','LEGO BricQ Motion','mBot','micro:bit','Arduino','Bee-Bot','Botley','Matatalab','Cubetto','KUBO','DJI Tello EDU','Drone Soccer','3D Kalem','Makey Makey','Pinoo','Q Scout','OLLO','Diğer'];
@@ -467,7 +467,7 @@ function resolveSession(){
   state.session=null;
 }
 const managerSession=(m,via)=>({role:'admin',via,scope:(m.schoolIds||[]).slice(),managerId:m.id,managerName:m.name});
-const defaultView=()=>isAdmin()?'overview':'tlessons';
+const defaultView=()=>{if(isAdmin())return 'overview';const t=teacherById(myTeacherId());return t&&!t.programConfirmedAt?'tprog':'tlessons';};
 function setSession(s,remember){
   state.session=s;rescope();state.ui.view=defaultView();
   if(remember!==false){if(s&&s.via!=='impersonate')lsSet('ttr.session',{role:s.role,teacherId:s.teacherId||null,managerId:s.managerId||null});if(!s)lsSet('ttr.session',null);}
@@ -647,6 +647,7 @@ $('#modal-root').addEventListener('submit',async e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal-root').hidden)closeModal();});
 function modalChange(el){
+  if(el.dataset.mchange==='tprogtime'){const st=$('#f_start'),en=$('#f_end'),h=$('#f_hours');const v=hoursFromTimes(st&&st.value,en&&en.value);if(h&&v)h.value=v;return;}
   if(el.dataset.mchange==='loctype'){
     const v=el.value;const s=$('#loc-school'),t=$('#loc-teacher');
     if(s)s.hidden=v!=='okul';if(t)t.hidden=v!=='ogretmen';
@@ -677,6 +678,7 @@ function noDbView(){
   <p class="muted small">Bağlantı doğruysa ve sorun sürüyorsa yöneticinin sizi e-posta ile "Düzenleyen" olarak davet ettiğinden emin olun.</p></div></div>`;
 }
 const ICONS={
+  tprog:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h3M8 17h6"/>',
   bsa:'<path d="M3 12l4-4 4 3 3-3 7 6"/><path d="M7 16l3 3 4-3"/><path d="M3 18h3M18 18h3"/>',
   overview:'<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/>',
   program:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
@@ -972,7 +974,7 @@ function availView(){
 }
 function teachersView(){
   const rows=state.teachers.slice().sort(byName).map(t=>{const as=state.assignments.filter(a=>a.teacherId===t.id&&a.active!==false&&!(a.validTo&&a.validTo<todayISO()));const prog=as.map(a=>`${DAYS_S[Number(a.weekday)-1]} ${schoolLink(a.schoolId)}`).join(', ');const free=freeDays(t).map(wd=>DAYS_S[wd-1]).join(' ');
-    return `<tr><td>${teacherLink(t.id)}${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="small"><div class="mono">${esc(t.phone||'')}</div>${t.email?`<div>${esc(t.email)}</div>`:''}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${prog||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('openTeacherPage',{id:t.id},'Programı aç','primary sm')}${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')+btn('delTeacher',{id:t.id},isScoped()?'Kurumdan çıkar':'Sil')}</td></tr>`;}).join('');
+    return `<tr><td>${teacherLink(t.id)}${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.programConfirmedAt?' '+chip('ok','Programını onayladı'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="small"><div class="mono">${esc(t.phone||'')}</div>${t.email?`<div>${esc(t.email)}</div>`:''}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${prog||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('openTeacherPage',{id:t.id},'Programı aç','primary sm')}${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')+btn('delTeacher',{id:t.id},isScoped()?'Kurumdan çıkar':'Sil')}</td></tr>`;}).join('');
   return `<div class="pagehead"><div><h1>Öğretmenler</h1><p class="sub">Giriş için her öğretmenin bir PIN'i olur; ilk girişte hesabı otomatik bağlanır</p></div>${btn('openTeacher',{},'+ Öğretmen ekle','primary')}</div>
   <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ad soyad</th><th>Telefon</th><th>İkamet</th><th>Boş günleri</th><th>Haftalık program</th><th>PIN</th><th>Hesap</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Henüz öğretmen yok.</td></tr>'}</tbody></table></div>
   <p class="note">Öğretmene panel bağlantısını gönderirken claude.ai paylaşım menüsünden e-posta ile ve <b>Düzenleyen</b> yetkisiyle davet edin; herkese açık bağlantı ile paylaşırsanız öğretmenler ders onayı kaydedemez. "Panelini aç" ile öğretmenin göreceği ekranı kendiniz görebilirsiniz.</p></section>`;
@@ -1000,7 +1002,7 @@ function patternTable(as,o){
   if(as.some(a=>!(Number(a.weekday)>=1)))dayList=dayList.concat([0]);
   const keyOf=a=>o.groupBy==='school'?a.schoolId:a.teacherId;
   const keys=[...new Set(as.map(keyOf))].sort((x,y)=>(o.groupBy==='school'?sName(x):tName(x)).localeCompare(o.groupBy==='school'?sName(y):tName(y),'tr'));
-  const body=keys.map(k=>`<tr><td>${o.groupBy==='school'?schoolLink(k):teacherLink(k)}</td>${dayList.map(wd=>`<td>${as.filter(a=>keyOf(a)===k&&(wd?Number(a.weekday)===wd:!(Number(a.weekday)>=1))).sort((x,y)=>String(x.start||'').localeCompare(String(y.start||''))).map(a=>`<span class="cell-l"><b>${esc(o.groupBy==='school'?tName(a.teacherId):sName(a.schoolId))}</b>${a.program?`<span class="small" style="display:block;color:var(--accent);font-weight:700">${esc(a.program)}</span>`:''}<span class="mono">${a.start?esc(a.start)+(a.end?'–'+esc(a.end):'')+' · ':''}${fmtNum(a.hours)} saat${(a.students||[]).length?' · '+a.students.length+' öğr.':''}</span>${a.note&&o.notes?`<span class="muted small" style="display:block;margin-top:2px">${esc(a.note)}</span>`:''}</span>`).join('')}</td>`).join('')}</tr>`).join('');
+  const body=keys.map(k=>`<tr><td>${o.groupBy==='school'?schoolLink(k):teacherLink(k)}</td>${dayList.map(wd=>`<td>${as.filter(a=>keyOf(a)===k&&(wd?Number(a.weekday)===wd:!(Number(a.weekday)>=1))).sort((x,y)=>String(x.start||'').localeCompare(String(y.start||''))).map(a=>`<span class="cell-l"><b>${esc(o.groupBy==='school'?tName(a.teacherId):sName(a.schoolId))}</b>${a.program?`<span class="small" style="display:block;color:var(--accent);font-weight:700">${esc(a.program)}</span>`:''}<span class="mono">${a.start?esc(a.start)+(a.end?'–'+esc(a.end):'')+' · ':''}${fmtNum(a.hours)} saat${aStudents(a)?' · '+aStudents(a)+' öğr.':''}</span>${a.note&&o.notes?`<span class="muted small" style="display:block;margin-top:2px">${esc(a.note)}</span>`:''}</span>`).join('')}</td>`).join('')}</tr>`).join('');
   return `<div class="tbl-wrap"><table class="tbl wk"><thead><tr><th>${o.groupBy==='school'?'Okul':'Öğretmen'}</th>${dayList.map(wd=>`<th>${wd?DAYS[wd-1]:'Gün belirsiz'}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 const weekNavD=ws=>`<div class="nav-month">${btn('detailWeek',{dir:-1},'‹','ghost sm')}<b>${fmtDate(ws)} – ${fmtDate(addDays(ws,6))}</b>${btn('detailWeek',{dir:1},'›','ghost sm')}${btn('detailWeek',{dir:0},'Bugün','ghost sm')}</div>`;
@@ -1435,9 +1437,72 @@ function settingsView(){
 }
 
 /* ===================== teacher views ===================== */
+/* ===================== teacher self-service program ("Programım") ===================== */
+const CLASS_GROUPS=(()=>{const g=[['Anaokulu',['3 yaş','4 yaş','5 yaş','3-4 yaş karma','4-5 yaş karma','Anasınıfı']]];
+  for(let k=1;k<=8;k++)g.push([`${k}. sınıf`,'ABCDEFG'.split('').map(s=>`${k}-${s}`)]);
+  g.push(['Lise',['9','10','11','12'].flatMap(k=>'ABCD'.split('').map(s=>`${k}-${s}`))]);
+  g.push(['Diğer',['Karma grup','Kulüp / seçmeli','Atölye grubu']]);return g;})();
+const SET_SUGGEST=['LEGO WeDo 2.0','LEGO Spike Essential','LEGO Spike Prime','LEGO Mindstorms EV3','LEGO Duplo Coding Express','LEGO BricQ Motion','mBot','Arduino seti','Bee-Bot','Blue-Bot','Makey Makey','Elektronik devre seti','micro:bit','VEX GO','VEX IQ','Drone'];
+const classSelect=(name,val)=>`<select name="${name}"><option value="">Sınıf seçin</option>${CLASS_GROUPS.map(([g,arr])=>`<optgroup label="${esc(g)}">${arr.map(c=>`<option ${c===val?'selected':''}>${esc(c)}</option>`).join('')}</optgroup>`).join('')}${val&&!CLASS_GROUPS.some(([,a])=>a.includes(val))?`<option selected>${esc(val)}</option>`:''}</select>`;
+const aClasses=a=>Array.isArray(a.classes)?a.classes.filter(c=>c&&c.name):[];
+const aStudents=a=>{const c=aClasses(a);return c.length?c.reduce((n,x)=>n+(Number(x.students)||0),0):(a.students||[]).length;};
+const hoursFromTimes=(s,e)=>{if(!/^\d\d:\d\d$/.test(s||'')||!/^\d\d:\d\d$/.test(e||''))return null;const m=(+e.slice(0,2)*60+ +e.slice(3))-(+s.slice(0,2)*60+ +s.slice(3));return m>0?Math.round(m/60*4)/4:null;};
+function tProgView(){
+  const tid=myTeacherId();const t=teacherById(tid)||{};
+  const mine=state.assignments.filter(a=>a.teacherId===tid&&a.active!==false&&!(a.validTo&&a.validTo<todayISO()));
+  const bySchool={};for(const a of mine)(bySchool[a.schoolId]=bySchool[a.schoolId]||[]).push(a);
+  const totalStudents=mine.reduce((n,a)=>n+aStudents(a),0);const weekly=mine.reduce((n,a)=>n+(Number(a.hours)||0),0);
+  const card=sid=>{const as=bySchool[sid].sort((x,y)=>(Number(x.weekday)||9)-(Number(y.weekday)||9)||String(x.start||'').localeCompare(String(y.start||'')));
+    const sets=state.sets.filter(x=>x.locType==='okul'&&x.locId===sid);
+    return `<section class="card"><div class="sechead"><h2>${esc(sName(sid))}</h2>${btn('openMyLesson',{school:sid},'+ Bu okula gün ekle','sm')}</div>
+    <div class="list">${as.map(a=>{const cl=aClasses(a);return `<div class="lrow"><div class="l-when"><b>${Number(a.weekday)>=1?DAYS[a.weekday-1]:'Gün belirsiz'}</b><br>${a.start?esc(a.start)+(a.end?'–'+esc(a.end):''):''}</div>
+      <div class="l-main">${a.program?`<b>${esc(a.program)}</b>`:''}${cl.length?`<div class="small">${cl.map(c=>`${esc(c.name)}: <b>${fmtNum(c.students||0)}</b>`).join(' · ')}</div>`:'<div class="muted small">Sınıf ve öğrenci sayısı girilmedi</div>'}${a.source!=='teacher'&&!a.teacherConfirmed?`<div class="small" style="margin-top:3px">${chip('warn','Yönetici girdi · lütfen kontrol edin')}</div>`:''}</div>
+      <div class="l-hrs">${fmtNum(a.hours)} saat${aStudents(a)?`<br><span class="muted small">${aStudents(a)} öğrenci</span>`:''}</div>
+      <div class="l-act">${btn('openMyLesson',{id:a.id},a.source!=='teacher'&&!a.teacherConfirmed?'Kontrol et / düzelt':'Düzenle','primary sm')}${btn('delMyLesson',{id:a.id},'Sil','ghost sm')}</div></div>`;}).join('')}</div>
+    <div class="sechead" style="margin-top:14px"><h3>Bu okulda kullandığınız setler</h3>${btn('openMySet',{school:sid},'+ Set ekle','sm')}</div>
+    ${sets.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Set</th><th class="num">Adet</th><th>Durum</th><th></th></tr></thead><tbody>${sets.map(x=>{IDX.sets[x.id]=x;return `<tr><td><b>${esc(x.name)}</b>${x.note?`<div class="muted small">${esc(x.note)}</div>`:''}</td><td class="num">${fmtNum(x.qty||1)}</td><td>${chip(x.status==='aktif'||!x.status?'ok':'warn',({aktif:'Sağlam',arizali:'Arızalı',eksik:'Eksik parça',kayip:'Kayıp'})[x.status||'aktif']||esc(x.status))}</td><td class="act">${btn('openMySet',{id:x.id},'Düzenle')}${x.addedByTeacher===tid?btn('delMySet',{id:x.id},'Sil'):''}</td></tr>`;}).join('')}</tbody></table></div>`:'<p class="empty">Bu okul için set girilmedi. Kullandığınız setleri ekleyin.</p>'}</section>`;};
+  const confirmed=!!t.programConfirmedAt;
+  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Programım</p><h1>Hangi gün, hangi okuldasınız?</h1><p class="sub">Haftalık programınızı, sınıflarınızı, öğrenci sayılarını ve kullandığınız setleri buradan siz girin. Ders listeniz bu programdan oluşur.</p></div><div class="toolbar">${btn('openMyLesson',{},'+ Ders günü ekle','primary')}</div></div>
+  <section class="tiles">${tile(Object.keys(bySchool).length,'okul')}${tile(mine.length,'haftalık ders günü/grubu')}${tile(fmtNum(weekly),'haftalık ders saati')}${tile(fmtNum(totalStudents),'öğrenci','girdiğiniz sınıflardan')}</section>
+  ${mine.length?Object.keys(bySchool).sort((a,b)=>sName(a).localeCompare(sName(b),'tr')).map(card).join(''):`<section class="card"><h2>Henüz programınız yok</h2><p class="muted">“+ Ders günü ekle” ile başlayın: gün → okul → saat → sınıflar ve öğrenci sayıları.</p></section>`}
+  ${mine.length?`<section class="card">${confirmed?`<p>${chip('ok','Programınızı onayladınız')} <span class="muted small">${fmtDateFull(t.programConfirmedAt.slice(0,10))}</span></p><p class="muted small">Değişiklik olursa düzenleyip yeniden onaylayın.</p>${btn('confirmMyProgram',{},'Yeniden onayla','sm')}`:`<h3>Programınız tamam mı?</h3><p class="muted small">Tüm günlerinizi, sınıflarınızı ve setlerinizi girdiyseniz onaylayın; yönetici bilgilendirilir.</p>${btn('confirmMyProgram',{},'Programım doğru, onaylıyorum','primary')}`}</section>`:''}`;
+}
+function openMyLesson(a,pre){
+  const tid=myTeacherId();const isNew=!a;a=a||Object.assign({weekday:'',schoolId:'',start:'',end:'',hours:'',classes:[]},pre||{});
+  const cl=aClasses(a);const rows=Math.max(4,cl.length+1);
+  const classRows=Array.from({length:8},(_,i)=>`<div class="two" ${i>=rows?'data-more hidden':''}>${field(i===0?'Sınıf / grup':'',classSelect('c_'+i,cl[i]&&cl[i].name))}${field(i===0?'Öğrenci sayısı':'',input('s_'+i,{type:'number',value:cl[i]?cl[i].students:'',min:0,max:200,step:1}))}</div>`).join('');
+  openModal({title:isNew?'Ders günü ekle':'Ders gününü düzenle',meta:'Adım adım doldurun; yanlış bir şey olursa sonra düzeltebilirsiniz',wide:true,
+    body:`<p class="eyebrow">1 · Gün ve okul</p><div class="two">${field('Hangi gün?',select('weekday',DAYS.map((d,i)=>({v:i+1,l:d})),a.weekday,{req:true,ph:'Gün seçin'}))}${field('Hangi okul?',select('schoolId',activeSchools().map(s=>({v:s.id,l:s.name})),a.schoolId,{req:true,ph:'Okul seçin'}),'Okulunuz listede yoksa Tolga Hoca’ya bildirin.')}</div>
+    <p class="eyebrow" style="margin-top:8px">2 · Saatler</p><div class="two">${field('Başlangıç saati',input('start',{type:'time',value:a.start||'',req:true,attrs:'data-mchange="tprogtime"'}))}${field('Bitiş saati',input('end',{type:'time',value:a.end||'',req:true,attrs:'data-mchange="tprogtime"'}))}</div>
+    <div class="two">${field('Toplam süre (saat)',input('hours',{type:'number',value:a.hours||'',min:0.25,max:12,step:0.25}),'Saatlerden otomatik hesaplanır; aradaki teneffüsleri çıkarmak için düzeltebilirsiniz.')}${field('Ders / program adı',input('program',{value:a.program||'',ph:'Robotik kodlama, Drone, Kodlama…',list:'dl-prog'}))}</div>
+    <datalist id="dl-prog"><option>Robotik kodlama</option><option>Kodlama</option><option>Drone</option><option>STEM</option><option>Arduino</option><option>LEGO</option></datalist>
+    <p class="eyebrow" style="margin-top:8px">3 · Sınıflar ve öğrenci sayıları</p>${classRows}
+    <details style="margin-top:4px"><summary class="small" style="cursor:pointer;color:var(--accent)">Daha fazla sınıf ekle</summary><p class="muted small">Aşağıdaki boş satırları kullanın.</p></details>
+    ${field('Not (isteğe bağlı)',input('note',{value:a.note||'',ph:'Ör. 3-A ile 3-B birleşik, teneffüs 10 dk'}))}`,
+    onSubmit:async f=>{
+      if(!f.weekday)return 'Gün seçin.';if(!f.schoolId)return 'Okul seçin.';
+      if(!f.start||!f.end)return 'Başlangıç ve bitiş saatini girin.';
+      const hours=Number(f.hours)||hoursFromTimes(f.start,f.end);if(!(hours>0))return 'Bitiş saati başlangıçtan sonra olmalı.';
+      const classes=[];for(let i=0;i<8;i++){const n=(f['c_'+i]||'').trim();const s=Number(f['s_'+i])||0;if(n)classes.push({name:n,students:s});}
+      const rec=Object.assign({},a,{id:a.id||('a_t_'+uid()),teacherId:a.teacherId||tid,schoolId:f.schoolId,weekday:Number(f.weekday),start:f.start,end:f.end,hours,program:f.program||'',classes,note:f.note||'',students:Array.isArray(a.students)?a.students:[],active:true,validFrom:a.validFrom||todayISO(),validTo:null,source:a.source||'teacher',teacherConfirmed:true,teacherUpdatedAt:nowStamp(),createdAt:a.createdAt||nowStamp()});
+      const err=await attempt(()=>putDoc('assignments',rec));if(err)return err;toast(isNew?'Ders günü eklendi.':'Kaydedildi.','ok');}});
+  setTimeout(()=>{const d=$('#modal-root details');if(d)d.addEventListener('toggle',()=>{document.querySelectorAll('#modal-root [data-more]').forEach(x=>x.hidden=!d.open);});},50);
+}
+function openMySet(x,sid){
+  const tid=myTeacherId();const isNew=!x;x=x||{qty:1,status:'aktif',locType:'okul',locId:sid};
+  openModal({title:isNew?`${esc(sName(x.locId))} · set ekle`:'Seti düzenle',meta:'Okulunuzda kullandığınız setler',
+    body:`${field('Set adı',input('name',{value:x.name||'',req:true,ph:'Ör. LEGO WeDo 2.0',list:'dl-sets'}))}<datalist id="dl-sets">${SET_SUGGEST.map(s=>`<option>${esc(s)}</option>`).join('')}</datalist>
+    <div class="two">${field('Kaç adet?',input('qty',{type:'number',value:x.qty||1,min:1,max:500,step:1,req:true}))}${field('Durumu',select('status',[{v:'aktif',l:'Sağlam'},{v:'arizali',l:'Arızalı'},{v:'eksik',l:'Eksik parça'},{v:'kayip',l:'Kayıp'}],x.status||'aktif'))}</div>
+    ${field('İçerik / not',input('note',{value:x.note||'',ph:'Ör. 5 kutu, 2 tablet ile kullanılıyor; 1 motor eksik'}))}`,
+    onSubmit:async f=>{if(!f.name)return 'Set adını yazın.';const qty=Math.max(1,Number(f.qty)||1);
+      const rec=Object.assign({},x,{id:x.id||('set_t_'+uid()),name:f.name,qty,status:f.status||'aktif',note:f.note||'',locType:'okul',locId:x.locId,addedByTeacher:x.addedByTeacher||(isNew?tid:undefined),history:(x.history||[]).concat([{at:nowStamp(),by:actorLabel(),note:isNew?'Öğretmen ekledi':'Öğretmen güncelledi',to:sName(x.locId)}]),createdAt:x.createdAt||nowStamp()});
+      const err=await attempt(()=>putDoc('sets',rec));if(err)return err;toast(isNew?'Set eklendi.':'Set güncellendi.','ok');}});
+}
+
 function teacherView(){
   switch(state.ui.view){
     case 'school':return schoolDetailView(state.ui.detailId);
+    case 'tprog':return tProgView();
     case 'tmonth':return tMonthView();
     case 'tavail':return tAvailView();
     case 'tsets':return setsView(false);
@@ -1523,6 +1588,11 @@ const ACT={
   delSet(d){const s=state.sets.find(x=>x.id===d.id);if(!s)return;confirmModal('Seti sil',`${esc(s.code||'')} ${esc(s.name)} kaydı ve hareket geçmişi silinecek.`,async()=>{const err=await attempt(()=>delDoc('sets',s.id));if(err)return err;toast('Set silindi.','ok');},'Sil');},
   openMove(d){const s=state.sets.find(x=>x.id===d.id);if(s)openMove(s);},
   openHistory(d){const s=state.sets.find(x=>x.id===d.id);if(!s)return;const h=(s.history||[]).slice().reverse();openModal({title:`${esc(s.code||'')} ${esc(s.name)} · hareketler`,body:h.length?`<div class="hist">${h.map(x=>`<div><div class="mono">${fmtStamp(x.at)} · ${esc(x.by||'')}</div>${x.from?`${esc(x.from)} → `:''}<b>${esc(x.to||'')}</b>${x.note?`<div class="muted">${esc(x.note)}</div>`:''}</div>`).join('')}</div>`:'<p class="muted">Hareket kaydı yok.</p>',submit:false,cancel:'Kapat'});},
+  openMyLesson(d){if(d.id){const a=state.assignments.find(x=>x.id===d.id);if(a)openMyLesson(a);}else openMyLesson(null,d.school?{schoolId:d.school}:null);},
+  delMyLesson(d){const a=state.assignments.find(x=>x.id===d.id);if(!a)return;confirmModal('Ders gününü sil',`${esc(sName(a.schoolId))} · ${Number(a.weekday)>=1?DAYS[a.weekday-1]:''} ${esc(a.start||'')} programınızdan silinsin mi? Geçmiş ders kayıtlarınız silinmez.`,async()=>{const err=await attempt(()=>delDoc('assignments',a.id));if(!err)toast('Silindi.','ok');return err;},'Evet, sil');},
+  openMySet(d){if(d.id){const x=IDX.sets[d.id]||state.sets.find(y=>y.id===d.id);if(x)openMySet(x);}else openMySet(null,d.school);},
+  delMySet(d){const x=IDX.sets[d.id]||state.sets.find(y=>y.id===d.id);if(!x)return;confirmModal('Seti sil',`${esc(x.name)} kaydı silinsin mi?`,async()=>{const err=await attempt(()=>delDoc('sets',x.id));if(!err)toast('Silindi.','ok');return err;},'Evet, sil');},
+  async confirmMyProgram(){const t=teacherById(myTeacherId());if(!t)return;const err=await attempt(async()=>{for(const a of state.assignments.filter(x=>x.teacherId===t.id&&!x.teacherConfirmed))await putDoc('assignments',Object.assign({},a,{teacherConfirmed:true}));await putDoc('teachers',Object.assign({},t,{programConfirmedAt:nowStamp()}));});toast(err||'Programınız onaylandı. Teşekkürler!',err?'bad':'ok');},
   openTeacher(d){openTeacher(d.id?teacherById(d.id):null);},
   delTeacher(d){const t=teacherById(d.id);if(!t)return;const raw=(state.raw&&state.raw.assignments)||state.assignments;
     const sc=isScoped()?state.session.scope:null;
