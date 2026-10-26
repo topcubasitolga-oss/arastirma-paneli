@@ -327,7 +327,7 @@ let modalState=null;
 const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['finance','Finans'],['bsa','BSA Akademi'],['agreements','Sözleşmeler'],['files','Dosyalar'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
 const CAND_STATUS=[['aday','Aday'],['gorusuldu','Görüşüldü'],['deneme','Deneme dersi verdi'],['aktif','Aktif öğretmen'],['pasif','Pasif'],['uygun_degil','Uygun değil']];
 const CAND_TAGS=['Robotik kodlama','Drone','STEM','Yapay zekâ','Okul öncesi','İlkokul','Ortaokul','Lise','Scratch / blok kodlama','Python','Arduino / micro:bit','LEGO Education','3D tasarım','Maker / elektronik','İngilizce ders verebilir'];
-const TEACHER_NAV=[['tprog','Programım'],['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler'],['tcontract','Ücret ve Sözleşme']];
+const TEACHER_NAV=[['tprog','Programım'],['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler'],['tcv',"CV'm"],['tcontract','Ücret ve Sözleşme']];
 const WEEKDAYS6=[1,2,3,4,5,6];
 const SET_STATUS=[['aktif','Aktif'],['arizali','Arızalı'],['eksik','Eksik parça'],['kayip','Kayıp']];
 const SET_CATS=['LEGO SPIKE Prime','LEGO SPIKE Essential','LEGO WeDo 2.0','LEGO BricQ Motion','mBot','micro:bit','Arduino','Bee-Bot','Botley','Matatalab','Cubetto','KUBO','DJI Tello EDU','Drone Soccer','3D Kalem','Makey Makey','Pinoo','Q Scout','OLLO','Diğer'];
@@ -584,6 +584,7 @@ function subscribeAll(db){
     db.collection(c).onSnapshot(snap=>{const docs=snap.docs.map(d=>Object.assign({id:d.id},d.data()));state.raw=state.raw||{};state.raw[c]=docs;state[c]=SCOPE_COLS.includes(c)?scopeFilter(c,docs):docs;if(c==='assignments'||c==='lessons')rescope();if(c==='teachers'&&state.raw.teachers)state.teachers=scopeFilter('teachers',state.raw.teachers);state.loaded[c]=true;onData();},e=>{state.dbError=e;render();});
   }
   db.doc('settings/main').onSnapshot(s=>{state.settings=s.exists?s.data():null;state.loaded.settings=true;onData();},e=>{state.dbError=e;render();});
+  try{db.doc('settings/sig').onSnapshot(s=>{state.sigAssets=s.exists?s.data():null;if(state.ready)render();},()=>{});}catch(e){}
 }
 async function boot(){
   if(REMOTE){
@@ -687,6 +688,7 @@ function noDbView(){
 const ICONS={
   tprog:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h3M8 17h6"/>',
   agreements:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h4"/>',
+  tcv:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',
   tcontract:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 13l2 2 4-4"/>',
   bsa:'<path d="M3 12l4-4 4 3 3-3 7 6"/><path d="M7 16l3 3 4-3"/><path d="M3 18h3M18 18h3"/>',
   overview:'<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/>',
@@ -1651,8 +1653,9 @@ function agrBody(tid,typeA){
   A('ZİMMETLİ EKİPMAN (ROBOTİK SETLER)',[`${W}'e ait robotik setler ve eğitim ekipmanı EĞİTMEN'e ve/veya görev yaptığı okula panel kaydıyla teslim edilir; setler ${W}'in mülkiyetindedir.`,
     `EĞİTMEN, zimmetindeki ekipmanın korunmasından, düzenli sayımından ve amacına uygun kullanımından sorumludur; her ders sonunda parça sayımı yapar; eksik ya da hasarı en geç 24 saat içinde panele kaydeder ve ${W}'e bildirir. Süresinde bildirilmeyen eksiklikler, tespit anında EĞİTMEN'in zimmetinde sayılır.`,
     `Ekipman, ${W}'in yazılı izni olmadan görev yerinden çıkarılamaz, üçüncü kişilere kullandırılamaz ve devredilemez. Sözleşme sona erdiğinde zimmetteki tüm ekipman en geç 3 iş günü içinde eksiksiz teslim edilir.`,
-    `EĞİTMEN'in kusuruyla oluşan kayıp ve hasar, kusuru oranında ve parçanın güncel yenileme bedeli üzerinden tazmin edilir. Olağan aşınma, üretim hatası ve EĞİTMEN'in kusuru bulunmayan hâllerde sorumluluk doğmaz. Hırsızlık, yangın, su baskını gibi EĞİTMEN'in kusuru bulunmayan hâller ile ekipmanın EĞİTMEN'in zimmetinde bulunmadığı sürelerdeki kayıplar bu kapsamda değildir.`,
-    `Tazmin tutarının ücretten mahsubu EĞİTMEN'in her olay için ayrıca vereceği yazılı onaya bağlıdır; bir ayda yapılacak mahsup, EĞİTMEN'in o ayki ücretinin dörtte birini aşamaz, bakiye sonraki aylara aynı sınırla yansıtılır.`]);
+    `<b>Kayıp ve eksik parça:</b> Zimmetteki setlerden kaybolan, eksilen ya da EĞİTMEN'in kusuruyla hasar gören parçaların bedeli EĞİTMEN'e aittir. Bedel, parçanın güncel yenileme (satın alma) fiyatı üzerinden ${W} tarafından belirlenir ve panelde set kaydına işlenir.`,
+    `<b>Bedelin ödenmesi:</b> ${typeA?`EĞİTMEN, kayıp ve eksik parça bedelinin ücretinden kesilmesine işbu sözleşmeyle muvafakat eder; kesinti her olayda yazılı olarak bildirilir. Bir ayda yapılacak kesinti, EĞİTMEN'in o ayki net ücretinin dörtte birini aşamaz; kalan tutar sonraki aylara aynı sınırla yansıtılır.`:`Kayıp ve eksik parça bedeli, EĞİTMEN'in o ayki hak edişinden (ödemesinden) kesilir; tutarın bir aylık ödemeyi aşması hâlinde kalan kısım sonraki ödemelerden kesilir. Sözleşme sona ererken teslim edilmeyen ekipmanın bedeli son ödemeden düşülür.`}`,
+    `Olağan kullanımdan doğan aşınma, üretim hatası ve EĞİTMEN'in kusuru bulunmayan hâller (okulda kilitli dolapta bulunurken yaşanan hırsızlık, yangın, su baskını vb.) ile ekipmanın EĞİTMEN'in zimmetinde bulunmadığı sürelerdeki kayıplar EĞİTMEN'e yüklenmez. Bu hâllerin de en geç 24 saat içinde bildirilmesi gerekir; bildirilmeyen kayıplar EĞİTMEN'in sorumluluğundadır.`]);
   A('EĞİTMEN\'İN YÜKÜMLÜLÜKLERİ',[`EĞİTMEN, ${W}'in belirlediği müfredata uygun ders verir, görev yaptığı okulun kurallarına uyar ve öğrenci güvenliğini her an gözetir; öğrencileri ders süresince gözetimsiz bırakmaz.`,
     `EĞİTMEN, okul yönetimi, veliler veya öğrencilerle ücret, sözleşme ve ${W}'in ticari koşulları hakkında görüşme yapamaz; bu konudaki talepleri ${W}'e yönlendirir.`,
     `EĞİTMEN, ${W}'in yazılı izni olmadan görev yaptığı okullarda kendi adına veya üçüncü kişiler adına ücretli ya da ücretsiz ders, kurs veya etkinlik veremez.`]);
@@ -1660,13 +1663,13 @@ function agrBody(tid,typeA){
     `${W}'e ait müfredat, ders planı ve eğitim materyalleri çoğaltılamaz, üçüncü kişilerle paylaşılamaz ve EĞİTMEN tarafından kendi adına kullanılamaz; bu materyaller üzerindeki haklar ${W}'e aittir.`]);
   A('MÜŞTERİ ÇEVRESİNE YÖNELMEME, AYARTMA VE DOLANMA YASAĞI',[
     `<b>Korunan Müşteri:</b> EĞİTMEN'in bu sözleşme kapsamında fiilen ders verdiği, ders vermek üzere görevlendirildiği veya ${W} adına tanıtım ya da teklif sunduğu okul, kurum ve kuruluşlardır. EK-1'de sayılan kurumlar Korunan Müşteri listesinin parçasıdır; görev yeri değiştikçe liste panel üzerinden güncellenir.`,
-    `EĞİTMEN, sözleşme süresince ve sözleşmenin sona ermesinden itibaren <b>2 (iki) yıl</b> süreyle Korunan Müşterilere robotik, kodlama ve benzeri teknoloji eğitimi hizmetini doğrudan veya dolaylı olarak veremez, bu kurumlara teklif sunamaz ve bu kurumlarla sözleşme yapamaz.`,
-    `<b>Dolanma yasağı:</b> "Dolaylı" ibaresi; EĞİTMEN'in eşi, birinci ve ikinci derece hısımları, ortağı, yöneticisi, çalışanı, danışmanı, temsilcisi veya alt yüklenicisi olduğu gerçek ve tüzel kişiler eliyle yapılan işlemleri de kapsar.`,
+    `EĞİTMEN, sözleşme süresince ve sözleşmenin sona ermesinden itibaren <b>2 (iki) yıl</b> boyunca aşağıdakileri <b>yapamaz</b>:<br>(a) ${W} adına gittiği okul ve kurumlarla, ${W}'i devre dışı bırakarak kendi adına ya da başka bir kişi veya firma adına <b>doğrudan ya da arka planda anlaşma yapamaz</b>;<br>(b) bu okullara ${W}'in fiyatından <b>daha uygun ya da farklı bir teklif sunamaz</b>, sunulmasına aracılık edemez;<br>(c) bu okullarda ${W} dışında bir kişi veya firma adına ya da kendi adına <b>robotik, kodlama ve teknoloji eğitimi veremez, çalışamaz</b>;<br>(d) okul yönetimini ${W} ile çalışmayı bırakmaya veya sözleşmeyi yenilememeye yönlendiremez.`,
+    `<b>Dolanma yasağı:</b> Bu yasaklar, EĞİTMEN'in eşi, birinci ve ikinci derece hısımları, ortağı, yöneticisi, çalışanı, danışmanı, temsilcisi veya alt yüklenicisi olduğu gerçek ve tüzel kişiler eliyle yapılan işlemleri de kapsar; EĞİTMEN yasağı bu kişiler aracılığıyla dolanamaz.`,
     `<b>Ayartma yasağı:</b> EĞİTMEN aynı süre içinde Korunan Müşterileri ${W} ile sözleşmesini feshetmeye veya yenilememeye yöneltemez; ${W}'in diğer eğitmenlerini ayrılmaya teşvik edemez.`,
     `<b>İş sırrı ve haksız rekabet:</b> Müşteri listesi, okul bağlantıları, fiyat yapısı, müfredat ve iş modeli 6102 sayılı Türk Ticaret Kanunu m.55/1-d anlamında iş sırrıdır; izinsiz kullanımı haksız rekabet teşkil eder.`,
     `Yasak; süre (2 yıl), yer (yalnızca Korunan Müşteriler) ve konu (robotik, kodlama ve teknoloji eğitimi) bakımından sınırlıdır; EĞİTMEN'in başka kurumlarda çalışmasını engellemez.`,
-    `<b>Cezai şart:</b> İşbu maddeye aykırılık hâlinde EĞİTMEN, her bir aykırılık için <b>${tlx(cfg.penalty)}</b> cezai şart öder. Cezai şartın ödenmesi aykırılığı sürdürme hakkı vermez; ${W}'in bu tutarı aşan zararını ve haksız rekabetten doğan taleplerini ileri sürme hakkı saklıdır.`,
-    `<b>Aykırılığa son verilmesi:</b> ${W}, cezai şart ve zararın tazmini yanında, yasağa aykırı davranışa son verilmesini talep etme hakkını açıkça saklı tutar${typeA?' (6098 sayılı TBK m.446/3)':''}.`,
+    `<b>Aykırılığın sonuçları:</b> Bu maddeye aykırılık hâlinde EĞİTMEN, ${W}'in bu nedenle uğradığı tüm zararı (kaybedilen okulun ${W}'e ödediği/ödeyeceği hizmet bedeli ve yoksun kalınan kazanç dahil) tazmin etmekle yükümlüdür. ${W}, zararın tazmini ile haksız rekabetten doğan talepleri için dava açma ve icra takibi başlatma hakkına sahiptir.`,
+    `<b>Aykırılığa son verilmesi:</b> ${W}, zararın tazmini yanında, yasağa aykırı davranışa son verilmesini (aykırı çalışmanın durdurulmasını) mahkemeden talep etme hakkını açıkça saklı tutar${typeA?' (6098 sayılı TBK m.446/3)':''}.`,
     `<b>Bildirim:</b> EĞİTMEN, sözleşmenin sona ermesinden itibaren 2 yıl içinde bir Korunan Müşteriden doğrudan veya dolaylı iş teklifi alırsa bunu 7 gün içinde ${W}'e yazılı olarak bildirir.`]
     .concat(typeA?[`İşbu madde, İŞVEREN tarafından haklı bir sebep olmaksızın yapılan fesih ile EĞİTMEN'in İŞVEREN'e yüklenebilen bir nedenle haklı fesih yapması hâllerinde TBK m.447/2 uyarınca sona erer.`]:[]));
   A('KİŞİSEL VERİLER VE GÖRSELLER',[`EĞİTMEN'in kişisel verileri, işbu sözleşmeye ekli KVKK Aydınlatma Metni'nde açıklanan amaçlarla işlenir.`,
@@ -1702,9 +1705,10 @@ function agrBody(tid,typeA){
 function agrFill(a){
   const p=agrPersonal(Object.assign({name:(teacherById(a.teacherId)||{}).name||a.name},a.personal||{}));
   const onay=a.acceptedAt?`<div class="agr-stamp">Elektronik onay: ${esc(p.name)} · ${new Date(a.acceptedAt).toLocaleString('tr-TR')} · sözleşme sürümü ${esc(a.acceptedVersion)} · doğrulama kodu ${esc(a.acceptedHash||a.hash)}${a.consentAt?' · açık rıza verildi':' · açık rıza verilmedi'}</div>`:'';
-  return String(a.body||'').replace(/{{AD}}/g,p.name).replace(/{{TC}}/g,p.tc).replace(/{{ADRES}}/g,p.address).replace(/{{IBAN}}/g,p.iban).replace(/{{EPOSTA}}/g,p.email).replace(/{{TEL}}/g,p.phone).replace('{{ONAY}}',onay);
+  const sg=state.sigAssets||{};const ttsig=(sg.sig||sg.stamp)?`<div class="ttsig">${sg.stamp?`<img class="stamp" src="${esc(sg.stamp)}" alt="Kaşe">`:''}${sg.sig?`<img class="sig" src="${esc(sg.sig)}" alt="İmza">`:''}</div>`:'';
+  return String(a.body||'').replace(/İmza \/ Kaşe:/g,'İmza / Kaşe:'+ttsig).replace(/{{AD}}/g,p.name).replace(/{{TC}}/g,p.tc).replace(/{{ADRES}}/g,p.address).replace(/{{IBAN}}/g,p.iban).replace(/{{EPOSTA}}/g,p.email).replace(/{{TEL}}/g,p.phone).replace('{{ONAY}}',onay);
 }
-const AGR_CSS=`.agr-doc{font:14px/1.55 Georgia,'Times New Roman',serif;color:#111}.agr-doc h1{font-size:20px;text-align:center;margin:0 0 4px}.agr-doc .sub{text-align:center;color:#555;margin:0 0 18px}.agr-doc h2{font-size:16px;margin:26px 0 8px}.agr-doc h3{font-size:14px;margin:18px 0 6px}.agr-doc p{margin:0 0 8px;text-align:justify}.agr-doc table.ek{width:100%;border-collapse:collapse;font-size:12.5px}.agr-doc table.ek th,.agr-doc table.ek td{border:1px solid #999;padding:6px;vertical-align:top;text-align:left}.agr-doc table.sig{width:100%;margin:22px 0}.agr-doc table.sig td{width:50%;vertical-align:top;padding:8px}.agr-doc .agr-stamp{margin-top:18px;padding:8px;border:1px dashed #555;font-size:12px}`;
+const AGR_CSS=`.agr-doc{font:14px/1.55 Georgia,'Times New Roman',serif;color:#111}.agr-doc h1{font-size:20px;text-align:center;margin:0 0 4px}.agr-doc .sub{text-align:center;color:#555;margin:0 0 18px}.agr-doc h2{font-size:16px;margin:26px 0 8px}.agr-doc h3{font-size:14px;margin:18px 0 6px}.agr-doc p{margin:0 0 8px;text-align:justify}.agr-doc table.ek{width:100%;border-collapse:collapse;font-size:12.5px}.agr-doc table.ek th,.agr-doc table.ek td{border:1px solid #999;padding:6px;vertical-align:top;text-align:left}.agr-doc table.sig{width:100%;margin:22px 0}.agr-doc table.sig td{width:50%;vertical-align:top;padding:8px}.agr-doc .ttsig{position:relative;height:120px;margin-top:4px}.agr-doc .ttsig .stamp{position:absolute;left:0;top:0;height:118px;opacity:.95}.agr-doc .ttsig .sig{position:absolute;left:142px;top:34px;height:48px}.agr-doc .agr-stamp{margin-top:18px;padding:8px;border:1px dashed #555;font-size:12px}`;
 function agrStatus(a){
   if(!a||!a.sentAt)return ['', 'Gönderilmedi'];
   if(a.signedFile||a.signedReceivedAt)return ['ok','İmzalı belge alındı'];
@@ -1730,7 +1734,7 @@ function agreementsView(){
   return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Yalnızca baş yönetici</p><h1>Öğretmen sözleşmeleri</h1><p class="sub">Her öğretmene kendi ücret çizelgesiyle (EK-1) kişiye özel sözleşme gönderilir. Öğretmen "Ücret ve Sözleşme" sayfasında okuyup onaylar, PDF alıp imzalar ve yükler. ${ts.length} öğretmen · ${sent} gönderildi · ${acc} onaylandı · ${sig} imzalı</p></div><div class="toolbar">${btn('agrSettings',{},'Sözleşme ayarları','sm')}${btn('agrSendAll',{},'Gönderilmeyenlerin hepsini gönder','primary sm')}</div></div>
   ${!cfg.address||!cfg.taxNo?`<p class="note warn">Sözleşmede şirket unvanı, adresi ve vergi bilgisi eksik. "Sözleşme ayarları"ndan tamamlayın; tamamlayınca sözleşmeleri yeniden gönderin.</p>`:''}
   <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th>Sözleşme türü</th><th>Okullar (EK-1)</th><th>Durum</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">Programı olan öğretmen yok.</td></tr>'}</tbody></table></div>
-  <p class="muted small">Cezai şart: ${tlx(cfg.penalty)} · yetkili yer: ${esc(cfg.court)} · dönem ${fmtDMY(cfg.periodStart)} – ${fmtDMY(cfg.periodEnd)}. Sözleşme metinleri imzaya açılmadan önce bir iş hukuku avukatına okutulmalıdır.</p></section>`;
+  <p class="muted small">Yetkili yer: ${esc(cfg.court)} · dönem ${fmtDMY(cfg.periodStart)} – ${fmtDMY(cfg.periodEnd)}. Sözleşme metinleri imzaya açılmadan önce bir iş hukuku avukatına okutulmalıdır.</p></section>`;
 }
 async function agrSendOne(tid){
   const a=agrOf(tid)||{};const {insured}=agrRows(tid);const typeA=a.typeOverride?a.typeOverride==='A':insured;
@@ -1779,6 +1783,24 @@ async function agrUpload(tid,file){
   if(err)toast(err,'bad');else toast('İmzalı sözleşme yüklendi. Teşekkürler!','ok');
 }
 
+function tCvView(){
+  const t=teacherById(myTeacherId())||{};const cv=t.cvFile;
+  return `<div class="pagehead"><div><p class="eyebrow">Özgeçmiş</p><h1>CV'm</h1><p class="muted">Güncel CV'nizi PDF olarak yükleyin. CV'niz yalnızca TT Robotics yönetimine görünür ve gerektiğinde okullara tanıtım için gönderilir.</p></div></div>
+  <section class="card"><h2>${cv?'Yüklü CV':'CV ekle'}</h2>
+    ${cv?`<p>${chip('ok','CV yüklendi')} <span class="muted small">${esc(cv.name)} · ${new Date(cv.at).toLocaleString('tr-TR')}</span></p><p class="muted small">Yeni bir dosya seçerseniz eski CV'nin yerine geçer.</p>`:'<p class="muted small">Henüz CV yüklemediniz.</p>'}
+    <ul class="muted small"><li>PDF tercih edin (en fazla 10 MB).</li><li>Eğitim, robotik/kodlama deneyimi, sertifikalar ve iletişim bilgileriniz yer alsın.</li><li>Word dosyasını "Farklı kaydet → PDF" ile PDF'e çevirebilirsiniz.</li></ul>
+    <input type="file" id="cv-file" accept="application/pdf,image/jpeg,image/png"></section>`;
+}
+async function cvUpload(file){
+  if(!state.remote||!state.db.upload){toast('CV yükleme yalnızca canlı sitede çalışır.','bad');return;}
+  if(file.size>10*1024*1024){toast('Dosya 10 MB\'tan büyük.','bad');return;}
+  const mime=guessType(file);if(!['application/pdf','image/jpeg','image/png'].includes(mime)){toast('CV PDF olarak yüklenmeli.','bad');return;}
+  toast('CV yükleniyor…');
+  const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+  const err=await attempt(async()=>{await state.db.upload({col:'cv',id:myTeacherId(),name:file.name,mime,b64});await state.db.refresh();});
+  toast(err||'CV yüklendi. Teşekkürler!',err?'bad':'ok');
+}
+
 function teacherView(){
   switch(state.ui.view){
     case 'school':return schoolDetailView(state.ui.detailId);
@@ -1787,6 +1809,7 @@ function teacherView(){
     case 'tavail':return tAvailView();
     case 'tsets':return tSetsView();
     case 'tcontract':return tContractView();
+    case 'tcv':return tCvView();
     default:return tLessonsView();
   }
 }
@@ -1928,7 +1951,7 @@ const ACT={
   agrUploadFor(d){const i=document.createElement('input');i.type='file';i.accept='application/pdf,image/*';i.onchange=()=>{if(i.files[0])agrUpload(d.id,i.files[0]);};i.click();},
   async agrMarkReceived(d){const a=agrOf(d.id);if(!a)return;const err=await attempt(()=>putDoc('agreements',Object.assign({},a,{signedReceivedAt:a.signedReceivedAt?null:nowStamp()})));toast(err||(a.signedReceivedAt?'İşaret kaldırıldı.':'İmzalı nüsha teslim alındı olarak işaretlendi.'),err?'bad':'ok');},
   agrType(d){const a=agrOf(d.id)||{};const {insured}=agrRows(d.id);openModal({title:'Sözleşme türü · '+esc(tName(d.id)),body:field('Tür',`<select name="t"><option value="">Otomatik (${insured?'sigortalı':'standart'})</option><option value="A" ${a.typeOverride==='A'?'selected':''}>Kısmi süreli iş sözleşmesi (sigortalı)</option><option value="B" ${a.typeOverride==='B'?'selected':''}>Eğitim hizmeti sözleşmesi</option></select>`,'Otomatik: ücret anlaşmasında "+ sigorta" varsa sigortalı sözleşme kullanılır.'),onSubmit:async f=>{const err=await attempt(()=>putDoc('agreements',Object.assign({},a,{id:d.id,teacherId:d.id,typeOverride:f.t||null})));if(err)return err;toast('Kaydedildi. Değişiklik için sözleşmeyi yeniden gönderin.','ok');}});},
-  agrSettings(){const c=agrCfg();openModal({title:'Sözleşme ayarları',meta:'Tüm öğretmen sözleşmelerinde kullanılır. Değiştirdikten sonra sözleşmeleri yeniden gönderin.',wide:true,body:`<div class="two">${field('Şirket unvanı',input('company',{value:c.company,req:true}))}${field('Vergi dairesi / no',input('taxNo',{value:c.taxNo}))}</div>${field('Adres',input('address',{value:c.address}))}${field('İletişim (telefon / e-posta)',input('contact',{value:c.contact}))}<div class="two">${field('Cezai şart (TL, her aykırılık için)',input('penalty',{type:'number',value:c.penalty,min:0,step:1000}))}${field('Yetkili mahkeme yeri',input('court',{value:c.court}))}</div><div class="two">${field('Dönem başlangıcı',input('periodStart',{type:'date',value:c.periodStart}))}${field('Dönem sonu',input('periodEnd',{type:'date',value:c.periodEnd}))}</div><div class="two">${field('Devamsızlık bildirimi (saat önce)',input('notifyHours',{type:'number',value:c.notifyHours,min:0}))}${field('Ödeme günü (takip eden ayın)',input('payDay',{type:'number',value:c.payDay,min:1,max:28}))}</div>`,onSubmit:async f=>{const v={company:f.company,taxNo:f.taxNo,address:f.address,contact:f.contact,penalty:Number(f.penalty)||0,court:f.court,periodStart:f.periodStart,periodEnd:f.periodEnd,notifyHours:Number(f.notifyHours)||48,payDay:Number(f.payDay)||10};const err=await attempt(()=>saveSettings({contract:v}));if(err)return err;toast('Sözleşme ayarları kaydedildi.','ok');}});},
+  agrSettings(){const c=agrCfg();openModal({title:'Sözleşme ayarları',meta:'Tüm öğretmen sözleşmelerinde kullanılır. Değiştirdikten sonra sözleşmeleri yeniden gönderin.',wide:true,body:`<div class="two">${field('Şirket unvanı',input('company',{value:c.company,req:true}))}${field('Vergi dairesi / no',input('taxNo',{value:c.taxNo}))}</div>${field('Adres',input('address',{value:c.address}))}${field('İletişim (telefon / e-posta)',input('contact',{value:c.contact}))}${field('Yetkili mahkeme yeri',input('court',{value:c.court}))}<div class="two">${field('Dönem başlangıcı',input('periodStart',{type:'date',value:c.periodStart}))}${field('Dönem sonu',input('periodEnd',{type:'date',value:c.periodEnd}))}</div><div class="two">${field('Devamsızlık bildirimi (saat önce)',input('notifyHours',{type:'number',value:c.notifyHours,min:0}))}${field('Ödeme günü (takip eden ayın)',input('payDay',{type:'number',value:c.payDay,min:1,max:28}))}</div>`,onSubmit:async f=>{const v={company:f.company,taxNo:f.taxNo,address:f.address,contact:f.contact,court:f.court,periodStart:f.periodStart,periodEnd:f.periodEnd,notifyHours:Number(f.notifyHours)||48,payDay:Number(f.payDay)||10};const err=await attempt(()=>saveSettings({contract:v}));if(err)return err;toast('Sözleşme ayarları kaydedildi.','ok');}});},
   async agrSavePersonal(){const fm=$('#agr-personal');if(!fm)return;const g=n=>(fm.querySelector(`[name=${n}]`)||{}).value||'';const p={name:g('name').trim(),tc:g('tc').replace(/\D/g,''),address:g('address').trim(),phone:g('phone').trim(),email:g('email').trim(),iban:g('iban').toUpperCase().replace(/\s/g,'')};
     if(!p.name||!p.address)return toast('Ad soyad ve adres zorunlu.','bad');if(!/^\d{11}$/.test(p.tc))return toast('T.C. kimlik no 11 haneli olmalı.','bad');if(!/^TR\d{24}$/.test(p.iban))return toast('IBAN TR ile başlayan 26 karakter olmalı.','bad');
     const a=agrOf(myTeacherId());const err=await attempt(()=>putDoc('agreements',Object.assign({},a,{personal:p})));toast(err||'Bilgileriniz kaydedildi.',err?'bad':'ok');},
@@ -1937,7 +1960,7 @@ const ACT={
     const now=nowStamp();const err=await attempt(()=>putDoc('agreements',Object.assign({},a,{accept:true,consent:!!(c3&&c3.checked),acceptedAt:now,acceptedVersion:a.version,acceptedHash:a.hash,kvkkAt:now,consentAt:c3&&c3.checked?now:null})));toast(err||'Sözleşmeyi onayladınız. Şimdi PDF olarak indirip imzalayın.',err?'bad':'ok');},
   async delHoliday(d){const hol=(S().holidays||[]).filter(h=>h.id!==d.id);const err=await attempt(()=>saveSettings({holidays:hol}));toast(err||'Tatil silindi.',err?'bad':'ok');}
 };
-$('#app').addEventListener('change',e=>{if(e.target.id==='agr-file'&&e.target.files[0]){agrUpload(myTeacherId(),e.target.files[0]);e.target.value='';}});
+$('#app').addEventListener('change',e=>{if(e.target.id==='agr-file'&&e.target.files[0]){agrUpload(myTeacherId(),e.target.files[0]);e.target.value='';}if(e.target.id==='cv-file'&&e.target.files[0]){cvUpload(e.target.files[0]);e.target.value='';}});
 $('#app').addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;e.preventDefault();const fn=ACT[el.dataset.act];if(fn)fn(el.dataset);});
 $('#app').addEventListener('change',e=>{const el=e.target.closest('[data-change]');if(!el)return;state.ui[el.dataset.change]=el.type==='checkbox'?el.checked:el.value;render();});
 $('#app').addEventListener('input',e=>{const el=e.target.closest('[data-input]');if(!el)return;const k=el.dataset.input;state.ui[k]=el.value;
