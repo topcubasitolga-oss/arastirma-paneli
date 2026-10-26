@@ -1154,7 +1154,8 @@ function openFixedPay(sid){
 const TARIFF_DEFAULT={tiers:[{min:1,rate:750},{min:3,rate:650},{min:6,rate:600}],load:22,golden:3};
 const tariff=()=>{const d=(state.contracts||[]).find(c=>c.id==='cfg_tariff');return d&&Array.isArray(d.tiers)&&d.tiers.length?Object.assign({},TARIFF_DEFAULT,d):(d?Object.assign({},TARIFF_DEFAULT,d,{tiers:TARIFF_DEFAULT.tiers}):null);};
 const tierRate=(t,h)=>{let r=t.tiers[0].rate;for(const x of t.tiers.slice().sort((a,b)=>a.min-b.min))if(h>=x.min)r=x.rate;return r;};
-const explicitRate=l=>{if(Number(l.rate)>0)return Number(l.rate);const a=state.assignments.find(x=>x.id===l.assignmentId);return a&&a.rate?Number(a.rate):null;};
+const dealLessonRate=(sid,tid,date)=>{const c=(state.contracts||[]).find(x=>(x.schoolId||x.id)===sid);if(!c||!c.teacherDeals)return null;const wd=date?new Date(date+'T12:00:00').getDay():null;const d=c.teacherDeals.find(x=>x.teacherId===tid&&x.model==='ders'&&Number(x.perLesson)>0&&(!x.days||!x.days.length||wd==null||x.days.includes(wd)));return d?Number(d.perLesson):null;};
+const explicitRate=l=>{if(Number(l.rate)>0)return Number(l.rate);const a=state.assignments.find(x=>x.id===l.assignmentId);if(a&&Number(a.rate)>0)return Number(a.rate);return dealLessonRate(l.schoolId,l.teacherId,l.date);};
 let PAYMEMO={};
 function teacherPay(ym){
   if(PAYMEMO[ym])return PAYMEMO[ym];
