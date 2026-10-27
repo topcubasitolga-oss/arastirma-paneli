@@ -199,6 +199,11 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 input[type=file]{width:100%;border:1px dashed var(--line);background:var(--surface-2);border-radius:10px;padding:10px}
 /* forms */
 .fld{display:flex;flex-direction:column;gap:5px}
+.setsug-wrap{position:relative}
+.setsug{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);max-height:240px;overflow:auto;padding:4px}
+.setsug-i{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:8px;font:inherit;color:inherit;cursor:pointer}
+.setsug-i:hover{background:var(--line)}
+.setsug-new{color:var(--accent,#1a73e8);font-weight:600;border-top:1px solid var(--line);border-radius:0 0 8px 8px}
 .fld>span{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.03em}
 .fld small{color:var(--muted);font-size:11.5px}
 .fld.row{flex-direction:row;align-items:center;gap:8px}
@@ -1543,7 +1548,7 @@ function setCatalogSection(admin){
   const groups={};for(const x of catalogAll())(groups[x[0]]=groups[x[0]]||[]).push(x);
   const open=state.ui.setCatOpen;
   return `<section><div class="sechead"><h2>Set kataloğu</h2><div class="toolbar"><span class="muted small">${catalogAll().length} set türü · kataloglarımızdaki setler</span>${btn('setCatToggle',{},open?'Gizle':'Kataloğu göster','sm')}</div></div>
-  ${open?Object.entries(groups).map(([g,arr])=>`<h3 class="small" style="margin:12px 0 6px">${esc(g)}</h3><div class="tbl-wrap"><table class="tbl"><tbody>${arr.map(x=>`<tr><td><b>${esc(x[1])}</b>${x[3]?`<div class="muted small">${esc(x[3])}</div>`:''}</td><td class="small">${esc(x[2])} yaş</td><td class="act">${btn(admin?'openSetCat':'openMySetCat',{name:x[1]},'+ Bu seti ekle','sm')}</td></tr>`).join('')}</tbody></table></div>`).join('')+`<p class="muted small">Listede olmayan bir seti yukarıdaki "+ Set ekle" ile adını yazarak ekleyebilirsiniz. Set hemen okul listesine girer; katalog dışı olduğu için yönetici onayına düşer.</p>`:''}</section>`;
+  ${open?Object.entries(groups).map(([g,arr])=>`<h3 class="small" style="margin:12px 0 6px">${esc(g)}</h3><div class="tbl-wrap"><table class="tbl"><tbody>${arr.map(x=>`<tr><td><b>${esc(x[1])}</b>${x[3]?`<div class="muted small">${esc(x[3])}</div>`:''}</td><td class="small">${esc(x[2])} yaş</td><td class="act">${btn(admin?'openSetCat':'openMySetCat',{name:x[1]},'+ Bu seti ekle','sm')}</td></tr>`).join('')}</tbody></table></div>`).join('')+`<p class="muted small">Listede olmayan bir seti yukarıdaki "+ Listede olmayan set" düğmesiyle adını yazarak ekleyebilirsiniz. Set hemen okul listesine girer; katalog dışı olduğu için yönetici onayına düşer.</p>`:''}</section>`;
 }
 function tSetsView(){
   const tid=myTeacherId();const q=(state.ui.setsQ||'').toLocaleLowerCase('tr');
@@ -1554,7 +1559,7 @@ function tSetsView(){
   const groups={};for(const x of state.sets){const k=(x.name||'').trim().toLocaleLowerCase('tr');if(!k)continue;const g=groups[k]||(groups[k]={name:x.name,qty:0,places:{}});const n=Number(x.qty)||1;g.qty+=n;const pl=x.locType==='ogretmen'?tName(x.locId)+' (zimmet)':sName(setSchool(x))||'Depo';g.places[pl]=(g.places[pl]||0)+n;}
   const gl=Object.values(groups).sort((a,b)=>b.qty-a.qty);
   const total=state.sets.reduce((n,x)=>n+(Number(x.qty)||1),0);
-  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Setler</p><h1>Hangi set nerede?</h1><p class="sub">Görev yaptığınız okullardaki ve sizdeki setler. Kullandığınız ya da üzerinizdeki seti ekleyin; katalogda olmayan bir seti de adını yazarak ekleyebilirsiniz.</p></div><div class="toolbar">${btn('openMySet',{},'+ Set ekle','primary')}</div></div>
+  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Setler</p><h1>Hangi set nerede?</h1><p class="sub">Görev yaptığınız okullardaki ve sizdeki setler. Kullandığınız ya da üzerinizdeki seti ekleyin; katalogda olmayan bir seti de adını yazarak ekleyebilirsiniz.</p></div><div class="toolbar">${btn('openMySet',{},'+ Set ekle','primary')}${btn('openMySetNew',{},'+ Listede olmayan set')}</div></div>
   <section class="tiles">${tile(fmtNum(total),'toplam set / malzeme')}${tile(gl.length,'farklı set türü')}${tile(new Set(state.sets.map(setSchool).filter(Boolean)).size,'okul')}${tile(state.sets.filter(x=>x.locType==='ogretmen').reduce((n,x)=>n+(Number(x.qty)||1),0),'öğretmende zimmetli')}</section>
   ${gl.length?`<section><div class="sechead"><h2>Toplamlar</h2><span class="muted small">Aynı adlı setler toplanır</span></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Set</th><th class="num">Toplam</th><th>Nerede</th></tr></thead><tbody>${gl.map(g=>`<tr><td><b>${esc(g.name)}</b></td><td class="num"><b>${fmtNum(g.qty)}</b></td><td class="small">${Object.entries(g.places).map(([p,n])=>`${esc(p)}: <b>${fmtNum(n)}</b>`).join(' · ')}</td></tr>`).join('')}</tbody></table></div></section>`:''}
   <section><div class="sechead"><h2>Tüm setler</h2><div class="toolbar"><input type="search" data-change="setsQ" value="${esc(state.ui.setsQ||'')}" placeholder="Set, okul, öğretmen ara (Enter)" style="max-width:240px"><label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-change="tsetsMine" ${state.ui.tsetsMine?'checked':''}> Sadece benimkiler</label></div></div>
@@ -1562,20 +1567,33 @@ function tSetsView(){
     return `<tr><td><b>${esc(x.name)}</b>${x.catPending?`<div>${chip('warn','Katalog dışı · onay bekliyor')}</div>`:''}${x.note?`<div class="muted small">${esc(x.note)}</div>`:''}</td><td class="num">${fmtNum(x.qty||1)}</td><td>${setWhere(x)}</td><td class="small">${(x.grades||[]).map(esc).join(', ')||'<span class="muted">—</span>'}</td><td>${chip(!x.status||x.status==='aktif'?'ok':'warn',esc((SET_STATUS.find(s=>s[0]===(x.status||'aktif'))||['','Aktif'])[1]))}</td><td class="small">${x.addedByTeacher?esc(tName(x.addedByTeacher)):'<span class="muted">Yönetici</span>'}</td><td class="act">${mine||held?btn('openMySet',{id:x.id},'Düzenle'):''}${mine?btn('delMySet',{id:x.id},'Sil'):''}${!held?btn('claimSet',{id:x.id},'Bende','ghost sm'):btn('releaseSet',{id:x.id},'Okula bıraktım','ghost sm')}</td></tr>`;}).join('')}</tbody></table></div>`:'<p class="empty">Henüz set kaydı yok. “+ Set ekle” ile başlayın.</p>'}</section>${setCatalogSection(false)}`;
 }
 function openMySet(x,sid,pre){
-  const tid=myTeacherId();const isNew=!x;x=x||Object.assign({qty:1,status:'aktif',locType:'okul',locId:sid||'',grades:[]},pre||{});
+  const tid=myTeacherId();const isNew=!x;x=x||Object.assign({qty:1,status:'aktif',locType:'okul',locId:sid||'',grades:[]},pre||{});delete x.custom;
   const sch=setSchool(x)||sid||'';const held=x.locType==='ogretmen'&&x.locId===tid;
   openModal({title:isNew?'Set ekle':'Seti düzenle',meta:'Eklediğiniz set sizin ve yöneticinin listesinde görünür',wide:true,
-    body:`<div class="two">${field('Hangi okul?',select('schoolId',(()=>{const my=new Set(state.assignments.filter(a=>a.teacherId===tid&&a.active!==false).map(a=>a.schoolId));const l=activeSchools().filter(s=>my.has(s.id));return (l.length?l:activeSchools()).map(s=>({v:s.id,l:s.name}));})(),sch,{req:true,ph:'Okul seçin'}))}${field('Set adı',input('name',{value:x.name||'',req:true,ph:'Ör. LEGO WeDo 2.0',list:'dl-sets'}))}</div><datalist id="dl-sets">${catalogAll().map(s=>`<option>${esc(s[1])}</option>`).join('')}</datalist>
+    body:`<div class="two">${field('Hangi okul?',select('schoolId',(()=>{const my=new Set(state.assignments.filter(a=>a.teacherId===tid&&a.active!==false).map(a=>a.schoolId));const l=activeSchools().filter(s=>my.has(s.id));return (l.length?l:activeSchools()).map(s=>({v:s.id,l:s.name}));})(),sch,{req:true,ph:'Okul seçin'}))}${field('Set adı',`<div class="setsug-wrap">${input('setName',{value:x.name||'',req:true,ph:pre&&pre.custom?'Listede olmayan setin adını yazın':'Yazmaya başlayın ya da listeden seçin',attrs:'autocomplete="off" autocorrect="off" spellcheck="false" data-setsug="1" aria-autocomplete="list"'})}<div class="setsug" id="setsug" hidden></div></div><div class="small muted" id="sethint">${setHint(x.name||'')}</div>`)}</div>
     <div class="fld"><span>Hangi sınıflar için kullanıyorsunuz?</span><div style="display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:4px">${GRADE_OPTS.map((g,i)=>`<label class="small" style="display:flex;gap:6px;align-items:center"><input type="checkbox" name="g_${i}" value="${esc(g)}" ${(x.grades||[]).includes(g)?'checked':''}> ${esc(g)}</label>`).join('')}</div></div>
     <div class="two">${field('Kaç adet?',input('qty',{type:'number',value:x.qty||1,min:1,max:500,step:1,req:true}))}${field('Durumu',select('status',SET_STATUS.map(s=>({v:s[0],l:s[1]})),x.status||'aktif'))}</div>
     <label class="small" style="display:flex;gap:8px;align-items:center;margin:4px 0 10px"><input type="checkbox" name="held" value="1" ${held?'checked':''}> <b>Bu set bende (zimmetimde)</b> — işaretlemezseniz okulda duruyor sayılır</label>
     ${field('İçerik / not',input('note',{value:x.note||'',ph:'Ör. 5 kutu, 2 tablet ile; 1 motor eksik'}))}`,
-    onSubmit:async f=>{if(!f.schoolId)return 'Okul seçin.';if(!f.name)return 'Set adını yazın.';
+    onSubmit:async f=>{f.name=String(f.setName||'').trim();if(!f.schoolId)return 'Okul seçin.';if(!f.name)return 'Set adını yazın.';
       const grades=GRADE_OPTS.filter((g,i)=>f['g_'+i]);const qty=Math.max(1,Number(f.qty)||1);const h=!!f.held;
       const loc=h?{locType:'ogretmen',locId:tid}:{locType:'okul',locId:f.schoolId};
       const rec=Object.assign({},x,{id:x.id||('set_t_'+uid()),catPending:!inCatalog(f.name)&&!(x.catApproved&&setNorm(x.name)===setNorm(f.name)),name:f.name,qty,status:f.status||'aktif',note:f.note||'',grades,schoolId:f.schoolId},loc,{addedByTeacher:x.addedByTeacher||(isNew?tid:undefined),history:(x.history||[]).concat([{at:nowStamp(),by:actorLabel(),note:isNew?'Öğretmen ekledi':'Öğretmen güncelledi',to:h?tName(tid):sName(f.schoolId)}]).slice(-50),createdAt:x.createdAt||nowStamp()});
       const err=await attempt(()=>putDoc('sets',rec));if(err)return err;toast(rec.catPending?'Set eklendi. Katalog dışı olduğu için yönetici onayına gönderildi.':(isNew?'Set eklendi.':'Set güncellendi.'),'ok');}});
 }
+
+function setHint(v){v=String(v||'').trim();if(!v)return 'Listede olmayan bir seti de adını yazarak ekleyebilirsiniz.';
+  return inCatalog(v)?'✓ Katalogdaki set.':'Bu set listede yok; yeni set olarak eklenecek ve yönetici onayına gidecek.';}
+function setSugRender(inp){const box=document.getElementById('setsug');if(!box)return;const q=setNorm(inp.value||'');
+  const all=catalogAll().map(x=>x[1]);const hits=(q?all.filter(n=>setNorm(n).includes(q)):all).slice(0,40);
+  box.innerHTML=hits.map(n=>`<button type="button" class="setsug-i" data-setpick="${esc(n)}">${esc(n)}</button>`).join('')+
+    (q&&!inCatalog(inp.value)?`<button type="button" class="setsug-i setsug-new" data-setpick="${esc(inp.value.trim())}">+ "${esc(inp.value.trim())}" adıyla yeni set ekle</button>`:'');
+  box.hidden=!box.innerHTML;const h=document.getElementById('sethint');if(h)h.textContent=setHint(inp.value);}
+document.addEventListener('focusin',e=>{if(e.target.dataset&&e.target.dataset.setsug)setSugRender(e.target);});
+document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.setsug)setSugRender(e.target);});
+document.addEventListener('mousedown',e=>{const b=e.target.closest&&e.target.closest('[data-setpick]');if(b){e.preventDefault();const inp=document.querySelector('[data-setsug]');if(inp){inp.value=b.dataset.setpick;const h=document.getElementById('sethint');if(h)h.textContent=setHint(inp.value);}const box=document.getElementById('setsug');if(box)box.hidden=true;return;}
+  if(!(e.target.closest&&e.target.closest('.setsug-wrap'))){const box=document.getElementById('setsug');if(box)box.hidden=true;}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&e.target.dataset&&e.target.dataset.setsug){const box=document.getElementById('setsug');if(box&&!box.hidden){box.hidden=true;e.stopPropagation();}}},true);
 
 /* ===================== Ücret ve sözleşme (öğretmen sözleşmeleri) ===================== */
 const AGR_CFG_DEFAULT={company:'TT Robotics',address:'',taxNo:'',contact:'',penalty:100000,court:'İstanbul Anadolu',periodStart:'2026-09-01',periodEnd:'2027-06-30',notifyHours:48,payDay:10};
@@ -1955,6 +1973,7 @@ const ACT={
   setReject(d){const x=state.sets.find(y=>y.id===d.id);if(!x)return;confirmModal('Seti sil',`${esc(x.name)} (${esc(sName(setSchool(x))||'')}) kaydı silinecek.`,async()=>{const err=await attempt(()=>delDoc('sets',x.id));if(err)return err;toast('Silindi.','ok');},'Sil');},
   setCatToggle(){state.ui.setCatOpen=!state.ui.setCatOpen;render();},
   openMySetCat(d){openMySet(null,'',{name:d.name});},
+  openMySetNew(){openMySet(null,'',{custom:true});setTimeout(()=>{const i=document.querySelector('[data-setsug]');if(i)i.focus();},50);},
   openSetCat(d){openSet(null,{name:d.name});},
   openMySet(d){if(d.id){const x=IDX.sets[d.id]||state.sets.find(y=>y.id===d.id);if(x)openMySet(x);}else openMySet(null,d.school);},
   async claimSet(d){const x=IDX.sets[d.id];if(!x)return;const tid=myTeacherId();const err=await attempt(()=>putDoc('sets',Object.assign({},x,{schoolId:setSchool(x)||x.schoolId||'',locType:'ogretmen',locId:tid,history:(x.history||[]).concat([{at:nowStamp(),by:actorLabel(),note:'Öğretmen üzerine aldı',to:tName(tid)}]).slice(-50)})));toast(err||'Set üzerinize zimmetlendi.',err?'bad':'ok');},
@@ -2165,8 +2184,8 @@ function resolveLoc(f){const type=f.locType||'depo';const id=type==='okul'?f.sch
 function openSet(s,pre){
   const isNew=!s;s=s||Object.assign({code:nextSetCode(),qty:1,status:'aktif',locType:'depo'},pre||{});
   openModal({title:isNew?'Set ekle':'Seti düzenle',
-    body:`<div class="two">${field('Kod',input('code',{value:s.code||'',req:true}))}${field('Adet',input('qty',{type:'number',value:s.qty||1,min:1,req:true}))}</div>`+field('Set adı',input('name',{value:s.name||'',req:true,ph:'LEGO SPIKE Prime 45678…'}))+`<div class="two">${field('Kategori',input('category',{value:s.category||'',list:'setcats'}))+'<datalist id="setcats">'+SET_CATS.map(c=>`<option value="${esc(c)}">`).join('')+'</datalist>'}${field('Durum',select('status',SET_STATUS.map(x=>({v:x[0],l:x[1]})),s.status||'aktif'))}</div>`+locFields(s.locType,s.locId)+field('Not',input('note',{value:s.note||'',ph:'Seri no, eksik parça, pil durumu…'})),
-    onSubmit:async f=>{if(!f.code||!f.name)return 'Kod ve set adı girin.';const loc=resolveLoc(f);if(!loc)return 'Okul veya öğretmen seçin.';
+    body:`<div class="two">${field('Kod',input('code',{value:s.code||'',req:true}))}${field('Adet',input('qty',{type:'number',value:s.qty||1,min:1,req:true}))}</div>`+field('Set adı',`<div class="setsug-wrap">${input('setName',{value:s.name||'',req:true,ph:'LEGO SPIKE Prime 45678…',attrs:'autocomplete="off" autocorrect="off" spellcheck="false" data-setsug="1"'})}<div class="setsug" id="setsug" hidden></div></div>`)+`<div class="two">${field('Kategori',input('category',{value:s.category||'',list:'setcats'}))+'<datalist id="setcats">'+SET_CATS.map(c=>`<option value="${esc(c)}">`).join('')+'</datalist>'}${field('Durum',select('status',SET_STATUS.map(x=>({v:x[0],l:x[1]})),s.status||'aktif'))}</div>`+locFields(s.locType,s.locId)+field('Not',input('note',{value:s.note||'',ph:'Seri no, eksik parça, pil durumu…'})),
+    onSubmit:async f=>{f.name=String(f.setName||'').trim();if(!f.code||!f.name)return 'Kod ve set adı girin.';const loc=resolveLoc(f);if(!loc)return 'Okul veya öğretmen seçin.';
       const hist=(s.history||[]).slice();const to=locLabel(loc.locType,loc.locId);const from=s.id?locLabel(s.locType,s.locId):'';
       if(isNew)hist.push({at:nowStamp(),to,by:actorLabel(),note:'Kayıt oluşturuldu'});else if(loc.locType!==s.locType||loc.locId!==s.locId)hist.push({at:nowStamp(),from,to,by:actorLabel(),note:'Düzenleme ile taşındı'});
       const rec=Object.assign({},s,{id:s.id||uid(),catPending:false,code:f.code,name:f.name,category:f.category,qty:Number(f.qty)||1,status:f.status,note:f.note},loc,{history:hist.slice(-50),createdAt:s.createdAt||nowStamp()});
