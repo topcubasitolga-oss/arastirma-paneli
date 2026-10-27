@@ -115,6 +115,11 @@ section{display:flex;flex-direction:column;gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
 .card.tight{padding:0;overflow:hidden}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow)}
+.tbl-wrap.wide{scrollbar-width:none}.tbl-wrap.wide::-webkit-scrollbar{display:none}
+.hbar{position:sticky;bottom:0;z-index:5;overflow-x:auto;overflow-y:hidden;height:16px;margin-top:-2px;background:var(--surface-2);border:1px solid var(--line);border-top:0;border-radius:0 0 8px 8px;scrollbar-width:auto}
+.hbar>div{height:1px}
+.hbar::-webkit-scrollbar{height:14px}.hbar::-webkit-scrollbar-thumb{background:var(--muted);border-radius:8px;border:3px solid var(--surface-2)}
+.wide-hint{display:none}
 table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 .tbl th,.tbl td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
 .tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;background:var(--surface-2);white-space:nowrap}
@@ -699,7 +704,22 @@ function render(){
   if(isScoped()&&!SCOPED_VIEWS.includes(state.ui.view))state.ui.view='overview';
   const content=isAdmin()?adminView():teacherView();
   app.innerHTML=shell(content);
+  requestAnimationFrame(addHScroll);
 }
+/* Geniş tablolar: ekranın altında hep görünen yatay kaydırma çubuğu */
+function addHScroll(){
+  document.querySelectorAll('.tbl-wrap').forEach(w=>{
+    let bar=w.nextElementSibling&&w.nextElementSibling.classList.contains('hbar')?w.nextElementSibling:null;
+    const need=w.scrollWidth>w.clientWidth+4;
+    if(!need){if(bar)bar.remove();w.classList.remove('wide');return;}
+    w.classList.add('wide');
+    if(!bar){bar=document.createElement('div');bar.className='hbar';bar.setAttribute('aria-hidden','true');bar.innerHTML='<div></div>';w.after(bar);
+      let lock=false;bar.addEventListener('scroll',()=>{if(lock){lock=false;return;}lock=true;w.scrollLeft=bar.scrollLeft;});
+      w.addEventListener('scroll',()=>{if(lock){lock=false;return;}lock=true;bar.scrollLeft=w.scrollLeft;});}
+    bar.style.width=w.clientWidth+'px';bar.firstChild.style.width=w.scrollWidth+'px';bar.scrollLeft=w.scrollLeft;
+  });
+}
+window.addEventListener('resize',()=>{clearTimeout(window.__hb);window.__hb=setTimeout(addHScroll,150);});
 function noDbView(){
   return `<div class="nodb"><div class="card"><img src="${LOGO_N}" alt="TT Robotics" width="120" height="92" style="width:120px;height:auto">
   <p>Panel verisine bu görünümden ulaşılamıyor. Sayfayı claude.ai'de oturum açarak ve yöneticinin size gönderdiği bağlantıyla açın.</p>
