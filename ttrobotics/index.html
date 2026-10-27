@@ -324,7 +324,7 @@ const state={
 };
 let IDX={lessons:{},sets:{},pay:{},files:{}};
 let modalState=null;
-const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['finance','Finans'],['bsa','BSA Akademi'],['agreements','Sözleşmeler'],['files','Dosyalar'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
+const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['finance','Finans'],['bsa','BSA Akademi'],['receivables','Alacaklarım'],['agreements','Sözleşmeler'],['files','Dosyalar'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
 const CAND_STATUS=[['aday','Aday'],['gorusuldu','Görüşüldü'],['deneme','Deneme dersi verdi'],['aktif','Aktif öğretmen'],['pasif','Pasif'],['uygun_degil','Uygun değil']];
 const CAND_TAGS=['Robotik kodlama','Drone','STEM','Yapay zekâ','Okul öncesi','İlkokul','Ortaokul','Lise','Scratch / blok kodlama','Python','Arduino / micro:bit','LEGO Education','3D tasarım','Maker / elektronik','İngilizce ders verebilir'];
 const TEACHER_NAV=[['tprog','Programım'],['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler'],['tcv',"CV'm"],['tcontract','Ücret ve Sözleşme']];
@@ -334,7 +334,7 @@ const SET_CATS=[...new Set(['LEGO SPIKE Prime','LEGO SPIKE Essential','LEGO WeDo
 const CANCEL_REASONS=['Okul iptal etti','Resmî tatil / okul kapalı','Öğretmen mazeretli','Sınav / etkinlik','Diğer'];
 
 const S=()=>Object.assign({adminPin:'1234',ownerPin:'2026',hourMinutes:40,holidays:[]},state.settings||{});
-const OWNER_VIEWS=['finance','bsa','files','agreements'];
+const OWNER_VIEWS=['finance','bsa','files','agreements','receivables'];
 const isScoped=()=>!!(state.session&&state.session.role==='admin'&&Array.isArray(state.session.scope));
 const SCOPED_VIEWS=['overview','program','avail','lessons','report','sets','teachers','schools','school','teacher'];
 const managers=()=>Array.isArray(S().managers)?S().managers:[];
@@ -687,6 +687,7 @@ function noDbView(){
 }
 const ICONS={
   tprog:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h3M8 17h6"/>',
+  receivables:'<circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 9.5h4.5a1.75 1.75 0 0 1 0 3.5h-3a1.75 1.75 0 0 0 0 3.5H15"/>',
   agreements:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 12h6M10 16h4"/>',
   tcv:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>',
   tcontract:'<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4"/><path d="M10 13l2 2 4-4"/>',
@@ -768,6 +769,7 @@ function adminView(){
     case 'pool':return poolView();
     case 'finance':return financeAllowed()?financeView():(state.standalone?financeLockView():'<p class="empty">Bu bölüm yalnızca hesap sahibine açıktır.</p>');
     case 'bsa':return financeAllowed()?bsaView():(state.standalone?financeLockView():'<p class="empty">Bu bölüm yalnızca hesap sahibine açıktır.</p>');
+    case 'receivables':return financeAllowed()?receivablesView():'<p class="empty">Bu bölüm yalnızca hesap sahibine açıktır.</p>';
     case 'agreements':return financeAllowed()?agreementsView():'<p class="empty">Bu bölüm yalnızca hesap sahibine açıktır.</p>';
     case 'files':return financeAllowed()?filesView():(state.standalone?financeLockView():'<p class="empty">Bu bölüm yalnızca hesap sahibine açıktır.</p>');
     case 'schools':return schoolsView();
@@ -1207,7 +1209,7 @@ function teacherPaySection(ym){
   const rows=p.teachers.map(r=>{G+=r.gross;C+=r.cost;H+=r.hours;D+=r.days;
     const warn=r.avgDay<3?'bad':r.avgDay<5?'warn':'ok';
     const pd=(state.contracts||[]).find(c=>c.id===`pay_${r.teacherId}_${ym}`);const wait=lessonsIn(...monthRange(ym)).filter(l=>l.teacherId===r.teacherId&&needsVerify(l)).length;
-    return `<tr><td>${teacherLink(r.teacherId)}${wait?`<div class="small">${chip('warn',wait+' ders sorumlu onayı bekliyor')}</div>`:''}</td><td class="num">${fmtNum(r.days)}</td><td class="num">${fmtNum(r.hours)}</td><td class="num">${chip(warn,fmtNum(Math.round(r.avgDay*10)/10)+' sa/gün')}</td><td class="small">${tiers.map(x=>r.tierDays[x.rate]?`${fmtTL(x.rate)}: ${r.tierDays[x.rate]} gün`:'').filter(Boolean).concat(r.hourly?[`kurum saat ücreti ${fmtTL(r.hourly)}`]:[]).concat(r.fixed?[`aylık sabit ${fmtTL(r.fixed)}`]:[]).concat(r.daily?[`günlük sabit ${fmtTL(r.daily)}`]:[]).concat(r.weekly?[`haftalık sabit ${fmtTL(r.weekly)} (${r.weeksN} hafta)`]:[]).join('<br>')||'—'}</td><td class="num">${fmtTL(Math.round(r.avgRate))}</td><td class="num"><b>${fmtTL(r.gross)}</b></td><td class="num">${fmtTL(r.cost)}</td><td>${pd&&pd.paid?chip('ok','Ödendi '+fmtTL(pd.amount))+`<div class="muted small">${fmtDate(pd.paidAt.slice(0,10))}</div>`+btn('payTeacher',{tid:r.teacherId,ym,amt:Math.round(r.gross),undo:1},'Geri al','ghost sm'):btn('payTeacher',{tid:r.teacherId,ym,amt:Math.round(r.gross)},'Ödendi','primary sm')}</td></tr>`;}).join('');
+    const av=rcvOpenFor(r.teacherId).reduce((n,x)=>n+rcvLeft(x),0);return `<tr><td>${teacherLink(r.teacherId)}${wait?`<div class="small">${chip('warn',wait+' ders sorumlu onayı bekliyor')}</div>`:''}${av&&!(pd&&pd.paid)?`<div class="small">${chip('warn','Avans kesintisi: '+fmtTL(av))}</div>`:''}${pd&&pd.deduction?`<div class="muted small">Avans düşüldü: ${fmtTL(pd.deduction)}</div>`:''}</td><td class="num">${fmtNum(r.days)}</td><td class="num">${fmtNum(r.hours)}</td><td class="num">${chip(warn,fmtNum(Math.round(r.avgDay*10)/10)+' sa/gün')}</td><td class="small">${tiers.map(x=>r.tierDays[x.rate]?`${fmtTL(x.rate)}: ${r.tierDays[x.rate]} gün`:'').filter(Boolean).concat(r.hourly?[`kurum saat ücreti ${fmtTL(r.hourly)}`]:[]).concat(r.fixed?[`aylık sabit ${fmtTL(r.fixed)}`]:[]).concat(r.daily?[`günlük sabit ${fmtTL(r.daily)}`]:[]).concat(r.weekly?[`haftalık sabit ${fmtTL(r.weekly)} (${r.weeksN} hafta)`]:[]).join('<br>')||'—'}</td><td class="num">${fmtTL(Math.round(r.avgRate))}</td><td class="num"><b>${fmtTL(r.gross)}</b></td><td class="num">${fmtTL(r.cost)}</td><td>${pd&&pd.paid?chip('ok','Ödendi '+fmtTL(pd.amount))+`<div class="muted small">${fmtDate(pd.paidAt.slice(0,10))}</div>`+btn('payTeacher',{tid:r.teacherId,ym,amt:Math.round(r.gross),undo:1},'Geri al','ghost sm'):btn('payTeacher',{tid:r.teacherId,ym,amt:Math.round(r.gross)},'Ödendi','primary sm')}</td></tr>`;}).join('');
   return `<section><div class="sechead"><h2>${monthLabel(ym)} öğretmen ücretleri</h2><span class="muted small">Kademe, öğretmenin o gün tüm okullarda girdiği toplam onaylı ders saatine göre belirlenir ve o günün tüm saatlerine uygulanır · ${tierTxt} · işveren yükü %${fmtNum(t.load)}</span>${btn('openTariff',{},'Tarife','sm')}</div>
   ${rows?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th class="num">Gün</th><th class="num">Ders saati</th><th class="num">Ort. günlük</th><th>Kademe dağılımı</th><th class="num">Ort. saat ücreti</th><th class="num">Brüt</th><th class="num">İşveren maliyeti</th><th>Ödeme</th></tr></thead><tbody>${rows}<tr class="total"><td>Toplam</td><td class="num">${fmtNum(D)}</td><td class="num">${fmtNum(H)}</td><td></td><td></td><td class="num">${H?fmtTL(Math.round(G/H)):''}</td><td class="num">${fmtTL(G)}</td><td class="num">${fmtTL(C)}</td><td></td></tr></tbody></table></div><p class="muted small">Ort. günlük hedef 5+ saat; 3'ün altı kırmızı. Ort. saat ücreti 750'ye yakınsa öğretmen az saatli günlere dağılmış demektir; günleri birleştirmek maliyeti düşürür (8 saat: 2 güne 5.200 TL, 4 güne 6.000 TL).</p>`:'<p class="empty">Bu ayda onaylı ders yok. Öğretmenler ders onayladıkça burası dolar.</p>'}</section>`;
 }
@@ -1820,6 +1822,28 @@ async function cvUpload(file){
   toast(err||'CV yüklendi. Teşekkürler!',err?'bad':'ok');
 }
 
+/* ===================== Alacaklarım (yalnızca hesap sahibi) ===================== */
+const rcvList=()=>(state.contracts||[]).filter(c=>c.kind==='receivable');
+const rcvPaid=r=>(r.payments||[]).reduce((n,p)=>n+(Number(p.amount)||0),0);
+const rcvLeft=r=>Math.max(0,(Number(r.amount)||0)-rcvPaid(r));
+const rcvOpenFor=tid=>rcvList().filter(r=>r.dir!=='borc'&&r.teacherId===tid&&r.deductFromPay&&rcvLeft(r)>0);
+function receivablesView(){
+  const list=rcvList().sort((a,b)=>(rcvLeft(b)>0)-(rcvLeft(a)>0)||String(a.person).localeCompare(String(b.person),'tr'));
+  const A=list.filter(r=>r.dir!=='borc'),B=list.filter(r=>r.dir==='borc');const open=A.filter(r=>rcvLeft(r)>0);const tot=A.reduce((n,r)=>n+(Number(r.amount)||0),0),left=open.reduce((n,r)=>n+rcvLeft(r),0);const bLeft=B.reduce((n,r)=>n+rcvLeft(r),0);
+  const row=r=>{const L=rcvLeft(r),P=rcvPaid(r);return `<tr><td><b>${esc(r.person)}</b>${r.teacherId?`<div class="small">${teacherLink(r.teacherId)}</div>`:''}</td><td class="small">${esc(r.reason||'')}${r.deductFromPay?`<div>${chip('warn','Ücret ödemesinden düşülecek')}</div>`:''}${r.dueDate?`<div class="muted">Vade: ${fmtDMY(r.dueDate)}</div>`:''}</td><td class="num">${fmtTL(r.amount)}</td><td class="num">${P?fmtTL(P):'—'}${(r.payments||[]).length?`<div class="muted small">${r.payments.map(p=>`${fmtDMY(p.at)} ${fmtTL(p.amount)}${p.note?' · '+esc(p.note):''}`).join('<br>')}</div>`:''}</td><td class="num"><b>${fmtTL(L)}</b></td><td>${L>0?chip('warn','Açık'):chip('ok','Kapandı')}</td><td class="act">${L>0?btn('rcvPay',{id:r.id},r.dir==='borc'?'Ödedim':'Tahsil edildi','primary sm'):''}${btn('rcvEdit',{id:r.id},'Düzenle','sm')}${btn('rcvDel',{id:r.id},'Sil','ghost sm')}</td></tr>`;};
+  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Yalnızca baş yönetici</p><h1>Alacaklarım</h1><p class="sub">Verdiğin borçlar, avanslar ve tahsil edeceğin paylar. Öğretmen avansları ay sonu ücret ödemesinde otomatik düşülür.</p></div><div class="toolbar">${btn('rcvEdit',{},'+ Alacak / borç ekle','primary')}</div></div>
+  <section class="tiles">${tile(fmtTL(left),'açık alacak toplamı')}${tile(open.length,'açık alacak')}${tile(fmtTL(tot-left),'tahsil edilen')}${tile(fmtTL(bLeft),'borçlarım (kalan)')}</section>
+  <section><div class="sechead"><h2>Alacaklarım</h2></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kimden</th><th>Açıklama</th><th class="num">Tutar</th><th class="num">Ödenen</th><th class="num">Kalan</th><th>Durum</th><th></th></tr></thead><tbody>${A.map(row).join('')||'<tr><td colspan="7" class="empty">Kayıt yok.</td></tr>'}</tbody></table></div></section>
+  <section><div class="sechead"><h2>Borçlarım / ödeyeceklerim</h2></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kime</th><th>Açıklama</th><th class="num">Tutar</th><th class="num">Ödenen</th><th class="num">Kalan</th><th>Durum</th><th></th></tr></thead><tbody>${B.map(row).join('')||'<tr><td colspan="7" class="empty">Kayıt yok.</td></tr>'}</tbody></table></div></section>`;
+}
+function openRcv(r){
+  const isNew=!r;r=r||{};const ts=((state.raw&&state.raw.teachers)||state.teachers).filter(t=>t.active!==false).sort(byName);
+  openModal({title:isNew?'Kayıt ekle':'Kaydı düzenle',meta:'Yalnızca sen görürsün',body:`${field('Tür',`<select name="dir"><option value="alacak" ${r.dir!=='borc'?'selected':''}>Alacağım (bana ödenecek)</option><option value="borc" ${r.dir==='borc'?'selected':''}>Borcum (benim ödeyeceğim)</option></select>`)}${field('Kişi / kurum',input('person',{value:r.person||'',req:true,ph:'Ad soyad'}))}${field('Öğretmen ise seç (isteğe bağlı)',`<select name="teacherId"><option value="">— Öğretmen değil —</option>${ts.map(t=>`<option value="${esc(t.id)}" ${r.teacherId===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select>`)}<div class="two">${field('Tutar (TL)',input('amount',{type:'number',value:r.amount||'',min:0,step:100,req:true}))}${field('Vade (isteğe bağlı)',input('dueDate',{type:'date',value:r.dueDate||''}))}</div>${field('Açıklama',input('reason',{value:r.reason||'',ph:'Borç, avans, sertifika payı…'}))}<label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="deductFromPay" ${r.deductFromPay?'checked':''}> Öğretmenin ücret ödemesinden düşülsün (avans)</label>`,
+    onSubmit:async f=>{const amount=Number(f.amount)||0;if(!f.person||!amount)return 'Kişi ve tutar girin.';if(f.deductFromPay&&!f.teacherId)return 'Ücretten düşülecekse öğretmeni seçin.';
+      const rec=Object.assign({},r,{id:r.id||('rcv_'+uid()),kind:'receivable',dir:f.dir==='borc'?'borc':'alacak',person:f.person,teacherId:f.teacherId||null,amount,dueDate:f.dueDate||null,reason:f.reason,deductFromPay:!!f.deductFromPay,payments:r.payments||[],createdAt:r.createdAt||nowStamp()});
+      const err=await attempt(()=>putDoc('contracts',rec));if(err)return err;toast('Kaydedildi.','ok');}});
+}
+
 function teacherView(){
   switch(state.ui.view){
     case 'school':return schoolDetailView(state.ui.detailId);
@@ -1934,7 +1958,13 @@ const ACT={
   openProfile(){const t=teacherById(myTeacherId());if(t)openTeacher(t,true);},
   openCandidate(d){openCandidate(d.id?state.candidates.find(c=>c.id===d.id):null);},
   openFixedPay(d){if(!isAdmin())return;openFixedPay(d.id);},
-  async payTeacher(d){if(!financeAllowed())return;const id=`pay_${d.tid}_${d.ym}`;const err=await attempt(()=>d.undo?delDoc('contracts',id):putDoc('contracts',{id,kind:'payout',teacherId:d.tid,month:d.ym,amount:Number(d.amt)||0,paid:true,paidAt:nowStamp()}));toast(err||(d.undo?'Ödeme kaydı geri alındı.':'Ödendi olarak işaretlendi.'),err?'bad':'ok');},
+  rcvEdit(d){if(!financeAllowed())return;openRcv(d.id?rcvList().find(r=>r.id===d.id):null);},
+  rcvPay(d){if(!financeAllowed())return;const r=rcvList().find(x=>x.id===d.id);if(!r)return;openModal({title:'Tahsilat · '+esc(r.person),body:`<div class="two">${field('Alınan tutar (TL)',input('amount',{type:'number',value:rcvLeft(r),min:0,step:100,req:true}))}${field('Tarih',input('at',{type:'date',value:todayISO(),req:true}))}</div>${field('Not',input('note',{ph:'Nakit, havale…'}))}`,onSubmit:async f=>{const a=Number(f.amount)||0;if(!a)return 'Tutar girin.';const err=await attempt(()=>putDoc('contracts',Object.assign({},r,{payments:(r.payments||[]).concat([{at:f.at,amount:a,note:f.note||''}])})));if(err)return err;toast('Tahsilat işlendi.','ok');}});},
+  rcvDel(d){const r=rcvList().find(x=>x.id===d.id);if(!r)return;confirmModal('Alacağı sil',`${esc(r.person)} · ${fmtTL(r.amount)} kaydı silinecek.`,async()=>{const err=await attempt(()=>delDoc('contracts',r.id));if(err)return err;toast('Silindi.','ok');},'Sil');},
+  async payTeacher(d){if(!financeAllowed())return;const id=`pay_${d.tid}_${d.ym}`;
+    const err=await attempt(async()=>{if(d.undo){await delDoc('contracts',id);for(const r of rcvList().filter(x=>x.teacherId===d.tid))if((r.payments||[]).some(p=>p.payoutId===id))await putDoc('contracts',Object.assign({},r,{payments:r.payments.filter(p=>p.payoutId!==id)}));return;}
+      let gross=Number(d.amt)||0,ded=0;for(const r of rcvOpenFor(d.tid)){const k=Math.min(rcvLeft(r),gross-ded);if(k<=0)break;ded+=k;await putDoc('contracts',Object.assign({},r,{payments:(r.payments||[]).concat([{at:todayISO(),amount:k,note:monthLabel(d.ym)+' ücretinden düşüldü',payoutId:id}])}));}
+      await putDoc('contracts',{id,kind:'payout',teacherId:d.tid,month:d.ym,gross,deduction:ded,amount:gross-ded,paid:true,paidAt:nowStamp()});});toast(err||(d.undo?'Ödeme kaydı geri alındı.':'Ödendi olarak işaretlendi.'),err?'bad':'ok');},
   openTariff(){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openTariff();},
   openBsaLedger(d){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openBsaLedger(d.id,d.ym||state.ui.month);},
   openContract(d){if(!financeAllowed())return toast('Bu bölüm yalnızca baş yöneticiye açık.','bad');openContract(d.id);},
