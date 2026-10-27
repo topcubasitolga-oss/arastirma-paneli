@@ -404,15 +404,16 @@ function rateFor(l){
   const c=(state.contracts||[]).find(x=>x.schoolId===l.schoolId);
   return c&&c.teacherRate?Number(c.teacherRate)||0:0;
 }
+function lessonsOfMonth(ym,tid){const [f,t]=monthRange(ym);const a=lessonsIn(f,t,tid).filter(l=>!l.payMonth||l.payMonth===ym);const moved=state.lessons.filter(l=>l.payMonth===ym&&monthKeyOf(l.date)!==ym&&(!tid||l.teacherId===tid)).map(l=>Object.assign({},l,{virtual:false}));return a.concat(moved);}
 function monthStats(ym,teacherId){
-  const [from,to]=monthRange(ym);
-  const ls=lessonsIn(from,to,teacherId);
-  const rows={};const total={done:0,pending:0,cancelled:0,upcoming:0,extraWait:0,amount:0};
+  const ls=lessonsOfMonth(ym,teacherId);
+  const rows={};const total={done:0,pending:0,cancelled:0,upcoming:0,extraWait:0,amount:0,makeup:0};
   for(const l of ls){
     const r=rows[l.schoolId]||(rows[l.schoolId]={schoolId:l.schoolId,done:0,pending:0,cancelled:0,upcoming:0,extraWait:0,amount:0});
     const st=lessonStatus(l);
     if(st==='done'){
       const h=Number(l.hours)||0;
+      if(l.makeupFor){r.makeup=(r.makeup||0)+h;total.makeup+=h;}
       if(l.extra&&!l.approved){r.extraWait+=h;total.extraWait+=h;}
       else{r.done+=h;total.done+=h;const amt=h*rateFor(l);r.amount+=amt;total.amount+=amt;}
     }else if(st==='pending'){r.pending++;total.pending++;}
@@ -453,7 +454,7 @@ function stripUndef(o){const r={};for(const k in o){if(o[k]!==undefined)r[k]=o[k
 async function putDoc(col,obj){const rec=stripUndef(Object.assign({},obj,{updatedAt:nowStamp()}));delete rec.virtual;await colDoc(col,rec.id).set(rec);}
 async function delDoc(col,id){await colDoc(col,id).delete();}
 function cleanLesson(l){
-  const keys=['id','date','teacherId','schoolId','assignmentId','start','plannedHours','hours','status','note','rate','extra','approved','approvedAt','reason','confirmedAt','confirmedBy','createdAt','verified','verifiedBy','verifiedAt','substituteFor','replacedBy','replacedLesson'];
+  const keys=['id','date','teacherId','schoolId','assignmentId','start','plannedHours','hours','status','note','rate','extra','approved','approvedAt','reason','confirmedAt','confirmedBy','createdAt','verified','verifiedBy','verifiedAt','substituteFor','replacedBy','replacedLesson','makeupFor','makeupDate','makeupBy','makeupOn','payMonth'];
   const r={};for(const k of keys){if(l[k]!==undefined)r[k]=l[k];}
   if(!r.createdAt)r.createdAt=nowStamp();
   return r;
@@ -660,6 +661,8 @@ $('#modal-root').addEventListener('submit',async e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal-root').hidden)closeModal();});
 function modalChange(el){
+  if(el.dataset.mchange==='mk-teacher'){const sel=$('#f_missed');if(sel){const ls=missedLessons(el.value,true);for(const l of ls)IDX.lessons[l.id]=l;sel.innerHTML=`<option value="">${ls.length?'Ders seçin':'Telafi edilecek ders yok'}</option>`+ls.map(l=>`<option value="${esc(l.id)}">${esc(missLabel(l))}</option>`).join('');}return;}
+  if(el.dataset.mchange==='mk-missed'){const l=IDX.lessons[el.value];const h=$('#f_hours');if(l&&h)h.value=Number(l.plannedHours||l.hours)||1;return;}
   if(el.dataset.mchange==='tprogtime'){const st=$('#f_start'),en=$('#f_end'),h=$('#f_hours');const v=hoursFromTimes(st&&st.value,en&&en.value);if(h&&v)h.value=v;return;}
   if(el.dataset.mchange==='loctype'){
     const v=el.value;const s=$('#loc-school'),t=$('#loc-teacher');
@@ -796,10 +799,11 @@ function lessonRow(l,o){
     if(o.admin&&!l.virtual)acts.push(btn('resetLesson',{id:l.id},l.extra?'Sil':'Sıfırla','ghost sm'));
     if(!o.admin&&l.extra&&!l.approved)acts.push(btn('resetLesson',{id:l.id},'Sil','ghost sm'));
   }
+  if(lessonStatus(l)==='cancelled'&&canMakeup(l,!!o.admin))acts.push(btn('makeup',{id:l.id},'↺ Telafi ekle','ghost sm'));
   const hrs=st==='done'?`${fmtNum(l.hours)} ders`:st==='cancelled'?'—':`${fmtNum(l.plannedHours||l.hours)} ders`;
   return `<div class="lrow ${st}">
     <div class="l-when">${o.showDate!==false?`${fmtDate(l.date)} ${DAYS_S[weekdayOf(l.date)-1]}<br>`:''}${l.start?esc(l.start):''}</div>
-    <div class="l-main"><b>${schoolLink(l.schoolId)}</b>${o.showTeacher?` <span class="muted">· ${teacherLink(l.teacherId)}</span>`:''}${l.substituteFor?' '+chip('accent',esc(tName(l.substituteFor))+' yerine'):l.extra?' '+chip('info','Ek ders'):''}${l.replacedBy?' '+chip('warn','Yerine '+esc(tName(l.replacedBy))+' girdi'):''}${l.note?`<div class="muted small">${esc(l.note)}</div>`:''}</div>
+    <div class="l-main"><b>${schoolLink(l.schoolId)}</b>${o.showTeacher?` <span class="muted">· ${teacherLink(l.teacherId)}</span>`:''}${l.substituteFor?' '+chip('accent',esc(tName(l.substituteFor))+' yerine'):l.makeupFor?' '+chip('info','Telafi · '+fmtDate(l.makeupDate)+' yerine'):l.extra?' '+chip('info','Ek ders'):''}${l.replacedBy?' '+chip('warn','Yerine '+esc(tName(l.replacedBy))+' girdi'):''}${l.makeupBy?' '+chip('ok','Telafi edildi → '+fmtDate(l.makeupOn)):''}${l.payMonth&&l.payMonth!==monthKeyOf(l.date)?' '+chip('','Ödeme: '+monthLabel(l.payMonth)):''}${l.note?`<div class="muted small">${esc(l.note)}</div>`:''}</div>
     <div class="l-hrs">${hrs}</div>
     <div class="l-st">${statusChip(l)}</div>
     <div class="l-act">${acts.join('')}</div>
@@ -873,9 +877,10 @@ function lessonsView(){
     else acts.push(btn('done',{id:l.id},'Düzenle'));
     if(needsVerify(l))acts.push(btn('verifyLesson',{id:l.id},'Onayla','primary sm'));
     if(!l.virtual)acts.push(btn('resetLesson',{id:l.id},l.extra?'Sil':'Sıfırla'));
-    return `<tr class="${l.date===tdy?'today':''}"><td class="mono">${fmtDate(l.date)} <span class="muted">${DAYS_S[weekdayOf(l.date)-1]}</span></td><td>${teacherLink(l.teacherId)}</td><td>${schoolLink(l.schoolId)}${l.substituteFor?' '+chip('accent',esc(tName(l.substituteFor))+' yerine'):l.extra?' '+chip('info','Ek'):''}${l.replacedBy?' '+chip('warn','Yerine '+esc(tName(l.replacedBy))+' girdi'):''}</td><td class="mono">${esc(l.start||'')}</td><td class="num">${fmtNum(l.plannedHours||'')}</td><td class="num">${st==='done'?fmtNum(l.hours):''}</td><td>${statusChip(l)}${l.note?`<div class="muted small">${esc(l.note)}</div>`:''}${l.confirmedBy?`<div class="muted small">${esc(l.confirmedBy)} · ${fmtStamp(l.confirmedAt)}</div>`:''}</td><td class="act">${acts.join('')}</td></tr>`;}).join('');
+    if(lessonStatus(l)==='cancelled'&&canMakeup(l,true))acts.push(btn('makeup',{id:l.id},'↺ Telafi'));
+    return `<tr class="${l.date===tdy?'today':''}"><td class="mono">${fmtDate(l.date)} <span class="muted">${DAYS_S[weekdayOf(l.date)-1]}</span></td><td>${teacherLink(l.teacherId)}</td><td>${schoolLink(l.schoolId)}${l.substituteFor?' '+chip('accent',esc(tName(l.substituteFor))+' yerine'):l.makeupFor?' '+chip('info','Telafi · '+fmtDate(l.makeupDate)+' yerine'):l.extra?' '+chip('info','Ek'):''}${l.replacedBy?' '+chip('warn','Yerine '+esc(tName(l.replacedBy))+' girdi'):''}${l.makeupBy?' '+chip('ok','Telafi edildi → '+fmtDate(l.makeupOn)):''}${l.payMonth&&l.payMonth!==monthKeyOf(l.date)?' '+chip('','Ödeme: '+monthLabel(l.payMonth)):''}</td><td class="mono">${esc(l.start||'')}</td><td class="num">${fmtNum(l.plannedHours||'')}</td><td class="num">${st==='done'?fmtNum(l.hours):''}</td><td>${statusChip(l)}${l.note?`<div class="muted small">${esc(l.note)}</div>`:''}${l.confirmedBy?`<div class="muted small">${esc(l.confirmedBy)} · ${fmtStamp(l.confirmedAt)}</div>`:''}</td><td class="act">${acts.join('')}</td></tr>`;}).join('');
   const sum=ls.reduce((a,l)=>{const st=lessonStatus(l);if(st==='done'&&!(l.extra&&!l.approved))a.done+=Number(l.hours)||0;if(st==='pending')a.pend++;return a;},{done:0,pend:0});
-  return `<div class="pagehead"><div><h1>Ders kayıtları</h1><p class="sub">Planlanan ve yapılan tüm dersler</p></div><div class="toolbar">${btn('openSub',{},'↔ Yerine ders','sm')}${btn('openExtra',{},'+ Ders ekle','primary')}</div></div>
+  return `<div class="pagehead"><div><h1>Ders kayıtları</h1><p class="sub">Planlanan ve yapılan tüm dersler</p></div><div class="toolbar">${btn('openSub',{},'↔ Yerine ders','sm')}${btn('openMakeup',{},'↺ Telafi','sm')}${btn('openExtra',{},'+ Ders ekle','primary')}</div></div>
   <section><div class="toolbar">${monthNav(ym,'month')}
     <select data-change="fTeacher"><option value="">Tüm öğretmenler</option>${activeTeachers().map(t=>`<option value="${t.id}" ${state.ui.fTeacher===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select>
     <select data-change="fSchool"><option value="">Tüm okullar</option>${activeSchools().map(s=>`<option value="${s.id}" ${state.ui.fSchool===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select>
@@ -889,7 +894,7 @@ function reportView(){
   const anyRate=state.schools.some(s=>s.rate)||state.assignments.some(a=>a.rate)||state.lessons.some(l=>l.rate);
   const grand={done:0,amount:0};
   const summary=teachers.map(t=>{const s=monthStats(ym,t.id);const m=monthDoc(t.id,ym);grand.done+=s.total.done;grand.amount+=s.total.amount;
-    return `<tr><td>${teacherLink(t.id)}</td><td class="num">${fmtNum(s.total.done)}</td><td class="num">${s.total.pending||''}</td><td class="num">${s.total.extraWait||''}</td>${anyRate?`<td class="num">${s.total.amount?fmtTL(s.total.amount):''}</td>`:''}<td>${m&&m.teacherApproved?chip('ok',`Onayladı · ${fmtStamp(m.teacherApprovedAt)}`):s.total.pending?chip('warn',`${s.total.pending} ders bekliyor`):chip('','Onay bekleniyor')}</td><td>${m&&m.adminApproved?chip('ok','Onaylandı'):chip('','—')}</td><td class="act">${m&&m.adminApproved?btn('adminUnapprove',{tid:t.id,ym},'Onayı kaldır'):btn('adminApprove',{tid:t.id,ym},'Yönetici onayı','primary sm')}</td></tr>`;}).join('');
+    return `<tr><td>${teacherLink(t.id)}</td><td class="num">${fmtNum(s.total.done)}</td><td class="num">${s.total.pending||''}</td><td class="num">${s.total.extraWait||''}</td><td class="num">${s.total.makeup?fmtNum(s.total.makeup):''}</td>${anyRate?`<td class="num">${s.total.amount?fmtTL(s.total.amount):''}</td>`:''}<td>${m&&m.teacherApproved?chip('ok',`Onayladı · ${fmtStamp(m.teacherApprovedAt)}`):s.total.pending?chip('warn',`${s.total.pending} ders bekliyor`):chip('','Onay bekleniyor')}</td><td>${m&&m.adminApproved?chip('ok','Onaylandı'):chip('','—')}</td><td class="act">${m&&m.adminApproved?btn('adminUnapprove',{tid:t.id,ym},'Onayı kaldır'):btn('adminApprove',{tid:t.id,ym},'Yönetici onayı','primary sm')}</td></tr>`;}).join('');
   const blocks=teachers.map(t=>{const s=monthStats(ym,t.id);if(!s.lessons.length)return '';const m=monthDoc(t.id,ym);
     const rows=s.rows.map(r=>`<tr><td>${esc(sName(r.schoolId))}</td><td class="num">${fmtNum(r.done)}</td><td class="num">${r.cancelled||''}</td><td class="num">${r.pending||''}</td><td class="num">${r.extraWait||''}</td>${anyRate?`<td class="num">${r.amount?fmtTL(r.amount):''}</td>`:''}</tr>`).join('');
     const diff=m&&m.teacherApproved&&Number(m.teacherHours)!==s.total.done;
@@ -897,7 +902,7 @@ function reportView(){
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Okul</th><th class="num">Onaylı ders saati</th><th class="num">Yapılmadı</th><th class="num">Bekleyen</th><th class="num">Ek (onaysız)</th>${anyRate?'<th class="num">Tutar</th>':''}</tr></thead><tbody>${rows}<tr class="total"><td>Toplam</td><td class="num">${fmtNum(s.total.done)}</td><td class="num">${s.total.cancelled||''}</td><td class="num">${s.total.pending||''}</td><td class="num">${s.total.extraWait||''}</td>${anyRate?`<td class="num">${s.total.amount?fmtTL(s.total.amount):''}</td>`:''}</tr></tbody></table></div></div>`;}).join('');
   return `<div class="pagehead"><div><h1>Aylık rapor</h1><p class="sub">Öğretmen başına girilen ders saatleri, sistem tarafından hesaplanır</p></div><div class="toolbar">${(state.downloads||state.standalone)?btn('exportCsv',{ym},'CSV indir','ghost'):''}${btn('copyReport',{ym},'Panoya kopyala','ghost')}</div></div>
   <section><div class="toolbar">${monthNav(ym,'month')}<span class="muted small">Toplam ${fmtNum(grand.done)} ders saati${anyRate&&grand.amount?` · ${fmtTL(grand.amount)}`:''}</span></div>
-  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th class="num">Ders saati</th><th class="num">Bekleyen</th><th class="num">Ek (onaysız)</th>${anyRate?'<th class="num">Tutar</th>':''}<th>Öğretmen onayı</th><th>Yönetici onayı</th><th></th></tr></thead><tbody>${summary||'<tr><td colspan="8" class="muted">Öğretmen yok.</td></tr>'}</tbody></table></div></section>
+  <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th class="num">Ders saati</th><th class="num">Bekleyen</th><th class="num">Ek (onaysız)</th><th class="num">Telafi</th>${anyRate?'<th class="num">Tutar</th>':''}<th>Öğretmen onayı</th><th>Yönetici onayı</th><th></th></tr></thead><tbody>${summary||'<tr><td colspan="9" class="muted">Öğretmen yok.</td></tr>'}</tbody></table></div></section>
   <section><div class="sechead"><h2>Okul bazında ayrıntı</h2></div>${blocks||'<p class="empty">Bu ayda kayıtlı ders yok.</p>'}
   <p class="note">Ders saati: yalnızca "Yapıldı" olarak işaretlenmiş dersler sayılır. Ek dersler yönetici onayından sonra toplama girer. Tutar, okul veya program satırında tanımlı saat ücretiyle hesaplanır; ücret girilmemişse gösterilmez.</p></section>`;
 }
@@ -1182,7 +1187,7 @@ function teacherPay(ym){
   const t=tariff();const [f,to]=monthRange(ym);
   const fixed={};for(const sc of (state.raw&&state.raw.schools)||state.schools)for(const x of fixedPayOf(sc.id))fixed[sc.id+'|'+x.teacherId]=Number(x.monthly)||0;
   const dealDay={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='gunluk'){const v=Number((d.perDayByStudents&&c.students&&d.perDayByStudents[c.students])||d.perDay)||0;if(v>0)dealDay[(c.schoolId||c.id)+'|'+d.teacherId]=v;}
-  const done=lessonsIn(f,to).filter(l=>lessonStatus(l)==='done'&&!needsVerify(l)&&!fixed[l.schoolId+'|'+l.teacherId]);
+  const done=lessonsOfMonth(ym).filter(l=>lessonStatus(l)==='done'&&!needsVerify(l)&&!fixed[l.schoolId+'|'+l.teacherId]);
   const dealWeek={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='haftalik'&&Number(d.perWeek)>0)dealWeek[(c.schoolId||c.id)+'|'+d.teacherId]={perWeek:Number(d.perWeek),maxWeeks:Number(d.maxWeeks)||4};
   const dayLs=done.filter(l=>dealDay[l.schoolId+'|'+l.teacherId]);const weekLs=done.filter(l=>!dealDay[l.schoolId+'|'+l.teacherId]&&dealWeek[l.schoolId+'|'+l.teacherId]);const all=done.filter(l=>!dealDay[l.schoolId+'|'+l.teacherId]&&!dealWeek[l.schoolId+'|'+l.teacherId]);
   const srate=id=>Number((schoolById(id)||((state.raw&&state.raw.schools)||[]).find(x=>x.id===id)||{}).payRate)||0;
@@ -1197,9 +1202,9 @@ function teacherPay(ym){
     for(const l of arr){const h=Number(l.hours)||0;const ex=explicitRate(l);const amt=h*(ex!=null?ex:(t?rate:rateFor(l)));r.gross+=amt;schoolCost[l.schoolId]=(schoolCost[l.schoolId]||0)+amt;}
   }
   for(const l of hourlyLs){const h=Number(l.hours)||0;const ex=explicitRate(l);const amt=h*(ex!=null?ex:srate(l.schoolId));const r=teachers[l.teacherId]||(teachers[l.teacherId]={teacherId:l.teacherId,days:0,hours:0,gross:0,tierDays:{}});r.hours+=h;r.gross+=amt;r.hourly=(r.hourly||0)+amt;schoolCost[l.schoolId]=(schoolCost[l.schoolId]||0)+amt;}
-  const dSeen={};for(const l of dayLs){const k=l.schoolId+'|'+l.teacherId;const dk=k+'|'+l.date;const r=teachers[l.teacherId]||(teachers[l.teacherId]={teacherId:l.teacherId,days:0,hours:0,gross:0,tierDays:{}});r.hours+=Number(l.hours)||0;if(dSeen[dk])continue;dSeen[dk]=1;const amt=dealDay[k];r.days++;r.gross+=amt;r.daily=(r.daily||0)+amt;schoolCost[l.schoolId]=(schoolCost[l.schoolId]||0)+amt;}
+  const dSeen={};for(const l of dayLs){const k=l.schoolId+'|'+l.teacherId;const dk=k+'|'+(l.makeupDate||l.date);const r=teachers[l.teacherId]||(teachers[l.teacherId]={teacherId:l.teacherId,days:0,hours:0,gross:0,tierDays:{}});r.hours+=Number(l.hours)||0;if(dSeen[dk])continue;dSeen[dk]=1;const amt=dealDay[k];r.days++;r.gross+=amt;r.daily=(r.daily||0)+amt;schoolCost[l.schoolId]=(schoolCost[l.schoolId]||0)+amt;}
   const wkOf=d=>{const x=new Date(d+'T12:00:00');const g=(x.getDay()+6)%7;x.setDate(x.getDate()-g);return x.toISOString().slice(0,10);};
-  const wSeen={};for(const l of weekLs){const k=l.schoolId+'|'+l.teacherId;const r=teachers[l.teacherId]||(teachers[l.teacherId]={teacherId:l.teacherId,days:0,hours:0,gross:0,tierDays:{}});r.hours+=Number(l.hours)||0;(wSeen[k]=wSeen[k]||{days:{},weeks:{}});if(!wSeen[k].days[l.date]){wSeen[k].days[l.date]=1;r.days++;}wSeen[k].weeks[wkOf(l.date)]=1;}
+  const wSeen={};for(const l of weekLs){const k=l.schoolId+'|'+l.teacherId;const r=teachers[l.teacherId]||(teachers[l.teacherId]={teacherId:l.teacherId,days:0,hours:0,gross:0,tierDays:{}});r.hours+=Number(l.hours)||0;(wSeen[k]=wSeen[k]||{days:{},weeks:{}});if(!wSeen[k].days[l.date]){wSeen[k].days[l.date]=1;r.days++;}wSeen[k].weeks[wkOf(l.makeupDate||l.date)]=1;}
   for(const [k,v] of Object.entries(wSeen)){const [sid,tid]=k.split('|');const dl=dealWeek[k];const n=Math.min(Object.keys(v.weeks).length,dl.maxWeeks);const amt=n*dl.perWeek;const r=teachers[tid];r.gross+=amt;r.weekly=(r.weekly||0)+amt;r.weeksN=(r.weeksN||0)+n;schoolCost[sid]=(schoolCost[sid]||0)+amt;}
   for(const [k,m] of Object.entries(fixed)){const [sid,tid]=k.split('|');const r=teachers[tid]||(teachers[tid]={teacherId:tid,days:0,hours:0,gross:0,tierDays:{}});r.gross+=m;r.fixed=(r.fixed||0)+m;schoolCost[sid]=(schoolCost[sid]||0)+m;}
   const load=t?(Number(t.load)||0)/100:0;
@@ -1891,7 +1896,7 @@ function tLessonsView(){
   const wls=lessonsIn(days[0],days[6],tid);
   const groups=days.map(d=>{const ls=wls.filter(l=>l.date===d);if(!ls.length&&weekdayOf(d)>=6)return '';return `<div class="daygroup"><h3 class="${d===tdy?'today':''}">${DAYS[weekdayOf(d)-1]} · ${fmtDate(d)}${d===tdy?' · bugün':''}</h3>${ls.length?ls.map(l=>lessonRow(l,{showDate:false,locked:monthLocked(tid,monthKeyOf(l.date))})).join(''):'<p class="muted small">Ders yok</p>'}</div>`;}).join('');
   const wsum=wls.reduce((a,l)=>{if(lessonStatus(l)==='done')a+=Number(l.hours)||0;return a;},0);
-  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">${fmtDateFull(tdy)}</p><h1>Merhaba, ${esc((t&&t.name||'').split(' ')[0])}</h1><p class="sub">${pend.length?`${pend.length} ders onayınızı bekliyor`:'Bekleyen onayınız yok'} · bu hafta ${fmtNum(wsum)} onaylı ders saati</p></div>${btn('openSub',{},'↔ Başkasının yerine girdim','primary sm')+btn('openExtra',{},'+ Ek ders ekle','sm')}</div>
+  return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">${fmtDateFull(tdy)}</p><h1>Merhaba, ${esc((t&&t.name||'').split(' ')[0])}</h1><p class="sub">${pend.length?`${pend.length} ders onayınızı bekliyor`:'Bekleyen onayınız yok'} · bu hafta ${fmtNum(wsum)} onaylı ders saati</p></div>${btn('openSub',{},'↔ Başkasının yerine girdim','primary sm')+btn('openMakeup',{},'↺ Telafi ekle','sm')+btn('openExtra',{},'+ Ek ders ekle','sm')}</div>
   ${pend.length?`<section><div class="sechead"><h2>Onayınızı bekleyen dersler</h2><span class="muted small">Derse girdiyseniz onaylayın, girmediyseniz nedenini seçin</span></div><div class="list">${pend.map(l=>lessonRow(l,{locked:monthLocked(tid,monthKeyOf(l.date))})).join('')}</div></section>`:`<div class="banner ok">Bekleyen ders onayınız yok. Dersi bitirince buradan "Derse girdim" ile onaylayın.</div>`}
   <section><div class="sechead"><h2>Haftalık dersleriniz</h2>${weekNav(ws)}</div><p class="muted small">Bu hafta onaylı ${fmtNum(wsum)} ders saati</p>${wls.length?groups:'<p class="empty">Bu hafta planlı dersiniz yok.</p>'}</section>`;
 }
@@ -1921,7 +1926,7 @@ function tMonthView(){
   }
   const lessons=s.lessons.map(l=>lessonRow(l,{locked:true})).join('');
   return `<div class="pagehead"><div><h1>Aylık özet</h1><p class="sub">Girdiğiniz ders saatleri sistem tarafından hesaplanır</p></div>${monthNav(ym,'month')}</div>
-  <section class="tiles">${tile(fmtNum(s.total.done),'onaylı ders saati')}${tile(s.total.pending,'onay bekleyen ders','',s.total.pending?'warn':'')}${tile(s.total.cancelled,'yapılmayan ders')}${anyRate?tile(fmtTL(s.total.amount),'hesaplanan tutar'):tile(s.total.upcoming,'planlı ders')}</section>
+  <section class="tiles">${tile(fmtNum(s.total.done),'onaylı ders saati')}${tile(s.total.pending,'onay bekleyen ders','',s.total.pending?'warn':'')}${tile(s.total.cancelled,'yapılmayan ders')}${s.total.makeup?tile(fmtNum(s.total.makeup),'telafi dersi'):''}${anyRate?tile(fmtTL(s.total.amount),'hesaplanan tutar'):tile(s.total.upcoming,'planlı ders')}</section>
   ${approveBox}
   <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Okul</th><th class="num">Onaylı ders saati</th><th class="num">Yapılmadı</th><th class="num">Bekleyen</th><th class="num">Planlı</th>${anyRate?'<th class="num">Tutar</th>':''}</tr></thead><tbody>${rows||'<tr><td colspan="6" class="muted">Bu ayda ders yok.</td></tr>'}${rows?`<tr class="total"><td>Toplam</td><td class="num">${fmtNum(s.total.done)}</td><td class="num">${s.total.cancelled||''}</td><td class="num">${s.total.pending||''}</td><td class="num">${s.total.upcoming||''}</td>${anyRate?`<td class="num">${fmtTL(s.total.amount)}</td>`:''}</tr>`:''}</tbody></table></div></section>
   <section><div class="sechead"><h2>${monthLabel(ym)} ders listesi</h2></div>${lessons?`<div class="list">${lessons}</div>`:'<p class="empty">Ders yok.</p>'}</section>`;
@@ -1942,11 +1947,13 @@ const ACT={
   done(d){const l=IDX.lessons[d.id];if(l)openDone(l);},
   cancel(d){const l=IDX.lessons[d.id];if(l)openCancel(l);},
   openExtra(){openExtra();},
+  openMakeup(){openMakeup();},
+  makeup(d){openMakeup(d.id);},
   openSub(){openExtra(true);},
   async verifyLesson(d){const l=IDX.lessons[d.id];if(!l)return;const err=await attempt(async()=>{await putDoc('lessons',Object.assign(cleanLesson(l),{approved:true,approvedAt:nowStamp(),verified:true,verifiedBy:actorLabel(),verifiedAt:nowStamp()}));await markReplaced(l);});toast(err||'Ders onaylandı; ödemeye hazır.',err?'bad':'ok');},
   verifyAll(){const ls=lessonsIn(...monthRange(state.ui.month)).filter(needsVerify).filter(l=>(!state.ui.fTeacher||l.teacherId===state.ui.fTeacher)&&(!state.ui.fSchool||l.schoolId===state.ui.fSchool));if(!ls.length)return toast('Onay bekleyen ders yok.');confirmModal('Bekleyen dersleri onayla',`${ls.length} ders (${fmtNum(ls.reduce((a,l)=>a+(Number(l.hours)||0),0))} saat) onaylanacak ve ödemeye hazır olarak baş yöneticiye düşecek.`,async()=>{const err=await attempt(async()=>{for(const l of ls){await putDoc('lessons',Object.assign(cleanLesson(l),{approved:true,approvedAt:nowStamp(),verified:true,verifiedBy:actorLabel(),verifiedAt:nowStamp()}));await markReplaced(l);}});if(err)return err;toast(`${ls.length} ders onaylandı.`,'ok');},'Evet, onayla');},
   async approveExtra(d){const l=IDX.lessons[d.id];if(!l)return;const err=await attempt(async()=>{await putDoc('lessons',Object.assign(cleanLesson(l),{approved:true,approvedAt:nowStamp(),verified:true,verifiedBy:actorLabel(),verifiedAt:nowStamp()}));await markReplaced(l);});toast(err||'Ek ders onaylandı.',err?'bad':'ok');},
-  resetLesson(d){const l=IDX.lessons[d.id];if(!l)return;confirmModal(l.extra?'Ek dersi sil':'Kaydı sıfırla',l.extra?`${fmtDateFull(l.date)} · ${esc(sName(l.schoolId))} ek dersi silinecek.`:`${fmtDateFull(l.date)} · ${esc(sName(l.schoolId))} kaydı silinir ve ders yeniden "onay bekliyor" durumuna döner.`,async()=>{const err=await attempt(()=>delDoc('lessons',l.id));if(err)return err;toast('Kayıt silindi.','ok');},l.extra?'Sil':'Sıfırla');},
+  resetLesson(d){const l=IDX.lessons[d.id];if(!l)return;if(l.makeupBy&&!l.extra)return toast('Bu dersin telafisi girilmiş. Önce telafi kaydını silin.','bad');confirmModal(l.extra?'Ek dersi sil':'Kaydı sıfırla',l.extra?`${fmtDateFull(l.date)} · ${esc(sName(l.schoolId))} ek dersi silinecek.`:`${fmtDateFull(l.date)} · ${esc(sName(l.schoolId))} kaydı silinir ve ders yeniden "onay bekliyor" durumuna döner.`,async()=>{const err=await attempt(async()=>{await delDoc('lessons',l.id);if(l.makeupFor){const o=state.lessons.find(x=>x.id===l.makeupFor);if(o&&o.makeupBy===l.id){const c=cleanLesson(o);delete c.makeupBy;delete c.makeupOn;await putDoc('lessons',c);}}});if(err)return err;PAYMEMO={};toast('Kayıt silindi.','ok');},l.extra?'Sil':'Sıfırla');},
   openAssignment(d){openAssignment(d.id?state.assignments.find(a=>a.id===d.id):null,{schoolId:d.school||undefined,teacherId:d.teacher||undefined});},
   endAssignment(d){const a=state.assignments.find(x=>x.id===d.id);if(!a)return;confirmModal('Program satırını sonlandır',`${esc(tName(a.teacherId))} · ${esc(sName(a.schoolId))} · ${DAYS[Number(a.weekday)-1]} satırı bugünden itibaren ders oluşturmaz. Geçmiş kayıtlar korunur.`,async()=>{const err=await attempt(()=>putDoc('assignments',Object.assign({},a,{validTo:addDays(todayISO(),-1)})));if(err)return err;toast('Satır sonlandırıldı.','ok');},'Sonlandır');},
   delAssignment(d){const a=state.assignments.find(x=>x.id===d.id);if(!a)return;confirmModal('Program satırını sil',`${esc(tName(a.teacherId))} · ${esc(sName(a.schoolId))} · ${DAYS[Number(a.weekday)-1]} satırı silinecek. Daha önce onaylanmış dersler kayıtlı kalır, onaylanmamış planlı dersler listeden kalkar.`,async()=>{const err=await attempt(()=>delDoc('assignments',a.id));if(err)return err;toast('Satır silindi.','ok');},'Sil');},
@@ -2106,6 +2113,39 @@ function openCancel(l){
     body:field('Neden',select('reason',CANCEL_REASONS.map(r=>({v:r,l:r})),l.reason||CANCEL_REASONS[0],{req:true}))+field('Açıklama (isteğe bağlı)',textarea('note',l.note||'')),
     submit:'Kaydet',
     onSubmit:async f=>{const rec=Object.assign(cleanLesson(l),{status:'cancelled',hours:0,reason:f.reason,note:f.note,confirmedAt:nowStamp(),confirmedBy:actorLabel()});if(!rec.extra)rec.approved=true;const err=await attempt(()=>putDoc('lessons',rec));if(err)return err;toast('Kaydedildi.','ok');}});
+}
+/* ===================== Telafi dersi ===================== */
+const MAKEUP_DAYS=30;
+const isMissed=l=>!l.extra&&!l.makeupBy&&!l.makeupFor&&!l.replacedBy&&(lessonStatus(l)==='cancelled'||(lessonStatus(l)==='pending'&&l.date<todayISO()));
+function canMakeup(l,admin){if(!isMissed(l))return false;if(admin)return isAdmin();return l.teacherId===myTeacherId()&&l.date>=addDays(todayISO(),-MAKEUP_DAYS);}
+function missedLessons(tid,admin){const t=todayISO();return lessonsIn(addDays(t,admin?-200:-MAKEUP_DAYS),t,tid).filter(isMissed).reverse();}
+const missLabel=l=>`${fmtDate(l.date)} ${DAYS_S[weekdayOf(l.date)-1]} · ${sName(l.schoolId)} · ${fmtNum(l.plannedHours||l.hours)} ders · ${lessonStatus(l)==='cancelled'?'yapılmadı':'girilmedi'}`;
+function openMakeup(preId){
+  const admin=isAdmin();const pre=preId?IDX.lessons[preId]:null;
+  const tid=admin?((pre&&pre.teacherId)||(activeTeachers()[0]||{}).id):myTeacherId();
+  const list=missedLessons(tid,admin);if(pre&&!list.some(x=>x.id===pre.id))list.unshift(pre);
+  if(!list.length&&!admin){toast(`Son ${MAKEUP_DAYS} günde telafi edilecek dersiniz görünmüyor. Daha eski bir dersin telafisi için TT Robotics'e yazın.`);return;}
+  for(const l of list)IDX.lessons[l.id]=l;
+  openModal({title:'Telafi dersi ekle',meta:admin?'Kaçan dersi ve telafi tarihini seçin. Yönetici olarak 30 günden eski dersler için de telafi girebilirsiniz.':`Son ${MAKEUP_DAYS} gün içinde yapamadığınız derslerden birini seçin. Telafi onaylandığında kaçan dersin ücreti bir kez ödenir.`,
+    body:(admin?field('Öğretmen',select('teacherId',activeTeachers().map(t=>({v:t.id,l:t.name})),tid,{req:true,attrs:'data-mchange="mk-teacher"'})):'')
+      +field('Hangi dersin telafisini yaptınız?',select('missed',list.map(l=>({v:l.id,l:missLabel(l)})),pre?pre.id:'',{req:true,ph:list.length?'Ders seçin':'Telafi edilecek ders yok',attrs:'data-mchange="mk-missed"'}),admin?'':`Yalnızca son ${MAKEUP_DAYS} gündeki dersler listelenir.`)
+      +`<div class="two">${field('Telafi tarihi',input('date',{type:'date',value:todayISO(),req:true,max:todayISO()}))}${field('Başlangıç saati',input('start',{type:'time'}))}</div>`
+      +field('Ders saati (40 dk = 1 ders)',input('hours',{type:'number',value:pre?(Number(pre.plannedHours||pre.hours)||1):2,min:1,max:12,step:1,req:true}),'Kaçan dersin ders sayısından fazla olamaz.')
+      +field('Açıklama',textarea('note','','Ör. Okulla anlaşıp Cuma 13:00’te telafi ettim')),
+    submit:'Kaydet',
+    onSubmit:async f=>{const teacherId=admin?f.teacherId:tid;if(!teacherId)return 'Öğretmen seçin.';
+      const m=IDX.lessons[f.missed]||missedLessons(teacherId,admin).find(x=>x.id===f.missed);if(!m||m.teacherId!==teacherId)return 'Telafisini yaptığınız dersi seçin.';
+      if(!isMissed(m))return 'Bu dersin telafisi zaten girilmiş.';
+      if(!admin&&m.date<addDays(todayISO(),-MAKEUP_DAYS))return `${MAKEUP_DAYS} günden eski dersler için telafiyi yalnızca yönetici ekleyebilir.`;
+      if(!f.date)return 'Telafi tarihini girin.';if(f.date>todayISO())return 'Gelecek tarihli telafi eklenemez.';if(f.date<m.date)return 'Telafi tarihi kaçan dersten önce olamaz.';
+      const maxH=Number(m.plannedHours||m.hours)||12;const hours=Number(f.hours);if(!(hours>=1&&hours<=maxH))return `Ders saati 1 ile ${fmtNum(maxH)} arasında olmalı (kaçan ders ${fmtNum(maxH)} ders). Fazlası için "Ek ders ekle"yi kullanın.`;
+      let pm=monthKeyOf(f.date);for(let i=0;i<12&&monthLocked(teacherId,pm);i++)pm=addMonths(pm,1);
+      const school=schoolById(m.schoolId);
+      const rec={id:'mk_'+uid(),date:f.date,teacherId,schoolId:m.schoolId,assignmentId:m.assignmentId,start:f.start||'',plannedHours:hours,hours,status:'done',extra:true,makeupFor:m.id,makeupDate:m.date,approved:admin,verified:admin,verifiedBy:admin?actorLabel():null,approvedAt:admin?nowStamp():undefined,note:f.note||'',rate:school&&school.rate?Number(school.rate):0,confirmedAt:nowStamp(),confirmedBy:actorLabel(),createdAt:nowStamp()};
+      if(pm!==monthKeyOf(f.date))rec.payMonth=pm;
+      const orig=Object.assign(cleanLesson(m),{status:'cancelled',reason:m.reason||'Telafi edildi',makeupBy:rec.id,makeupOn:f.date,confirmedAt:m.confirmedAt||nowStamp(),confirmedBy:m.confirmedBy||actorLabel()});
+      const err=await attempt(async()=>{await putDoc('lessons',rec);await putDoc('lessons',orig);});if(err)return err;PAYMEMO={};
+      toast((admin?'Telafi kaydedildi.':'Telafi kaydedildi; onaydan sonra ödemeye girer.')+(rec.payMonth?` Ay kapandığı için ${monthLabel(rec.payMonth)} ödemesine eklenecek.`:''),'ok');}});
 }
 function openExtra(sub){
   const admin=isAdmin();const tid=admin?(activeTeachers()[0]||{}).id:myTeacherId();
