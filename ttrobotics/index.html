@@ -429,7 +429,7 @@ function monthStats(ym,teacherId){
   return {rows:Object.values(rows).sort((a,b)=>sName(a.schoolId).localeCompare(sName(b.schoolId),'tr')),total,lessons:ls};
 }
 const monthDoc=(tid,ym)=>state.monthly.find(m=>m.id===`${tid}_${ym}`);
-const monthLocked=(tid,ym)=>{const m=monthDoc(tid,ym);return !!(m&&(m.teacherApproved||m.adminApproved));};
+const monthLocked=(tid,ym)=>{const m=monthDoc(tid,ym);return !!(m&&m.adminApproved);};
 function pendingFor(teacherId){const t=todayISO();return lessonsIn(addDays(t,-60),t,teacherId).filter(l=>lessonStatus(l)==='pending');}
 function teacherSchools(tid){const ids=[...new Set(state.assignments.filter(a=>a.teacherId===tid&&a.active!==false).map(a=>a.schoolId))];return ids.map(schoolById).filter(Boolean);}
 function schoolOptions(tid){const mine=teacherSchools(tid);const rest=activeSchools().filter(s=>!mine.includes(s));return [...mine,...rest].map(s=>({v:s.id,l:s.name}));}
@@ -459,8 +459,9 @@ function errText(e){
 async function attempt(fn){try{await fn();return null;}catch(e){console.error(e);return errText(e);}}
 const colDoc=(col,id)=>state.db.collection(col).doc(id);
 function stripUndef(o){const r={};for(const k in o){if(o[k]!==undefined)r[k]=o[k];}return r;}
-async function putDoc(col,obj){const rec=stripUndef(Object.assign({},obj,{updatedAt:nowStamp()}));delete rec.virtual;await colDoc(col,rec.id).set(rec);}
-async function delDoc(col,id){await colDoc(col,id).delete();}
+async function putDoc(col,obj){const rec=stripUndef(Object.assign({},obj,{updatedAt:nowStamp()}));delete rec.virtual;await colDoc(col,rec.id).set(rec);if(col==='lessons')await reopenMonth(rec);}
+async function reopenMonth(l){if(!l||isAdmin()||!l.teacherId||!l.date)return;const ym=l.payMonth||monthKeyOf(l.date);const m=monthDoc(l.teacherId,ym);if(m&&m.teacherApproved&&!m.adminApproved){try{await setMonthDoc(l.teacherId,ym,{teacherApproved:false,reopenedAt:nowStamp()});toast('Ay onayınız kaldırıldı; düzeltmeyi bitirince ayı yeniden onaylayın.');}catch(e){}}}
+async function delDoc(col,id){const old=col==='lessons'?(state.lessons||[]).find(x=>x.id===id):null;await colDoc(col,id).delete();if(old)await reopenMonth(old);}
 async function putMany(col,objs){const recs=objs.map(o=>{const r=stripUndef(Object.assign({},o,{updatedAt:nowStamp()}));delete r.virtual;return r;});
   if(state.db&&state.db.writeMany){await state.db.writeMany(recs.map(r=>({col,id:r.id,data:r})));return;}
   for(const r of recs)await colDoc(col,r.id).set(r);}
@@ -830,7 +831,7 @@ function lessonRow(l,o){
     else{acts.push(btn('done',{id:l.id},st==='cancelled'?'Düzenle / geri al':'Düzenle','ghost sm'));}
     if(o.admin&&needsVerify(l))acts.push(btn('verifyLesson',{id:l.id},'Onayla','primary sm'));
     if(o.admin&&!l.virtual)acts.push(btn('resetLesson',{id:l.id},l.extra?'Sil':'Sıfırla','ghost sm'));
-    if(!o.admin&&l.extra&&!l.approved)acts.push(btn('resetLesson',{id:l.id},'Sil','ghost sm'));
+    if(!o.admin&&l.extra)acts.push(btn('resetLesson',{id:l.id},'Sil','ghost sm'));
   }
   if(lessonStatus(l)==='cancelled'&&canMakeup(l,!!o.admin))acts.push(btn('makeup',{id:l.id},'↺ Telafi ekle','ghost sm'));
   const hrs=st==='done'?`${fmtNum(l.hours)} ders`:st==='cancelled'?'—':`${fmtNum(l.plannedHours||l.hours)} ders`;
@@ -2132,7 +2133,7 @@ $('#app').addEventListener('submit',async e=>{
 /* ===================== modals ===================== */
 function openDone(l){
   const tid=l.teacherId;const ym=monthKeyOf(l.date);
-  if(!isAdmin()&&monthLocked(tid,ym))return toast('Bu ay onaylandığı için kayıt değiştirilemez.','bad');
+  if(!isAdmin()&&monthLocked(tid,ym))return toast('Bu ayın ödemesi kapatıldı; değişiklik için TT Robotics’e yazın.','bad');
   const editing=lessonStatus(l)==='done';
   const wasVerified=editing&&!isAdmin()&&l.verified===true;
   const canUndo=editing&&!l.extra;
@@ -2152,7 +2153,7 @@ function openDone(l){
 }
 function openCancel(l){
   const tid=l.teacherId;const ym=monthKeyOf(l.date);
-  if(!isAdmin()&&monthLocked(tid,ym))return toast('Bu ay onaylandığı için kayıt değiştirilemez.','bad');
+  if(!isAdmin()&&monthLocked(tid,ym))return toast('Bu ayın ödemesi kapatıldı; değişiklik için TT Robotics’e yazın.','bad');
   openModal({title:'Ders yapılmadı',meta:`${fmtDateFull(l.date)} · ${esc(sName(l.schoolId))}${isAdmin()?' · '+esc(tName(l.teacherId)):''}`,
     body:field('Neden',select('reason',CANCEL_REASONS.map(r=>({v:r,l:r})),l.reason||CANCEL_REASONS[0],{req:true}))+field('Açıklama (isteğe bağlı)',textarea('note',l.note||'')),
     submit:'Kaydet',
@@ -2198,7 +2199,7 @@ function openExtra(sub){
     body:(sub?subSel:'')+(admin?field('Öğretmen',select('teacherId',activeTeachers().map(t=>({v:t.id,l:t.name})),tid,{req:true,attrs:'data-mchange="teacher-school"'})):'')+`<div class="two">${field('Tarih',input('date',{type:'date',value:todayISO(),req:true,max:admin?null:todayISO()}))}${field('Başlangıç saati',input('start',{type:'time'}))}</div>`+field('Okul',select('schoolId',schoolOptions(tid),'',{req:true,ph:'Seçin'}))+field('Ders saati (40 dk = 1 ders)',input('hours',{type:'number',value:2,min:1,max:12,step:1,req:true}))+(sub?'':subSel+`<label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" name="trial" value="1" > <b>Deneme dersi</b></label>`)+field('Açıklama',textarea('note','',sub?'Ör. İlke Hoca hastaydı, 11:00 mBot grubuna girdim':'Deneme dersi, telafi, atölye…')),
     submit:'Kaydet',
     onSubmit:async f=>{const teacherId=admin?f.teacherId:tid;if(!teacherId)return 'Öğretmen seçin.';if(!f.date)return 'Tarih girin.';if(!admin&&f.date>todayISO())return 'Gelecek tarihli ders eklenemez.';if(!f.schoolId)return 'Okul seçin.';const hours=Number(f.hours);if(!(hours>=1&&hours<=12))return 'Ders saati 1 ile 12 arasında olmalı.';if(sub&&!f.subFor)return 'Kimin yerine girdiğinizi seçin.';if(f.subFor&&f.subFor===teacherId)return 'Öğretmen kendi yerine giremez.';
-      if(!admin&&monthLocked(teacherId,monthKeyOf(f.date)))return 'Bu ay onaylandığı için ders eklenemez.';
+      if(!admin&&monthLocked(teacherId,monthKeyOf(f.date)))return 'Bu ayın ödemesi kapatıldı; ders eklemek için TT Robotics’e yazın.';
       const school=schoolById(f.schoolId);
       const rec={id:'x_'+uid(),date:f.date,teacherId,schoolId:f.schoolId,start:f.start||'',plannedHours:hours,hours,status:'done',extra:true,trial:!!f.trial,substituteFor:f.subFor||null,approved:admin,verified:admin,verifiedBy:admin?actorLabel():null,note:f.note,rate:school&&school.rate?Number(school.rate):0,confirmedAt:nowStamp(),confirmedBy:actorLabel(),createdAt:nowStamp()};
       const err=await attempt(async()=>{await putDoc('lessons',rec);if(admin&&rec.substituteFor)await markReplaced(rec);});if(err)return err;toast(rec.substituteFor?(admin?`${tName(rec.substituteFor)} yerine ders kaydedildi.`:'Kaydedildi; sorumlu onayından sonra size yazılır.'):admin?'Ders eklendi.':'Ek ders kaydedildi, yönetici onayı bekliyor.','ok');}});
