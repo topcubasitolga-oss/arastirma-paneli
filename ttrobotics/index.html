@@ -1825,6 +1825,14 @@ function agreementsView(){
   <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th><th>Sözleşme türü</th><th>Okullar (EK-1)</th><th>Durum</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="5" class="empty">Programı olan öğretmen yok.</td></tr>'}</tbody></table></div>
   <p class="muted small">Yetkili yer: ${esc(cfg.court)} · dönem ${fmtDMY(cfg.periodStart)} – ${fmtDMY(cfg.periodEnd)}. Sözleşme metinleri imzaya açılmadan önce bir iş hukuku avukatına okutulmalıdır.</p></section>`;
 }
+function agrBuild(tid){
+  const a=agrOf(tid)||{};const {insured}=agrRows(tid);const typeA=a.typeOverride?a.typeOverride==='A':insured;
+  const body=agrBody(tid,typeA);const hash=agrHash(body);const ek1=agrRows(tid).rows;
+  if(a.sentAt&&a.hash===hash)return null;
+  const rec=Object.assign({},a,{id:tid,teacherId:tid,name:tName(tid),type:typeA?'A':'B',body,hash,ek1,version:(Number(a.version)||0)+1,sentAt:nowStamp(),sentBy:actorLabel()});
+  if(a.signedFile)rec.history=(a.history||[]).concat([{v:a.version,signedFile:a.signedFile,acceptedAt:a.acceptedAt}]).slice(-10);
+  delete rec.signedFile;delete rec.signedReceivedAt;return rec;
+}
 async function agrSendOne(tid){
   const a=agrOf(tid)||{};const {insured}=agrRows(tid);const typeA=a.typeOverride?a.typeOverride==='A':insured;
   const body=agrBody(tid,typeA);const hash=agrHash(body);const ek1=agrRows(tid).rows;
@@ -2076,7 +2084,7 @@ const ACT={
   openHoliday(){openModal({title:'Tatil / ara dönem ekle',body:field('Ad',input('name',{req:true,ph:'Sömestr tatili, Kurban Bayramı…'}))+`<div class="two">${field('Başlangıç',input('from',{type:'date',req:true}))}${field('Bitiş',input('to',{type:'date',req:true}))}</div>`,onSubmit:async f=>{if(!f.name||!f.from||!f.to)return 'Tüm alanları doldurun.';if(f.to<f.from)return 'Bitiş, başlangıçtan önce olamaz.';const hol=(S().holidays||[]).concat([{id:uid(),name:f.name,from:f.from,to:f.to}]);const err=await attempt(()=>saveSettings({holidays:hol}));if(err)return err;toast('Tatil eklendi.','ok');}});},
   agrPreview(d){const a=agrOf(d.id)||{};const {insured}=agrRows(d.id);const typeA=a.typeOverride?a.typeOverride==='A':insured;openModal({title:'Sözleşme önizleme · '+esc(tName(d.id)),wide:true,meta:'Öğretmene gönderilecek metin. Kişisel bilgiler öğretmen doldurunca yerleşir.',body:`<style>${AGR_CSS}</style><div class="agr-box">${agrFill({teacherId:d.id,body:agrBody(d.id,typeA),personal:a.personal})}</div>`,submit:false,cancel:'Kapat'});},
   async agrSend(d){const err=await attempt(async()=>{const ch=await agrSendOne(d.id);toast(ch?'Sözleşme gönderildi; öğretmen "Ücret ve Sözleşme" sayfasında görecek.':'Sözleşme zaten güncel.','ok');});if(err)toast(err,'bad');},
-  async agrSendAll(){const ts=((state.raw&&state.raw.teachers)||state.teachers).filter(t=>t.active!==false&&agrRows(t.id).rows.length&&!(agrOf(t.id)||{}).sentAt);if(!ts.length){toast('Gönderilmemiş sözleşme yok.');return;}let k=0;for(const t of ts){const e=await attempt(()=>agrSendOne(t.id));if(!e)k++;}toast(k+' sözleşme gönderildi.','ok');},
+  async agrSendAll(){const ts=((state.raw&&state.raw.teachers)||state.teachers).filter(t=>t.active!==false&&agrRows(t.id).rows.length&&!(agrOf(t.id)||{}).sentAt);if(!ts.length){toast('Gönderilmemiş sözleşme yok.');return;}const recs=ts.map(t=>agrBuild(t.id)).filter(Boolean);toast(`${recs.length} sözleşme hazırlanıp gönderiliyor, lütfen bekleyin…`);const e=await attempt(()=>putMany('agreements',recs));toast(e||(recs.length+' sözleşme gönderildi.'),e?'bad':'ok');},
   agrPdf(d){const a=agrOf(d.id);if(!a||!a.body){toast('Önce sözleşme gönderilmeli.','bad');return;}agrPrint(a);},
   agrUploadFor(d){const i=document.createElement('input');i.type='file';i.accept='application/pdf,image/*';i.onchange=()=>{if(i.files[0])agrUpload(d.id,i.files[0]);};i.click();},
   async agrMarkReceived(d){const a=agrOf(d.id);if(!a)return;const err=await attempt(()=>putDoc('agreements',Object.assign({},a,{signedReceivedAt:a.signedReceivedAt?null:nowStamp()})));toast(err||(a.signedReceivedAt?'İşaret kaldırıldı.':'İmzalı nüsha teslim alındı olarak işaretlendi.'),err?'bad':'ok');},
