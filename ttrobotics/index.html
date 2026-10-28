@@ -827,7 +827,7 @@ function lessonRow(l,o){
   if(!locked){
     if(st==='pending'){acts.push(btn('done',{id:l.id},'✓ Derse girdim','primary sm'));acts.push(btn('cancel',{id:l.id},'Yapılmadı','ghost sm'));}
     else if(st==='upcoming'){if(o.admin)acts.push(btn('cancel',{id:l.id},'İptal et','ghost sm'));}
-    else{acts.push(btn('done',{id:l.id},'Düzenle','ghost sm'));}
+    else{acts.push(btn('done',{id:l.id},st==='cancelled'?'Düzenle / geri al':'Düzenle','ghost sm'));}
     if(o.admin&&needsVerify(l))acts.push(btn('verifyLesson',{id:l.id},'Onayla','primary sm'));
     if(o.admin&&!l.virtual)acts.push(btn('resetLesson',{id:l.id},l.extra?'Sil':'Sıfırla','ghost sm'));
     if(!o.admin&&l.extra&&!l.approved)acts.push(btn('resetLesson',{id:l.id},'Sil','ghost sm'));
@@ -2136,10 +2136,13 @@ function openDone(l){
   const editing=lessonStatus(l)==='done';
   const wasVerified=editing&&!isAdmin()&&l.verified===true;
   const canUndo=editing&&!l.extra;
-  openModal({title:editing?'Ders kaydını düzenle':'Derse girdim',meta:`${fmtDateFull(l.date)} · ${esc(sName(l.schoolId))}${isAdmin()?' · '+esc(tName(l.teacherId)):''}${l.extra?' · ek ders':''}`,
-    body:(wasVerified?'<p class="banner small" style="margin-bottom:8px">Bu ders onaylanmıştı. Değişiklik yaparsanız ders yeniden onaya düşer.</p>':'')+(canUndo?field('Bu ders için',select('mode',[{v:'done',l:'Derse girdim (ders saatini düzelt)'},{v:'cancel',l:'Derse girmedim — “Yapılmadı” olarak işaretle'},{v:'reset',l:'Yanlışlıkla işaretledim — kaydı geri al'}],'done',{req:true}),'Yanlışlıkla “Derse girdim” dediyseniz buradan düzeltebilirsiniz.'):'')+field('Girilen ders saati',input('hours',{type:'number',value:l.hours||l.plannedHours||1,min:1,max:12,step:1,req:true}),l.plannedHours?`Planlanan: ${fmtNum(l.plannedHours)} ders saati`:'')+`<label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" name="trial" value="1" ${l.trial?'checked':''}> <b>Deneme dersi</b></label>`+field('Not (isteğe bağlı)',textarea('note',l.note||'','İşlenen konu, kullanılan set, aksama…')),
+  const wasCancelled=lessonStatus(l)==='cancelled'&&!l.virtual&&!l.extra;
+  if(wasCancelled&&l.makeupBy)return toast('Bu dersin telafisi girilmiş. Değiştirmek için önce telafi kaydını silin.','bad');
+  openModal({title:(editing||wasCancelled)?'Ders kaydını düzenle':'Derse girdim',meta:`${fmtDateFull(l.date)} · ${esc(sName(l.schoolId))}${isAdmin()?' · '+esc(tName(l.teacherId)):''}${l.extra?' · ek ders':''}`,
+    body:(wasCancelled?field('Bu ders “Yapılmadı” olarak kayıtlı',select('mode',[{v:'done',l:'Aslında derse girdim — “Derse girdim” olarak düzelt'},{v:'reset',l:'Yanlışlıkla “Yapılmadı” dedim — kaydı geri al'}],'done',{req:true}),'Geri alırsanız ders yeniden “onay bekliyor” durumuna döner.'):'')+(wasVerified?'<p class="banner small" style="margin-bottom:8px">Bu ders onaylanmıştı. Değişiklik yaparsanız ders yeniden onaya düşer.</p>':'')+(canUndo?field('Bu ders için',select('mode',[{v:'done',l:'Derse girdim (ders saatini düzelt)'},{v:'cancel',l:'Derse girmedim — “Yapılmadı” olarak işaretle'},{v:'reset',l:'Yanlışlıkla işaretledim — kaydı geri al'}],'done',{req:true}),'Yanlışlıkla “Derse girdim” dediyseniz buradan düzeltebilirsiniz.'):'')+field('Girilen ders saati',input('hours',{type:'number',value:l.hours||l.plannedHours||1,min:1,max:12,step:1,req:true}),l.plannedHours?`Planlanan: ${fmtNum(l.plannedHours)} ders saati`:'')+`<label class="small" style="display:flex;gap:8px;align-items:center;margin:6px 0"><input type="checkbox" name="trial" value="1" ${l.trial?'checked':''}> <b>Deneme dersi</b></label>`+field('Not (isteğe bağlı)',textarea('note',l.note||'','İşlenen konu, kullanılan set, aksama…')),
     submit:'Kaydet',
     onSubmit:async f=>{
+      if(wasCancelled&&f.mode==='reset'){const err=await attempt(()=>delDoc('lessons',l.id));if(err)return err;PAYMEMO={};toast('“Yapılmadı” kaydı geri alındı; ders yeniden “onay bekliyor” durumunda.','ok');return;}
       if(canUndo&&f.mode==='reset'){const err=await attempt(()=>delDoc('lessons',l.id));if(err)return err;PAYMEMO={};toast('Kayıt geri alındı; ders yeniden “onay bekliyor” durumunda.','ok');return;}
       if(canUndo&&f.mode==='cancel'){const rec=Object.assign(cleanLesson(l),{status:'cancelled',reason:(f.note||'').trim()||'Derse girilmedi',note:f.note||'',confirmedAt:nowStamp(),confirmedBy:actorLabel(),verified:isAdmin(),verifiedBy:isAdmin()?actorLabel():null,verifiedAt:isAdmin()?nowStamp():null});const err=await attempt(()=>putDoc('lessons',rec));if(err)return err;PAYMEMO={};toast('Ders “Yapılmadı” olarak işaretlendi.','ok');return;}
       const hours=Number(f.hours);if(!(hours>=1&&hours<=12))return 'Ders saati 1 ile 12 arasında olmalı.';
