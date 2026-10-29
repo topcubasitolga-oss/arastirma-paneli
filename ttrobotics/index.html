@@ -1134,7 +1134,10 @@ const periodLabel=p=>(PERIODS.find(x=>x[0]===p)||PERIODS[0])[1];
 const contractFor=id=>state.contracts.find(c=>c.schoolId===id);
 const contractStudents=c=>{const cl=Array.isArray(c.classes)?c.classes:[];const n=cl.reduce((a,x)=>a+(Number(x.students)||0),0);return n||Number(c.students)||0;};
 const weeklyHoursOf=id=>liveAssignments().filter(a=>a.schoolId===id).reduce((a,x)=>a+(Number(x.hours)||0),0);
-function contractAmount(c){
+function contractAmount(c){const r=contractAmountBase(c);const ex=(c.extraPrograms||[]).filter(x=>Number(x.perStudentMonthly)>0&&Number(x.students)>0);if(!ex.length)return r;
+  const add=ex.reduce((a,x)=>a+Number(x.perStudentMonthly)*Number(x.students),0);
+  return Object.assign({},r,{label:r.label+ex.map(x=>` + ${esc(x.name)}: ${fmtNum(x.students)} öğrenci × ${fmtTL(x.perStudentMonthly)}/ay`).join(''),monthly:r.monthly+add,perPeriod:r.perLabel==='aylık'||r.perLabel===periodLabel('aylik')?r.perPeriod+add:r.perPeriod,extraMonthly:add});}
+function contractAmountBase(c){
   const price=Number(c.price)||0;const st=contractStudents(c);
   if(c.model==='ogrenci'){const per=c.period||'aylik';const tot=st*price;return {label:`${fmtNum(st)} öğrenci × ${fmtTL(price)} · ${periodLabel(per)}`,perPeriod:tot,monthly:tot/MONTHS_IN[per],perLabel:periodLabel(per)};}
   if(c.model==='kademeli'){const m=kademeliMonthly(st,c);return {label:`${fmtNum(st)} öğrenci · kademe ${st<=20?'2.000':st<=26?'sabit 40.000':st<=50?'1.500':st<=60?'sabit 75.000':st<=100?'1.250':st<=125?'sabit 125.000':'1.000'} · asgari ${fmtTL(Number(c.minFee)||30000)}`,perPeriod:m,monthly:m,perLabel:'aylık'};}
