@@ -1885,14 +1885,18 @@ function tCvView(){
   return `<div class="pagehead"><div><p class="eyebrow">Özgeçmiş</p><h1>CV'm</h1><p class="muted">Güncel CV'nizi PDF olarak yükleyin. CV'niz yalnızca TT Robotics yönetimine görünür ve gerektiğinde okullara tanıtım için gönderilir.</p></div></div>
   <section class="card"><h2>${cv?'Yüklü CV':'CV ekle'}</h2>
     ${cv?`<p>${chip('ok','CV yüklendi')} <span class="muted small">${esc(cv.name)} · ${new Date(cv.at).toLocaleString('tr-TR')}</span></p><p class="muted small">Yeni bir dosya seçerseniz eski CV'nin yerine geçer.</p>`:'<p class="muted small">Henüz CV yüklemediniz.</p>'}
-    <ul class="muted small"><li>PDF tercih edin (en fazla 10 MB).</li><li>Eğitim, robotik/kodlama deneyimi, sertifikalar ve iletişim bilgileriniz yer alsın.</li><li>Word dosyasını "Farklı kaydet → PDF" ile PDF'e çevirebilirsiniz.</li></ul>
-    <input type="file" id="cv-file" accept="application/pdf,image/jpeg,image/png"></section>`;
+    ${cv?`<p>${btn('cvRemove',{},"CV'yi kaldır",'ghost sm')}</p>`:''}
+    <ul class="muted small"><li>PDF tercih edin; Word (.docx) veya fotoğraf da yüklenebilir (en fazla 20 MB).</li><li>Eğitim, robotik/kodlama deneyimi, sertifikalar ve iletişim bilgileriniz yer alsın.</li><li>Word dosyasını "Farklı kaydet → PDF" ile PDF'e çevirebilirsiniz.</li></ul>
+    <input type="file" id="cv-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.heic,.heif,application/pdf,image/*"></section>`;
 }
+const CV_EXT={pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',heic:'image/heic',heif:'image/heif'};
+function cvMime(file){const t=(file.type||'').split(';')[0].trim();if(Object.values(CV_EXT).includes(t))return t;return CV_EXT[(file.name||'').toLowerCase().split('.').pop()]||'';}
+async function cvRemove(){const mid=state.session&&state.session.managerId;const err=await attempt(async()=>{await state.db.upload({col:'cv',id:mid||myTeacherId(),remove:true});if(mid){state.ui.myCv=null;render();}else await state.db.refresh();});toast(err||'CV kaldırıldı. Yenisini yükleyebilirsiniz.',err?'bad':'ok');}
 async function cvUpload(file){
   if(!state.remote||!state.db.upload){toast('CV yükleme yalnızca canlı sitede çalışır.','bad');return;}
-  if(file.size>10*1024*1024){toast('Dosya 10 MB\'tan büyük.','bad');return;}
-  const mime=guessType(file);if(!['application/pdf','image/jpeg','image/png'].includes(mime)){toast('CV PDF olarak yüklenmeli.','bad');return;}
-  toast('CV yükleniyor…');
+  if(file.size>20*1024*1024){toast('Dosya 20 MB\'tan büyük. Daha küçük bir PDF seçin.','bad');return;}
+  const mime=cvMime(file);if(!mime){toast('CV PDF, Word (.docx) veya fotoğraf olmalı.','bad');return;}
+  toast('CV yükleniyor, lütfen bekleyin…');
   const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
   const mid=state.session&&state.session.managerId;
   const err=await attempt(async()=>{const j=await state.db.upload({col:'cv',id:mid||myTeacherId(),name:file.name,mime,b64});if(mid&&j&&j.cv){state.ui.myCv=j.cv;render();}else await state.db.refresh();});
@@ -2025,6 +2029,7 @@ const ACT={
   setReject(d){const x=state.sets.find(y=>y.id===d.id);if(!x)return;confirmModal('Seti sil',`${esc(x.name)} (${esc(sName(setSchool(x))||'')}) kaydı silinecek.`,async()=>{const err=await attempt(()=>delDoc('sets',x.id));if(err)return err;toast('Silindi.','ok');},'Sil');},
   setCatToggle(){state.ui.setCatOpen=!state.ui.setCatOpen;render();},
   openMySetCat(d){openMySet(null,'',{name:d.name});},
+  cvRemove(){confirmModal("CV'yi kaldır","Yüklü CV'niz kaldırılacak. Ardından yenisini yükleyebilirsiniz.",async()=>{await cvRemove();},'Kaldır');},
   openMySetNew(){openMySet(null,'',{custom:true});setTimeout(()=>{const i=document.querySelector('[data-setsug]');if(i)i.focus();},50);},
   openSetCat(d){openSet(null,{name:d.name});},
   openMySet(d){if(d.id){const x=IDX.sets[d.id]||state.sets.find(y=>y.id===d.id);if(x)openMySet(x);}else openMySet(null,d.school);},
