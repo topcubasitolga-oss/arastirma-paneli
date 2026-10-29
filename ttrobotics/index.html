@@ -1688,7 +1688,7 @@ function agrRows(tid){
         else if(d.model==='haftalik'){pay=`Haftalık ${tlx(d.perWeek)} · ayda en fazla ${d.maxWeeks||4} hafta (${tlx(d.perWeek*(d.maxWeeks||4))})`;t.push('Ay içinde ders verilen (okulun açık olduğu) hafta sayısı kadar ödenir; örneğin 3 hafta için 3 haftalık ücret.');}
         else if(d.model==='aylik'){pay=`Aylık sabit ${tlx(d.monthly)}`;}
         if(d.plusInsurance)t.push('Sosyal güvenlik primleri mevzuata göre ayrıca yatırılır.');
-        rows.push(Object.assign({},base,{days:dd,pay,terms:t}));
+        rows.push(Object.assign({},base,{days:dd,pay,terms:t},d.program?{program:d.program}:{},deals.length>1&&d.lessonsPerWeek?{lessons:`haftada ~${fmtNum(d.lessonsPerWeek)} ders`}:{}));
       }
     }else if(fixed){
       const note=String(fixed.note||'');if(/sigorta/i.test(note))insured=true;
