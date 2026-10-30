@@ -137,6 +137,7 @@ table.ttm thead th:first-child{width:86px}table.ttm thead th:last-child{width:11
 .tcard:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.06)}.tcard b{font-size:15px}
 .tdetails>summary{cursor:pointer;font-weight:600;padding:8px 0;color:var(--accent)}
 .ttc-day{font-weight:700;padding:0 6px;border-radius:6px;background:var(--ok-soft);color:var(--ok)}.ttc-day.yarim{background:var(--warn-soft);color:var(--warn)}
+.tbl td .btn{white-space:nowrap}
 .ttmode{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface)}
 .seg .btn,.seg button{border:0;border-radius:999px;background:transparent;box-shadow:none}
@@ -385,7 +386,7 @@ const state={
 };
 let IDX={lessons:{},sets:{},pay:{},files:{}};
 let modalState=null;
-const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['finance','Finans'],['bsa','BSA Akademi'],['receivables','Alacaklarım'],['agreements','Sözleşmeler'],['files','Dosyalar'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar']];
+const ADMIN_NAV=[['overview','Genel bakış'],['program','Haftalık program'],['avail','Müsaitlik'],['lessons','Ders kayıtları'],['report','Aylık rapor'],['finance','Finans'],['bsa','BSA Akademi'],['receivables','Alacaklarım'],['agreements','Sözleşmeler'],['files','Dosyalar'],['sets','Setler'],['teachers','Öğretmenler'],['pool','Öğretmen arşivi'],['schools','Okullar'],['settings','Ayarlar'],['partners','Gelir ortaklıkları']];
 const CAND_STATUS=[['aday','Aday'],['gorusuldu','Görüşüldü'],['deneme','Deneme dersi verdi'],['aktif','Aktif öğretmen'],['pasif','Pasif'],['uygun_degil','Uygun değil']];
 const CAND_TAGS=['Robotik kodlama','Drone','STEM','Yapay zekâ','Okul öncesi','İlkokul','Ortaokul','Lise','Scratch / blok kodlama','Python','Arduino / micro:bit','LEGO Education','3D tasarım','Maker / elektronik','İngilizce ders verebilir'];
 const TEACHER_NAV=[['tprog','Programım'],['tlessons','Derslerim'],['tavail','Müsaitliğim'],['tmonth','Aylık özet'],['tsets','Setler'],['tcv',"CV'm"],['tcontract','Ücret ve Sözleşme']];
@@ -395,7 +396,7 @@ const SET_CATS=[...new Set(['LEGO SPIKE Prime','LEGO SPIKE Essential','LEGO WeDo
 const CANCEL_REASONS=['Okul iptal etti','Resmî tatil / okul kapalı','Öğretmen mazeretli','Sınav / etkinlik','Diğer'];
 
 const S=()=>Object.assign({adminPin:'1234',ownerPin:'2026',hourMinutes:40,holidays:[]},state.settings||{});
-const OWNER_VIEWS=['finance','bsa','files','agreements','receivables'];
+const OWNER_VIEWS=['finance','bsa','files','agreements','receivables','partners'];
 const isScoped=()=>!!(state.session&&state.session.role==='admin'&&Array.isArray(state.session.scope));
 const SCOPED_VIEWS=['overview','program','avail','lessons','report','sets','teachers','schools','school','teacher','tcv'];
 const managers=()=>Array.isArray(S().managers)?S().managers:[];
@@ -541,7 +542,7 @@ function resolveSession(){
   state.session=null;
 }
 const managerSession=(m,via)=>({role:'admin',via,scope:(m.schoolIds||[]).slice(),managerId:m.id,managerName:m.name});
-const defaultView=()=>{if(isAdmin())return 'overview';const t=teacherById(myTeacherId());return t&&!t.programConfirmedAt?'tprog':'tlessons';};
+const defaultView=()=>{if(isAdmin())return 'overview';if(state.session&&state.session.role==='partner')return 'pdash';const t=teacherById(myTeacherId());return t&&!t.programConfirmedAt?'tprog':'tlessons';};
 function setSession(s,remember){
   state.session=s;rescope();state.ui.view=defaultView();
   if(remember!==false){if(s&&s.via!=='impersonate')lsSet('ttr.session',{role:s.role,teacherId:s.teacherId||null,managerId:s.managerId||null});if(!s)lsSet('ttr.session',null);}
@@ -551,7 +552,7 @@ function setSession(s,remember){
 }
 function applyHash(){
   const h=(location.hash||'').replace('#','');
-  const nav=(isAdmin()?ADMIN_NAV:TEACHER_NAV).filter(n=>!OWNER_VIEWS.includes(n[0])||financeVisible());
+  const nav=(state.session&&state.session.role==='partner')?PARTNER_NAV:(isAdmin()?ADMIN_NAV:TEACHER_NAV).filter(n=>!OWNER_VIEWS.includes(n[0])||financeVisible());
   if(h&&nav.some(n=>n[0]===h))state.ui.view=h;else state.ui.view=defaultView();
 }
 
@@ -636,6 +637,7 @@ function remoteDb(url){
 function remoteSessionFor(who){
   state.isOwner=who.role==='owner';state.remoteWho=who;
   if(who.role==='teacher')return {role:'teacher',teacherId:who.teacherId,via:'pin'};
+  if(who.role==='partner')return {role:'partner',partnerId:who.partnerId,partnerName:who.partnerName,share:who.share,via:'pin'};
   if(who.role==='manager')return managerSession({id:who.managerId,name:who.managerName,schoolIds:who.scope},'pin');
   return {role:'admin',via:'pin'};
 }
@@ -655,6 +657,7 @@ function subscribeAll(db){
   const cols=['teachers','schools','assignments','lessons','monthly','sets','candidates'];
   if(state.standalone||state.isOwner||state.remote)cols.push('contracts','payments','files');else{state.loaded.contracts=true;state.loaded.payments=true;state.loaded.files=true;}
   if(state.standalone||state.isOwner||state.remote)cols.push('agreements');else state.loaded.agreements=true;
+  if(state.standalone||state.isOwner||state.remote)cols.push('ledger');
   for(const c of cols){
     db.collection(c).onSnapshot(snap=>{const docs=snap.docs.map(d=>Object.assign({id:d.id},d.data()));state.raw=state.raw||{};state.raw[c]=docs;state[c]=SCOPE_COLS.includes(c)?scopeFilter(c,docs):docs;if(c==='assignments'||c==='lessons')rescope();if(c==='teachers'&&state.raw.teachers)state.teachers=scopeFilter('teachers',state.raw.teachers);state.loaded[c]=true;onData();},e=>{state.dbError=e;render();});
   }
@@ -754,7 +757,8 @@ function render(){
   if(!state.ready){app.innerHTML='<div class="boot">Veriler yükleniyor…</div>';return;}
   if(!state.session){app.innerHTML=loginView();return;}
   if(isScoped()&&!SCOPED_VIEWS.includes(state.ui.view))state.ui.view='overview';
-  const content=isAdmin()?adminView():teacherView();
+  if(isPartner()&&!PARTNER_NAV.some(n=>n[0]===state.ui.view))state.ui.view='pdash';
+  const content=isAdmin()?adminView():isPartner()?partnerView():teacherView();
   app.innerHTML=shell(content);
   requestAnimationFrame(addHScroll);
 }
@@ -804,7 +808,7 @@ const ICONS={
 const icon=k=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]||ICONS.overview}</svg>`;
 function shell(content){
   const s=state.session;const t=s.role==='teacher'?teacherById(s.teacherId):null;
-  const nav=(isAdmin()?(isScoped()?ADMIN_NAV.concat([['tcv',"CV'm"]]):ADMIN_NAV):TEACHER_NAV).filter(n=>(!OWNER_VIEWS.includes(n[0])||financeVisible())&&(!isScoped()||SCOPED_VIEWS.includes(n[0])));
+  const nav=isPartner()?PARTNER_NAV:(isAdmin()?(isScoped()?ADMIN_NAV.concat([['tcv',"CV'm"]]):ADMIN_NAV):TEACHER_NAV).filter(n=>(!OWNER_VIEWS.includes(n[0])||financeVisible())&&(!isScoped()||SCOPED_VIEWS.includes(n[0])));
   const imp=s.via==='impersonate';
   const pendN=isAdmin()?state.sets.filter(x=>x.catPending).length:0;
   const navLinks=nav.map(n=>`<a href="#${n[0]}" class="${state.ui.view===n[0]?'on':''}" data-act="nav" data-view="${n[0]}">${icon(n[0])}${n[1]}${n[0]==='sets'&&pendN?` <span class="chip warn" title="Onay bekleyen set">${pendN}</span>`:''}</a>`).join('');
@@ -813,9 +817,9 @@ function shell(content){
   return `<div class="app">
   <aside class="side">
     <img class="logo" src="${LOGO_W}" alt="TT Robotics" width="400" height="303">
-    <div class="role">${isAdmin()?(isScoped()?'Kurum sorumlusu · '+esc(state.schools.map(x=>x.name).join(', ')):'Yönetici paneli'):'Öğretmen paneli'}</div>
+    <div class="role">${isPartner()?'Gelir takip paneli':isAdmin()?(isScoped()?'Kurum sorumlusu · '+esc(state.schools.map(x=>x.name).join(', ')):'Yönetici paneli'):'Öğretmen paneli'}</div>
     <nav>${navLinks}</nav>
-    <div class="user"><span class="name">${esc(t?t.name:(s.managerName||'Yönetici'))}</span>${state.canWrite===false?chip('warn','Salt okunur'):''}${exitBtn}</div>
+    <div class="user"><span class="name">${esc(t?t.name:(s.partnerName||s.managerName||'Yönetici'))}</span>${state.canWrite===false?chip('warn','Salt okunur'):''}${exitBtn}</div>
   </aside>
   <div class="content"><div class="topbar">${topLinks}</div><main>${state.standalone?`<div class="banner warn"><span><b>Önizleme sürümü.</b> Veriler yalnızca bu tarayıcıda saklanır; öğretmenlerle paylaşılan canlı panel claude.ai'daki sürümdür.</span>${btn('resetDemo',{},'Önizleme verilerini sıfırla','ghost sm')}</div>`:''}${imp?`<div class="banner">Bu paneli <b>${esc(t?t.name:'')}</b> adına yönetici olarak görüyorsunuz. Yaptığınız işlemler "Yönetici" imzasıyla kaydedilir.</div>`:''}${state.canWrite===false?`<div class="banner warn">Bu hesap yalnızca görüntüleyebilir. Değişiklik için yöneticiden "Düzenleyen" daveti isteyin.</div>`:''}${content}</main></div></div>`;
 }
@@ -851,6 +855,7 @@ function loginView(){
 /* ===================== admin views ===================== */
 function adminView(){
   switch(state.ui.view){
+    case 'partners':return financeVisible()?partnerPage(curPid(),state.ui.ptab||'pdash'):'';
     case 'school':return schoolDetailView(state.ui.detailId);
     case 'teacher':return teacherDetailView(state.ui.detailId);
     case 'program':return programView();
@@ -2192,6 +2197,96 @@ function teachersMonthTable(ym){
   <p class="muted small" style="margin:0 0 8px">Girilen / planlanan ders (1 ders = 40 dk). Öğretmenin adına tıklayınca aylık tablosu açılır.</p>
   ${rows?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th>${weeks.map((w,i)=>`<th class="num">${i+1}. hafta<div class="muted small" style="font-weight:400">${fmtDate(w<f?f:w)}</div></th>`).join('')}<th class="num">Ay toplamı</th><th class="num">Süre</th><th class="num">Bekleyen</th><th class="num">Yapılmadı</th></tr></thead><tbody>${rows}</tbody>
   <tfoot><tr><th>Toplam</th>${wT.map(k=>`<th class="num">${fmtNum(k.done)}<span class="muted small"> / ${fmtNum(k.total)}</span></th>`).join('')}<th class="num">${fmtNum(T.done)}<span class="muted small"> / ${fmtNum(T.total)}</span></th><th class="num">${ttDur(T.done)}</th><th class="num">${fmtNum(T.wait)}</th><th class="num">${fmtNum(T.miss)}</th></tr></tfoot></table></div>`:'<p class="empty">Bu ay için ders yok.</p>'}</section>`;}
+/* ===================== gelir ortaklığı (Barkın vb.) ===================== */
+const isPartner=()=>!!(state.session&&state.session.role==='partner');
+const PARTNER_NAV=[['pdash','Özet'],['pstudents','Öğrenciler ve tahsilat'],['pexp','Giderler'],['premit',"TT Robotics'e ödemeler"]];
+const LCATS=[['set','Set / ekipman'],['takim','Takım kaydı'],['yarisma','Yarışma katılım ücreti'],['egitmen','Eğitmen ücreti'],['ulasim','Ulaşım / konaklama'],['vergi','Vergi'],['diger','Diğer']];
+const lcat=k=>(LCATS.find(x=>x[0]===k)||LCATS[LCATS.length-1])[1];
+const LPROGS=['Drone','VEX IQ','Drone + VEX IQ'];
+const partnersList=()=>Array.isArray(S().partners)?S().partners:[];
+const curPid=()=>isPartner()?state.session.partnerId:(state.ui.pid&&partnersList().some(p=>p.id===state.ui.pid)?state.ui.pid:(partnersList()[0]||{}).id);
+const ldg=(pid,kind)=>(state.ledger||[]).filter(x=>x.partnerId===pid&&(!kind||x.kind===kind));
+const pShare=pid=>isPartner()?(Number(state.session.share)||50):(Number((partnersList().find(p=>p.id===pid)||{}).share)||50);
+const pName=pid=>isPartner()?state.session.partnerName:((partnersList().find(p=>p.id===pid)||{}).name||'');
+const sumA=a=>a.reduce((t,x)=>t+(Number(x.amount)||0),0);
+function pSeason(pid){const st=ldg(pid,'student');let a='2026-10',b='2027-06';for(const x of st){if(x.startMonth&&x.startMonth<a)a=x.startMonth;const e=addMonths(x.startMonth||'2026-10',(Number(x.months)||6)-1);if(e>b)b=e;}
+  for(const x of ldg(pid))if(x.month){if(x.month<a)a=x.month;if(x.month>b)b=x.month;}const out=[];let m=a;while(m<=b&&out.length<24){out.push(m);m=addMonths(m,1);}return out;}
+function pCalc(pid,ym){const f=x=>!ym||x.month===ym;const inc=sumA(ldg(pid,'pay').filter(f)),exp=sumA(ldg(pid,'exp').filter(f)),net=inc-exp,tt=Math.round(net*pShare(pid)/100),rem=sumA(ldg(pid,'remit').filter(f));return {inc,exp,net,tt,me:net-tt,rem,left:tt-rem};}
+const stTotal=x=>(Number(x.monthly)||0)*(Number(x.months)||6);
+const stPaid=(pid,x,ym)=>sumA(ldg(pid,'pay').filter(p=>p.studentId===x.id&&(!ym||p.month===ym)));
+const stMonths=x=>{const o=[];let m=x.startMonth||'2026-10';for(let i=0;i<(Number(x.months)||6);i++){o.push(m);m=addMonths(m,1);}return o;};
+function pHead(pid,title,sub){
+  const owner=!isPartner();
+  const tabs=owner?`<div class="seg" style="margin-top:10px">${PARTNER_NAV.map(n=>btn('pTab',{tab:n[0]},n[1],'sm'+((state.ui.ptab||'pdash')===n[0]?' on':''))).join('')}</div>`:'';
+  const pick=owner&&partnersList().length>1?`<select data-change="pid">${partnersList().map(p=>`<option value="${esc(p.id)}" ${p.id===pid?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`:'';
+  return `<div class="pagehead"><div><p class="eyebrow">${owner?'Gelir ortaklığı · '+esc(pName(pid)):'Gelir takibi · '+esc(pName(pid))}</p><h1>${title}</h1>${sub?`<p class="sub">${sub}</p>`:''}${tabs}</div><div class="toolbar">${pick}${owner?btn('openPartners',{},'Ortaklar ve şifreler','sm'):''}</div></div>`;}
+function pDash(pid){
+  const ym=state.ui.pMonth||monthKeyOf(todayISO());const c=pCalc(pid,ym),T=pCalc(pid,null);const sh=pShare(pid);
+  const card=(v,l,sub,k)=>`<div class="ttsum${k?' '+k:''}"><h3>${l}</h3><div class="big">${fmtTL(v)}</div>${sub?`<div class="muted small">${sub}</div>`:''}</div>`;
+  const rows=pSeason(pid).map(m=>{const k=pCalc(pid,m);if(!k.inc&&!k.exp&&!k.rem)return `<tr class="muted"><td>${monthLabel(m)}</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>`;
+    return `<tr><td><a href="#" class="plink" data-act="pMonthSet" data-ym="${m}">${monthLabel(m)}</a></td><td class="num">${fmtTL(k.inc)}</td><td class="num">${fmtTL(k.exp)}</td><td class="num">${fmtTL(k.net)}</td><td class="num"><b>${fmtTL(k.tt)}</b></td><td class="num">${fmtTL(k.rem)}</td><td class="num">${k.left>0?chip('warn',fmtTL(k.left)):k.left<0?chip('info','+'+fmtTL(-k.left)):chip('ok','Tamam')}</td></tr>`;}).join('');
+  return `${pHead(pid,'Özet',`Velilerden alınan − giderler = net gelir. Paylaşım: TT Robotics %${sh} · ${esc(pName(pid))} %${100-sh}.`)}
+  <section><div class="toolbar" style="margin-bottom:10px">${btn('lPay',{},'+ Tahsilat ekle','primary sm')}${btn('lExp',{},'+ Gider ekle','sm')}${btn('lRemit',{},"+ TT Robotics'e ödeme",'sm')}</div>
+  <div class="sechead"><h2>Sezon toplamı</h2></div>
+  <div class="ttsums">${card(T.inc,'Velilerden alınan')}${card(T.exp,'Giderler')}${card(T.net,'Net gelir')}${card(T.tt,`TT Robotics payı (%${sh})`,'','lead')}${card(T.rem,"TT Robotics'e gönderilen")}${card(T.left,T.left>0?'Gönderilmesi gereken':'Fark',T.left>0?'TT payı − gönderilen':'')}</div></section>
+  <section><div class="sechead"><h2>${monthLabel(ym)}</h2>${monthNav(ym,'pMonth')}</div>
+  <div class="ttsums">${card(c.inc,'Velilerden alınan')}${card(c.exp,'Giderler')}${card(c.net,'Net gelir')}${card(c.tt,`TT Robotics payı (%${sh})`,'','lead')}${card(c.rem,"TT Robotics'e gönderilen")}${card(c.left,c.left>0?'Bu ay gönderilecek':'Fark')}</div></section>
+  <section><div class="sechead"><h2>Aylara göre</h2></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ay</th><th class="num">Velilerden alınan</th><th class="num">Giderler</th><th class="num">Net</th><th class="num">TT payı</th><th class="num">Gönderilen</th><th class="num">Kalan</th></tr></thead><tbody>${rows}</tbody>
+  <tfoot><tr><th>Toplam</th><th class="num">${fmtTL(T.inc)}</th><th class="num">${fmtTL(T.exp)}</th><th class="num">${fmtTL(T.net)}</th><th class="num">${fmtTL(T.tt)}</th><th class="num">${fmtTL(T.rem)}</th><th class="num">${fmtTL(T.left)}</th></tr></tfoot></table></div></section>`;}
+function pStudents(pid){
+  const st=ldg(pid,'student').slice().sort((a,b)=>(a.active===false)-(b.active===false)||String(a.name).localeCompare(String(b.name),'tr'));const months=pSeason(pid);
+  let TT=0,TP=0;const colT=months.map(()=>0);
+  const rows=st.map(x=>{IDX.pay[x.id]=x;const sm=stMonths(x);const tot=stTotal(x);const paid=stPaid(pid,x);TT+=tot;TP+=paid;
+    const cells=months.map((m,i)=>{const v=stPaid(pid,x,m);colT[i]+=v;const due=sm.includes(m);
+      if(v)return `<td class="num"><a href="#" class="plink" data-act="lPayCell" data-sid="${esc(x.id)}" data-ym="${m}">${fmtNum(v)}</a></td>`;
+      return due?`<td class="num">${btn('lPayCell',{sid:x.id,ym:m},m<=monthKeyOf(todayISO())?'+ ekle':'·','ghost sm'+(m<monthKeyOf(todayISO())?' ':''))}</td>`:'<td class="num muted">—</td>';}).join('');
+    return `<tr${x.active===false?' class="muted"':''}><td style="min-width:170px"><a href="#" class="plink" data-act="lStudent" data-id="${esc(x.id)}">${esc(x.name)}</a>${x.active===false?' '+chip('','Ayrıldı'):''}${x.note?`<div class="muted small">${esc(x.note)}</div>`:''}</td><td class="small">${esc(x.program||'—')}</td><td class="num">${fmtNum(x.listPrice||0)}${Number(x.discount)?`<div class="muted small">−${fmtNum(x.discount)} indirim</div>`:''}</td><td class="num"><b>${fmtNum(x.monthly||0)}</b><div class="muted small">${fmtNum(x.months||6)} ay</div></td>${cells}<td class="num"><b>${fmtNum(paid)}</b></td><td class="num">${tot-paid>0?fmtNum(tot-paid):chip('ok','Bitti')}</td></tr>`;}).join('');
+  const byProg={};for(const x of st.filter(x=>x.active!==false)){const k=x.program||'Program girilmedi';byProg[k]=(byProg[k]||0)+1;}
+  return `${pHead(pid,'Öğrenciler ve tahsilat',`${st.filter(x=>x.active!==false).length} öğrenci · ${Object.entries(byProg).map(([k,v])=>`${esc(k)}: ${v}`).join(' · ')}. Bir aya ödeme girmek için o ayın kutusuna tıklayın.`)}
+  <section><div class="toolbar" style="margin-bottom:10px">${btn('lStudent',{},'+ Öğrenci ekle','primary sm')}${btn('lPay',{},'+ Tahsilat ekle','sm')}</div>
+  ${st.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğrenci / veli</th><th>Program</th><th class="num">Aylık liste</th><th class="num">Aylık taksit</th>${months.map(m=>`<th class="num">${monthLabel(m).replace(' 20',' ')}</th>`).join('')}<th class="num">Ödenen</th><th class="num">Kalan</th></tr></thead><tbody>${rows}</tbody>
+  <tfoot><tr><th colspan="4">Toplam (sözleşme ${fmtTL(TT)})</th>${colT.map(v=>`<th class="num">${v?fmtNum(v):''}</th>`).join('')}<th class="num">${fmtNum(TP)}</th><th class="num">${fmtNum(TT-TP)}</th></tr></tfoot></table></div>`:'<p class="empty">Henüz öğrenci yok. “+ Öğrenci ekle” ile başlayın.</p>'}</section>
+  ${pLedgerList(pid,'pay','Tahsilat kayıtları')}`;}
+function pLedgerList(pid,kind,title){
+  const ls=ldg(pid,kind).slice().sort((a,b)=>String(b.date||b.month).localeCompare(String(a.date||a.month)));const owner=!isPartner();
+  const sname=id=>((ldg(pid,'student').find(x=>x.id===id))||{}).name||'—';
+  const rows=ls.map(x=>{IDX.pay[x.id]=x;const locked=!!x.confirmedAt&&!owner;
+    return `<tr><td class="mono">${x.date?fmtDate(x.date):''}</td><td>${monthLabel(x.month)}</td><td>${kind==='pay'?esc(sname(x.studentId)):kind==='exp'?`<b>${esc(lcat(x.cat))}</b>${x.payee?` · ${esc(x.payee)}`:''}`:'TT Robotics'}${x.note?`<div class="muted small">${esc(x.note)}</div>`:''}</td><td class="num"><b>${fmtTL(x.amount)}</b></td>${kind==='remit'?`<td>${x.confirmedAt?chip('ok','TT Robotics teyit etti'):chip('warn','Teyit bekliyor')}</td>`:''}
+    <td class="act">${locked?'':btn(kind==='pay'?'lPay':kind==='exp'?'lExp':'lRemit',{id:x.id},'Düzenle')}${locked?'':btn('lDel',{id:x.id},'Sil')}${owner&&kind==='remit'?btn('lConfirm',{id:x.id},x.confirmedAt?'Teyidi kaldır':'Teyit et',x.confirmedAt?'ghost sm':'primary sm'):''}</td></tr>`;}).join('');
+  return `<section><div class="sechead"><h2>${title}</h2><span class="muted small">${ls.length} kayıt · ${fmtTL(sumA(ls))}</span></div>${ls.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Tarih</th><th>Ay</th><th>${kind==='pay'?'Öğrenci':kind==='exp'?'Gider':'Alıcı'}</th><th class="num">Tutar</th>${kind==='remit'?'<th>Durum</th>':''}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<p class="empty">Kayıt yok.</p>'}</section>`;}
+function pExp(pid){const ls=ldg(pid,'exp');const by={};for(const x of ls)by[x.cat]=(by[x.cat]||0)+(Number(x.amount)||0);
+  return `${pHead(pid,'Giderler','Set, takım kaydı, yarışma katılım ücreti, eğitmen ödemeleri… Hepsi paylaşımdan önce toplam gelirden düşülür.')}
+  <section><div class="toolbar" style="margin-bottom:10px">${btn('lExp',{},'+ Gider ekle','primary sm')}</div>${Object.keys(by).length?`<div class="ttsums">${Object.entries(by).map(([k,v])=>`<div class="ttsum"><h3>${esc(lcat(k))}</h3><div class="big">${fmtTL(v)}</div></div>`).join('')}</div>`:''}</section>${pLedgerList(pid,'exp','Gider kayıtları')}`;}
+function pRemit(pid){const T=pCalc(pid,null);
+  return `${pHead(pid,"TT Robotics'e ödemeler",`Toplam TT Robotics payı ${fmtTL(T.tt)} · gönderilen ${fmtTL(T.rem)} · ${T.left>0?'gönderilmesi gereken '+fmtTL(T.left):'fark '+fmtTL(T.left)}`)}
+  <section><div class="toolbar" style="margin-bottom:10px">${btn('lRemit',{},"+ TT Robotics'e ödeme ekle",'primary sm')}</div></section>${pLedgerList(pid,'remit',"Gönderilen ödemeler")}`;}
+function partnerPage(pid,tab){if(!pid)return `<div class="pagehead"><div><h1>Gelir ortaklıkları</h1><p class="sub">Henüz ortak tanımlı değil.</p></div>${btn('openPartners',{},'Ortak ekle','primary')}</div>`;
+  switch(tab){case 'pstudents':return pStudents(pid);case 'pexp':return pExp(pid);case 'premit':return pRemit(pid);default:return pDash(pid);}}
+function partnerView(){return partnerPage(curPid(),state.ui.view);}
+function lSave(rec){return attempt(()=>putDoc('ledger',rec));}
+function openLStudent(x){const pid=curPid();const isNew=!x;x=x||{startMonth:'2026-10',months:6,active:true};
+  openModal({title:isNew?'Öğrenci ekle':'Öğrenciyi düzenle',body:field('Öğrenci / veli adı soyadı',input('name',{value:x.name||'',req:true}))+`<div class="two">${field('Program',select('program',LPROGS.map(v=>({v,l:v})),x.program||'',{ph:'Seçin'}))}${field('Veli telefonu',input('phone',{value:x.phone||'',type:'tel'}))}</div>
+    <div class="two">${field('Aylık liste tutarı (TL)',input('listPrice',{type:'number',value:x.listPrice||'',min:0,step:100}))}${field('Aylık indirim (TL)',input('discount',{type:'number',value:x.discount||0,min:0,step:100}))}</div>
+    <div class="two">${field('Aylık ödenecek taksit (TL)',input('monthly',{type:'number',value:x.monthly||'',min:0,step:100,req:true}),'Boş bırakırsanız liste − indirim')}${field('Kaç ay',input('months',{type:'number',value:x.months||6,min:1,max:12,step:1}))}</div>
+    <div class="two">${field('İlk taksit ayı',input('startMonth',{type:'month',value:x.startMonth||'2026-10'}))}${field('Durum',select('active',[{v:'1',l:'Devam ediyor'},{v:'0',l:'Ayrıldı'}],x.active===false?'0':'1'))}</div>`+field('Not',input('note',{value:x.note||''})),
+    onSubmit:async f=>{if(!f.name)return 'Ad girin.';const lp=Number(f.listPrice)||0,dc=Number(f.discount)||0;const mo=Number(f.monthly)||Math.max(0,lp-dc);if(!mo)return 'Aylık taksit girin.';
+      const err=await lSave(Object.assign({},x,{id:x.id||'lg_'+uid(),kind:'student',partnerId:pid,name:f.name.trim(),program:f.program||'',phone:f.phone||'',listPrice:lp,discount:dc,monthly:mo,months:Number(f.months)||6,startMonth:f.startMonth||'2026-10',active:f.active!=='0',note:f.note||'',createdAt:x.createdAt||nowStamp()}));if(err)return err;toast('Kaydedildi.','ok');}});}
+function openLPay(x,pre){const pid=curPid();const isNew=!x;pre=pre||{};x=x||{};const st=ldg(pid,'student').filter(s=>s.active!==false||s.id===x.studentId);
+  const sid=x.studentId||pre.studentId||'';const s0=st.find(s=>s.id===sid);
+  openModal({title:isNew?'Tahsilat ekle':'Tahsilatı düzenle',meta:'Veliden alınan ödeme',body:field('Öğrenci',select('studentId',st.map(s=>({v:s.id,l:s.name+(s.program?' · '+s.program:'')})),sid,{ph:'Seçin',req:true}))+`<div class="two">${field('Hangi ayın ödemesi',input('month',{type:'month',value:x.month||pre.month||state.ui.pMonth||monthKeyOf(todayISO()),req:true}))}${field('Tutar (TL)',input('amount',{type:'number',value:x.amount||(s0?s0.monthly:''),min:0,step:50,req:true}))}</div>`+`<div class="two">${field('Ödeme tarihi',input('date',{type:'date',value:x.date||todayISO()}))}${field('Ödeme şekli',select('method',[{v:'nakit',l:'Nakit'},{v:'havale',l:'Havale / EFT'},{v:'kart',l:'Kart'}],x.method||'havale'))}</div>`+field('Not',input('note',{value:x.note||''})),
+    onSubmit:async f=>{const a=Number(f.amount)||0;if(!f.studentId)return 'Öğrenci seçin.';if(!a)return 'Tutar girin.';const err=await lSave(Object.assign({},x,{id:x.id||'lg_'+uid(),kind:'pay',partnerId:pid,studentId:f.studentId,month:f.month,amount:a,date:f.date||todayISO(),method:f.method,note:f.note||'',createdAt:x.createdAt||nowStamp()}));if(err)return err;toast('Tahsilat kaydedildi.','ok');}});}
+function openLExp(x){const pid=curPid();const isNew=!x;x=x||{};
+  openModal({title:isNew?'Gider ekle':'Gideri düzenle',body:`<div class="two">${field('Gider türü',select('cat',LCATS.map(c=>({v:c[0],l:c[1]})),x.cat||'set',{req:true}))}${field('Tutar (TL)',input('amount',{type:'number',value:x.amount||'',min:0,step:50,req:true}))}</div><div class="two">${field('Hangi ay',input('month',{type:'month',value:x.month||state.ui.pMonth||monthKeyOf(todayISO()),req:true}))}${field('Tarih',input('date',{type:'date',value:x.date||todayISO()}))}</div>`+field('Kime / nereye',input('payee',{value:x.payee||'',ph:'Eğitmen adı, mağaza, yarışma…'}))+field('Açıklama',input('note',{value:x.note||''})),
+    onSubmit:async f=>{const a=Number(f.amount)||0;if(!a)return 'Tutar girin.';const err=await lSave(Object.assign({},x,{id:x.id||'lg_'+uid(),kind:'exp',partnerId:pid,cat:f.cat,amount:a,month:f.month,date:f.date||todayISO(),payee:f.payee||'',note:f.note||'',createdAt:x.createdAt||nowStamp()}));if(err)return err;toast('Gider kaydedildi.','ok');}});}
+function openLRemit(x){const pid=curPid();const isNew=!x;x=x||{};const ym=x.month||state.ui.pMonth||monthKeyOf(todayISO());const c=pCalc(pid,ym);
+  openModal({title:isNew?"TT Robotics'e ödeme":"Ödemeyi düzenle",meta:`${monthLabel(ym)} için TT Robotics payı ${fmtTL(c.tt)} · gönderilen ${fmtTL(c.rem)}`,body:`<div class="two">${field('Tutar (TL)',input('amount',{type:'number',value:x.amount||(c.left>0?c.left:''),min:0,step:50,req:true}))}${field('Hangi ayın payı',input('month',{type:'month',value:ym,req:true}))}</div>`+field('Gönderim tarihi',input('date',{type:'date',value:x.date||todayISO()}))+field('Not',input('note',{value:x.note||'',ph:'Havale, nakit…'})),
+    onSubmit:async f=>{const a=Number(f.amount)||0;if(!a)return 'Tutar girin.';const err=await lSave(Object.assign({},x,{id:x.id||'lg_'+uid(),kind:'remit',partnerId:pid,amount:a,month:f.month,date:f.date||todayISO(),note:f.note||'',createdAt:x.createdAt||nowStamp()}));if(err)return err;toast('Kaydedildi.','ok');}});}
+function openPartners(){const ps=partnersList();const rows=ps.concat([{}]);
+  openModal({title:'Gelir ortakları ve şifreleri',wide:true,meta:'Ortak bu PIN ile “Yönetici girişi”nden girer ve yalnızca kendi gelir takibini görür.',body:rows.map((p,i)=>`<div class="two">${field(i<ps.length?'Ad':'Yeni ortak (isteğe bağlı)',input('n_'+i,{value:p.name||''}))}${field('PIN (6 hane)',input('p_'+i,{value:p.pin||'',ph:'ör. 583920'}))}</div><div class="two">${field('TT Robotics payı (%)',input('s_'+i,{type:'number',value:p.share||50,min:0,max:100}))}${field('Durum',select('a_'+i,[{v:'1',l:'Aktif'},{v:'0',l:'Kapalı'}],p.active===false?'0':'1'))}</div>`).join('<hr>'),
+    onSubmit:async f=>{const st=S();const used=[String(st.ownerPin||''),String(st.adminPin||'')].concat(managers().map(m=>String(m.pin))).concat(state.teachers.map(t=>String(t.pin||'')));const out=[];
+      for(let i=0;i<rows.length;i++){const n=(f['n_'+i]||'').trim();if(!n)continue;const pin=String(f['p_'+i]||'').trim();if(!/^\d{6}$/.test(pin))return `${n}: PIN 6 haneli rakam olmalı.`;if(used.includes(pin)||out.some(o=>o.pin===pin))return `${n}: bu PIN başka bir girişte kullanılıyor.`;
+        out.push({id:rows[i].id||'p_'+uid(),name:n,pin,share:Number(f['s_'+i])||50,active:f['a_'+i]!=='0'});}
+      const err=await attempt(()=>saveSettings({partners:out}));if(err)return err;toast('Kaydedildi.','ok');}});}
 function tLessonsView(){
   const tid=myTeacherId();const t=teacherById(tid);
   const tdy=todayISO();
@@ -2249,6 +2344,17 @@ const ACT={
   openTeacherPage(d){if(!isAdmin()||!teacherById(d.id))return;state.ui.detailId=d.id;state.ui.view='teacher';state.ui.detailWeek=weekStartOf(todayISO());state.ui.detailMode='ay';state.ui.detailMonth=monthKeyOf(todayISO());try{history.replaceState(null,'','#teacher');}catch(e){}render();window.scrollTo({top:0});},
   tlMode(d){state.ui.tlMode=d.mode==='ay'?'ay':'hafta';render();},
   tlMonth(d){const n=Number(d.dir);state.ui.tlMonth=n===0?monthKeyOf(todayISO()):addMonths(state.ui.tlMonth||monthKeyOf(todayISO()),n);render();},
+  pTab(d){state.ui.ptab=d.tab;render();},
+  pMonth(d){state.ui.pMonth=addMonths(state.ui.pMonth||monthKeyOf(todayISO()),Number(d.dir));render();},
+  pMonthSet(d){state.ui.pMonth=d.ym;render();window.scrollTo({top:0});},
+  openPartners(){if(!financeAllowed())return;openPartners();},
+  lStudent(d){openLStudent(d.id?ldg(curPid(),'student').find(x=>x.id===d.id):null);},
+  lPay(d){openLPay(d.id?ldg(curPid(),'pay').find(x=>x.id===d.id):null);},
+  lPayCell(d){const pid=curPid();const ex=ldg(pid,'pay').filter(x=>x.studentId===d.sid&&x.month===d.ym);if(ex.length===1)return openLPay(ex[0]);openLPay(null,{studentId:d.sid,month:d.ym});},
+  lExp(d){openLExp(d.id?ldg(curPid(),'exp').find(x=>x.id===d.id):null);},
+  lRemit(d){openLRemit(d.id?ldg(curPid(),'remit').find(x=>x.id===d.id):null);},
+  lDel(d){const x=(state.ledger||[]).find(y=>y.id===d.id);if(!x)return;confirmModal('Kaydı sil',`${fmtTL(x.amount)} tutarlı kayıt silinecek.`,async()=>{const err=await attempt(()=>delDoc('ledger',x.id));if(err)return err;toast('Silindi.','ok');},'Sil');},
+  async lConfirm(d){if(!financeAllowed())return;const x=(state.ledger||[]).find(y=>y.id===d.id);if(!x)return;const err=await attempt(()=>putDoc('ledger',Object.assign({},x,{confirmedAt:x.confirmedAt?null:nowStamp(),confirmedBy:x.confirmedAt?null:actorLabel()})));toast(err||(x.confirmedAt?'Teyit kaldırıldı.':'Ödeme teyit edildi.'),err?'bad':'ok');},
   detailMode(d){state.ui.detailMode=d.mode==='hafta'?'hafta':'ay';render();},
   detailMonth(d){const n=Number(d.dir);state.ui.detailMonth=n===0?monthKeyOf(todayISO()):addMonths(state.ui.detailMonth||monthKeyOf(todayISO()),n);render();},
   tMonth(d){const n=Number(d.dir);state.ui.tMonth=n===0?monthKeyOf(todayISO()):addMonths(state.ui.tMonth||monthKeyOf(todayISO()),n);render();},
