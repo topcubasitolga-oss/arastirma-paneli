@@ -18,7 +18,7 @@
   --bg:#EDF5FC; --surface:#FFFFFF; --surface-2:#F1F7FD; --line:#D9E6F2; --fg:#0F172A; --muted:#5B6B82;
   --accent:#0067FF; --accent-fg:#FFFFFF; --accent-soft:#E2EEFF;
   --side-bg:#0E2156; --side-fg:#C7D6F2; --side-on:#FFFFFF; --side-on-bg:rgba(255,255,255,.12); --side-line:rgba(255,255,255,.10);
-  --ok:#15803D; --ok-soft:#DCFCE7; --warn:#A16207; --warn-soft:#FEF3C7; --bad:#B91C1C; --bad-soft:#FEE2E2; --info:#1E3A8A; --info-soft:#E7F6FF;
+  --ok:#15803D; --ok-soft:#DCFCE7; --tt-trial:#7C3AED; --tt-trial-soft:#F1EAFE; --warn:#A16207; --warn-soft:#FEF3C7; --bad:#B91C1C; --bad-soft:#FEE2E2; --info:#1E3A8A; --info-soft:#E7F6FF;
   --display:'Bricolage Grotesque','Karla',ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --font:'Karla',ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -114,6 +114,37 @@ section{display:flex;flex-direction:column;gap:12px}
 /* cards & tables */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
 .card.tight{padding:0;overflow:hidden}
+.tt th[scope=row]{width:120px;font-size:14px;font-weight:700;background:var(--surface-2);white-space:nowrap}
+.tt th[scope=row] small{display:block;font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted)}
+.tt tr.today th[scope=row]{color:var(--accent)}
+.tt td{padding:8px}
+.ttrow{display:flex;flex-wrap:wrap;gap:8px}
+.ttc{--c:var(--line);--b:var(--accent-soft);display:flex;flex-direction:column;gap:3px;text-align:left;font:inherit;color:var(--fg);background:var(--b);border:1.5px solid var(--c);border-radius:10px;padding:8px 10px;min-width:170px;max-width:260px;flex:1 1 170px;cursor:pointer}
+.ttc:hover{filter:brightness(.97)}.ttc:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ttc.today{box-shadow:0 0 0 2px var(--accent)}
+.ttc-sc{font-weight:700;font-size:13px;line-height:1.25}
+.ttc-cl{font-size:12.5px;font-weight:600}.ttc-cl .n{font-family:var(--mono);font-weight:400;color:var(--muted)}
+.ttc-mt{display:flex;flex-wrap:wrap;gap:2px 10px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.ttc-tag{font-size:11px;font-weight:700;color:var(--info)}
+.ttc-st{font-size:11px;font-weight:800;letter-spacing:.02em;margin-top:2px}
+.ttc.plan{--c:var(--line);--b:var(--accent-soft)}.ttc.plan .ttc-st{color:var(--muted)}
+.ttc.wait{--c:var(--warn);--b:var(--warn-soft)}.ttc.wait .ttc-st{color:var(--warn)}
+.ttc.done{--c:var(--ok);--b:var(--ok-soft)}.ttc.done .ttc-st{color:var(--ok)}
+.ttc.miss{--c:var(--bad);--b:var(--bad-soft)}.ttc.miss .ttc-st{color:var(--bad)}
+.ttc.trial{--c:var(--tt-trial);--b:var(--tt-trial-soft)}.ttc.trial .ttc-st{color:var(--tt-trial)}
+.ttlegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin-bottom:8px}
+.ttlegend span{display:inline-flex;align-items:center;gap:6px}.ttlegend i{width:13px;height:13px;border-radius:4px;border:1.5px solid var(--line);background:var(--accent-soft)}
+.ttlegend i.wait{border-color:var(--warn);background:var(--warn-soft)}.ttlegend i.done{border-color:var(--ok);background:var(--ok-soft)}.ttlegend i.miss{border-color:var(--bad);background:var(--bad-soft)}.ttlegend i.trial{border-color:var(--tt-trial);background:var(--tt-trial-soft)}
+.ttsums{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:12px}
+.ttsum{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:5px;min-width:0}
+.ttsum.lead{border-color:var(--accent)}
+.ttsum h3{margin:0;font-size:12.5px;color:var(--muted);font-weight:600}
+.ttsum .big{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}.ttsum .big small{font-size:14px;color:var(--muted);font-weight:600}
+.ttbar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;display:flex}.ttbar span{display:block;height:100%}
+.ttmenu{position:fixed;z-index:60;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 40px rgba(10,20,50,.28);padding:6px;display:grid;gap:2px;min-width:240px;max-width:min(320px,calc(100vw - 16px))}
+.ttmenu h4{margin:4px 8px 6px;font-size:12px;color:var(--muted);font-weight:600}
+.ttmenu button{font:inherit;font-size:13.5px;text-align:left;padding:9px 10px;border-radius:8px;border:0;background:none;color:var(--fg);cursor:pointer}
+.ttmenu button:hover,.ttmenu button:focus-visible{background:var(--surface-2);outline:none}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow)}
 .tbl-wrap.wide{scrollbar-width:none}.tbl-wrap.wide::-webkit-scrollbar{display:none}
 .hbar{position:sticky;bottom:0;z-index:5;overflow-x:auto;overflow-y:hidden;height:16px;margin-top:-2px;background:var(--surface-2);border:1px solid var(--line);border-top:0;border-radius:0 0 8px 8px;scrollbar-width:auto}
@@ -1107,7 +1138,7 @@ function teacherDetailView(id){
   <div class="card"><div class="sechead"><h3>Müsaitlik</h3>${btn('openAvail',{id},'Düzenle','ghost sm')}</div><div class="tbl-wrap" style="border:0;box-shadow:none"><table class="tbl"><tbody>${availRow}</tbody></table></div>${t.availNote?`<p class="muted small">${esc(t.availNote)}</p>`:''}</div></section>
   <section><div class="sechead"><h2>Haftalık program</h2><span class="muted small">Hangi gün hangi kurumda</span></div>${patternTable(as,{groupBy:'teacher',notes:true,empty:'Program satırı yok. "+ Program satırı" ile ekleyin.'})}</section>
   <section><div class="sechead"><h2>Kurumlar</h2></div>${schools.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Günler</th><th class="num">Haftalık ders</th></tr></thead><tbody>${sRows}</tbody></table></div>`:'<p class="empty">Atanmış kurum yok.</p>'}</section>
-  <section><div class="sechead"><h2>Bu haftaki dersler</h2>${weekNavD(ws)}</div>${weekTable(ws,wl,{groupBy:'teacher',assignments:as})}</section>
+  <section><div class="sechead"><h2>Haftalık ders programı</h2>${weekNavD(ws)}</div>${wl.length?ttTable(wl,ws,{hint:'Bir derse dokunarak onaylayın, düzeltin ya da “Yapılmadı” olarak işaretleyin.'}):'<p class="empty">Bu hafta ders yok.</p>'}</section>
   <section><div class="sechead"><h2>${monthLabel(ym)} dersleri</h2><span class="muted small">${m&&m.teacherApproved?'Öğretmen ayı onayladı':'Öğretmen ay onayı bekleniyor'}${m&&m.adminApproved?' · yönetici onayladı':''}</span></div>${ms.lessons.length?`<div class="list">${ms.lessons.slice().reverse().map(l=>lessonRow(l,{admin:true})).join('')}</div>`:'<p class="empty">Bu ayda ders yok.</p>'}</section>
   ${filesCard('teacher',id,'CV ve sözleşme dosyaları')}
   <section><div class="sechead"><h2>Zimmetli setler</h2></div>${sets.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kod</th><th>Set</th><th class="num">Adet</th><th></th></tr></thead><tbody>${sets.map(x=>{IDX.sets[x.id]=x;return `<tr><td class="mono">${esc(x.code||'')}</td><td><b>${esc(x.name)}</b></td><td class="num">${fmtNum(x.qty||1)}</td><td class="act">${btn('openMove',{id:x.id},'Taşı')}${btn('openHistory',{id:x.id},'Geçmiş')}</td></tr>`;}).join('')}</tbody></table></div>`:'<p class="empty">Üzerinde zimmetli set yok.</p>'}</section>`;
@@ -1940,6 +1971,80 @@ function teacherView(){
     default:return tLessonsView();
   }
 }
+/* ===================== Haftalık ders programı tablosu (öğretmen + yönetici) ===================== */
+const TT_LBL={plan:'Planlı',wait:'İşaretlenmedi',done:'✓ Derse girildi',miss:'Yapılmadı',trial:'Deneme dersi'};
+function ttState(l){const st=lessonStatus(l);if(st==='done')return l.trial?'trial':'done';if(st==='cancelled')return 'miss';if(st==='pending')return 'wait';return 'plan';}
+function ttInfo(l){const a=state.assignments.find(x=>x.id===l.assignmentId)||{};const cls=aClasses(a);
+  const start=l.start||a.start||'';const end=a.end&&(!l.start||l.start===a.start)?a.end:'';
+  const n=Number(lessonStatus(l)==='done'?l.hours:(l.plannedHours||l.hours))||0;
+  return {a,cls,stu:cls.reduce((s,c)=>s+(Number(c.students)||0),0),start,end,n,program:a.program||''};}
+function ttCard(l){IDX.lessons[l.id]=l;const st=ttState(l);const i=ttInfo(l);const today=l.date===todayISO();
+  const tag=l.substituteFor?`${tName(l.substituteFor)} yerine`:l.makeupFor?`Telafi · ${fmtDate(l.makeupDate)} yerine`:l.extra?'Ek ders':'';
+  const cls=i.cls.length?i.cls.map(c=>`${esc(c.name)}${Number(c.students)?` <span class="n">${fmtNum(c.students)}</span>`:''}`).join(' · '):(i.program?esc(i.program):'');
+  return `<button type="button" class="ttc ${st}${today?' today':''}" data-tt="${esc(l.id)}" aria-label="${esc(sName(l.schoolId))}, ${fmtNum(i.n)} ders, ${TT_LBL[st]}">
+    <span class="ttc-sc">${esc(sName(l.schoolId))}</span>
+    ${cls?`<span class="ttc-cl">${cls}</span>`:''}
+    <span class="ttc-mt">${i.start?`<span>${esc(i.start)}${i.end?'–'+esc(i.end):''}</span>`:''}<span>${fmtNum(i.n)} ders × 40 dk</span>${i.stu?`<span>${fmtNum(i.stu)} öğrenci</span>`:''}</span>
+    ${tag?`<span class="ttc-tag">${esc(tag)}</span>`:''}
+    <span class="ttc-st">${TT_LBL[st]}${st==='miss'&&l.reason?' · '+esc(l.reason):''}</span></button>`;}
+function ttTable(ls,ws,o){o=o||{};
+  const days=[0,1,2,3,4,5,6].map(i=>addDays(ws,i));const tdy=todayISO();
+  const rows=days.map(d=>{const dl=ls.filter(l=>l.date===d).sort((x,y)=>String(ttInfo(x).start||'99').localeCompare(String(ttInfo(y).start||'99')));
+    const wd=weekdayOf(d);if(!dl.length&&wd>=6)return '';
+    return `<tr class="${d===tdy?'today':''}"><th scope="row">${DAYS[wd-1]}<small>${fmtDate(d)}${d===tdy?' · bugün':''}</small></th><td>${dl.length?`<div class="ttrow">${dl.map(ttCard).join('')}</div>`:'<span class="muted small">Ders yok</span>'}</td></tr>`;}).join('');
+  // summary
+  const per={};let done=0,plan=0,miss=0,wait=0,trial=0,mins=0;
+  for(const l of ls){const st=ttState(l);const i=ttInfo(l);const r=per[l.schoolId]||(per[l.schoolId]={done:0,total:0,miss:0,trial:0,stu:0});
+    if(st!=='miss')r.total+=i.n;else r.miss+=Number(l.plannedHours||l.hours)||0;if(st==='done'){r.done+=i.n;done+=i.n;mins+=i.n*40;}else if(st==='trial'){r.trial+=i.n;trial+=i.n;}else if(st==='miss')miss+=Number(l.plannedHours||l.hours)||0;else if(st==='wait')wait+=i.n;else plan+=i.n;}
+  const total=done+trial+wait+plan;const pct=v=>total?Math.round(v/total*1000)/10:0;
+  const sch=Object.entries(per).sort((a,b)=>sName(a[0]).localeCompare(sName(b[0]),'tr')).map(([sid,r])=>`<div class="ttsum"><h3>${esc(sName(sid))}</h3><div class="big">${fmtNum(r.done)}<small> / ${fmtNum(r.total)} ders</small></div><div class="ttbar"><span style="width:${r.total?r.done/r.total*100:0}%;background:var(--ok)"></span></div><div class="muted small">Bu hafta ${fmtNum(r.done)} derse girildi${r.miss?` · ${fmtNum(r.miss)} yapılmadı`:''}${r.trial?` · ${fmtNum(r.trial)} deneme`:''}</div></div>`).join('');
+  const sum=ls.length?`<div class="ttsums"><div class="ttsum lead"><h3>Bu hafta toplam</h3><div class="big">${fmtNum(done)}<small> / ${fmtNum(total)} ders</small></div>
+    <div class="ttbar"><span style="width:${pct(done)}%;background:var(--ok)"></span><span style="width:${pct(trial)}%;background:var(--tt-trial)"></span><span style="width:${pct(wait)}%;background:var(--warn)"></span></div>
+    <div class="muted small">${fmtNum(done)} girildi · ${fmtNum(wait)} işaretlenmedi · ${fmtNum(miss)} yapılmadı${trial?` · ${fmtNum(trial)} deneme`:''} · ${fmtNum(plan)} planlı</div>
+    <div class="muted small">Girilen süre: ${fmtNum(done)} ders × 40 dk = ${Math.floor(mins/60)} sa ${mins%60} dk</div></div>${sch}</div>`:'';
+  return `<div class="ttlegend"><span><i class="plan"></i>Planlı</span><span><i class="wait"></i>İşaretlenmedi</span><span><i class="done"></i>Derse girildi</span><span><i class="miss"></i>Yapılmadı</span><span><i class="trial"></i>Deneme dersi</span></div>
+  <div class="tbl-wrap"><table class="tbl tt"><tbody>${rows}</tbody></table></div>${sum}
+  <p class="muted small">${o.hint||'Bir derse dokunun: “Derse girdim”, “Yapılmadı”, “Deneme dersi” ya da “Geri al”ı seçin.'}</p>`;}
+function ttMenu(btnEl){const l=IDX.lessons[btnEl.dataset.tt];if(!l)return;const old=document.getElementById('ttmenu');if(old)old.remove();
+  const st=ttState(l);const admin=isAdmin();const i=ttInfo(l);
+  const locked=!admin&&monthLocked(l.teacherId,monthKeyOf(l.date));
+  const b=(act,txt)=>`<button type="button" data-ttact="${act}">${txt}</button>`;
+  let items='';
+  if(locked)items='<p class="muted small" style="margin:6px 8px">Bu ayın ödemesi kapatıldı; değişiklik için TT Robotics’e yazın.</p>';
+  else if(st==='plan')items=(admin?b('miss','✕ İptal et (yapılmayacak)'):'')+'<p class="muted small" style="margin:6px 8px">Bu dersin günü henüz gelmedi.</p>';
+  else{
+    if(st!=='done')items+=b('done',`✓ Derse girdim (${fmtNum(i.n)} ders)`);
+    items+=b('edit',st==='wait'?'✎ Derse girdim — saati / deneme dersini seç…':'✎ Düzenle…');
+    if(st!=='miss')items+=b('miss','✕ Yapılmadı');
+    if(st!=='wait'&&!l.virtual)items+=b('undo','↺ Yanlışlıkla işaretledim, geri al');
+    if(st==='miss'&&canMakeup(l,admin))items+=b('makeup','↻ Telafi ekle…');
+    if(admin&&needsVerify(l))items+=b('verify','✔ Onayla');
+  }
+  const m=document.createElement('div');m.id='ttmenu';m.className='ttmenu';m.dataset.id=l.id;
+  m.innerHTML=`<h4>${DAYS[weekdayOf(l.date)-1]} ${fmtDate(l.date)} · ${esc(sName(l.schoolId))}${admin?' · '+esc(tName(l.teacherId)):''}</h4>${items}`;
+  document.body.appendChild(m);const r=btnEl.getBoundingClientRect();const mw=m.offsetWidth,mh=m.offsetHeight;
+  m.style.left=Math.max(8,Math.min(r.left,innerWidth-mw-8))+'px';m.style.top=(r.bottom+mh+8>innerHeight?Math.max(8,r.top-mh-6):r.bottom+6)+'px';
+  const f=m.querySelector('button');if(f)f.focus();}
+async function ttAct(act,id){const l=IDX.lessons[id];const m=document.getElementById('ttmenu');if(m)m.remove();if(!l)return;
+  if(act==='edit')return openDone(l);
+  if(act==='miss')return openCancel(l);
+  if(act==='makeup')return openMakeup(l.id);
+  if(act==='verify')return ACT.verifyLesson({id:l.id});
+  if(act==='undo'){if(l.makeupBy&&!l.extra)return toast('Bu dersin telafisi girilmiş. Önce telafi kaydını silin.','bad');
+    if(l.extra)return ACT.resetLesson({id:l.id});
+    const err=await attempt(()=>delDoc('lessons',l.id));if(err)return toast(err,'bad');PAYMEMO={};return toast('Kayıt geri alındı; ders yeniden işaretlenmemiş durumda.','ok');}
+  if(act==='done'){const admin=isAdmin();if(l.makeupBy)return toast('Bu dersin telafisi girilmiş; önce telafiyi silin.','bad');
+    const hours=Number(l.plannedHours||l.hours)||1;
+    const rec=Object.assign(cleanLesson(l),{status:'done',hours,trial:false,rate:admin?rateFor(l):null,confirmedAt:nowStamp(),confirmedBy:actorLabel(),reason:null,verified:admin,verifiedBy:admin?actorLabel():null,verifiedAt:admin?nowStamp():null});
+    if(rec.extra&&rec.approved==null)rec.approved=admin;if(!rec.extra)rec.approved=true;
+    const err=await attempt(()=>putDoc('lessons',rec));if(err)return toast(err,'bad');PAYMEMO={};toast(`Kaydedildi: ${fmtNum(hours)} ders.`,'ok');}
+}
+document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.ttc[data-tt]');if(c){e.preventDefault();e.stopPropagation();ttMenu(c);return;}
+  const a=e.target.closest&&e.target.closest('#ttmenu [data-ttact]');if(a){e.preventDefault();ttAct(a.dataset.ttact,document.getElementById('ttmenu').dataset.id);return;}
+  const m=document.getElementById('ttmenu');if(m&&!m.contains(e.target))m.remove();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=document.getElementById('ttmenu');if(m)m.remove();}});
+window.addEventListener('scroll',()=>{const m=document.getElementById('ttmenu');if(m)m.remove();},true);
+
 function tLessonsView(){
   const tid=myTeacherId();const t=teacherById(tid);
   const tdy=todayISO();
@@ -1947,10 +2052,12 @@ function tLessonsView(){
   const ws=state.ui.week;const days=[0,1,2,3,4,5,6].map(i=>addDays(ws,i));
   const wls=lessonsIn(days[0],days[6],tid);
   const groups=days.map(d=>{const ls=wls.filter(l=>l.date===d);if(!ls.length&&weekdayOf(d)>=6)return '';return `<div class="daygroup"><h3 class="${d===tdy?'today':''}">${DAYS[weekdayOf(d)-1]} · ${fmtDate(d)}${d===tdy?' · bugün':''}</h3>${ls.length?ls.map(l=>lessonRow(l,{showDate:false,locked:monthLocked(tid,monthKeyOf(l.date))})).join(''):'<p class="muted small">Ders yok</p>'}</div>`;}).join('');
-  const wsum=wls.reduce((a,l)=>{if(lessonStatus(l)==='done')a+=Number(l.hours)||0;return a;},0);
+  const wsum=wls.reduce((a,l)=>{if(lessonStatus(l)==='done'&&!l.trial)a+=Number(l.hours)||0;return a;},0);
+  const pendOld=pend.filter(l=>l.date<ws);
   return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">${fmtDateFull(tdy)}</p><h1>Merhaba, ${esc((t&&t.name||'').split(' ')[0])}</h1><p class="sub">${pend.length?`${pend.length} ders onayınızı bekliyor`:'Bekleyen onayınız yok'} · bu hafta ${fmtNum(wsum)} onaylı ders saati</p></div>${btn('openSub',{},'↔ Başkasının yerine girdim','primary sm')+btn('openMakeup',{},'↺ Telafi ekle','sm')+btn('openExtra',{},'+ Ek ders ekle','sm')}</div>
-  ${pend.length?`<section><div class="sechead"><h2>Onayınızı bekleyen dersler</h2><span class="muted small">Derse girdiyseniz onaylayın, girmediyseniz nedenini seçin</span></div><div class="list">${pend.map(l=>lessonRow(l,{locked:monthLocked(tid,monthKeyOf(l.date))})).join('')}</div></section>`:`<div class="banner ok">Bekleyen ders onayınız yok. Dersi bitirince buradan "Derse girdim" ile onaylayın.</div>`}
-  <section><div class="sechead"><h2>Haftalık dersleriniz</h2>${weekNav(ws)}</div><p class="muted small">Bu hafta onaylı ${fmtNum(wsum)} ders saati</p>${wls.length?groups:'<p class="empty">Bu hafta planlı dersiniz yok.</p>'}</section>`;
+  ${pend.length?`<div class="banner">${pend.length} ders işaretlenmeyi bekliyor. Tablodaki turuncu kutulara dokunup “Derse girdim” ya da “Yapılmadı”yı seçin${pendOld.length?'; önceki haftalardakiler sayfanın altında':''}.</div>`:`<div class="banner ok">Bekleyen ders onayınız yok. Dersi bitirince tablodaki kutuya dokunup “Derse girdim”i seçin.</div>`}
+  <section><div class="sechead"><h2>Ders programım</h2>${weekNav(ws)}</div>${wls.length?ttTable(wls,ws):'<p class="empty">Bu hafta planlı dersiniz yok. Ders günlerinizi “Programım” sayfasından ekleyin.</p>'}</section>
+  ${pendOld.length?`<section><div class="sechead"><h2>Önceki haftalarda işaretlenmemiş dersler</h2><span class="muted small">${pendOld.length} ders</span></div><div class="list">${pendOld.map(l=>lessonRow(l,{locked:monthLocked(tid,monthKeyOf(l.date))})).join('')}</div></section>`:''}`;
 }
 function tAvailView(){
   const t=teacherById(myTeacherId());if(!t)return '';
