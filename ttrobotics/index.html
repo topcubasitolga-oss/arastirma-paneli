@@ -1720,13 +1720,13 @@ function agrRows(tid){
     const days=[...new Set(as.map(a=>Number(a.weekday)||0).filter(Boolean))].sort();
     const lessonsWk=as.reduce((t,a)=>t+(Number(a.hours)||0),0);
     const prog=[...new Set(as.map(a=>a.program).filter(Boolean))].join(', ');
-    const base={school:s.name||sName(sid),days:days.map(dayName).join(', ')||'Programa göre',lessons:lessonsWk?`haftada ~${fmtNum(lessonsWk)} ders`:'',program:prog,terms:[]};
+    const base={school:s.name||sName(sid),days:days.map(dayName).join(', ')||'Programa göre',lessons:lessonsWk?`haftada ${fmtNum(lessonsWk)} ders`:'',program:prog,terms:[]};
     const push=(pay,terms)=>rows.push(Object.assign({},base,{pay,terms:(terms||[]).filter(Boolean)}));
     const absTerms=d=>{const t=[];
       if(d.absenceDeduction){const p=Object.entries(d.absenceDeduction).map(([w,v])=>`${dayName(Number(w))} ${tlx(v)}`).join(', ');t.push(`Gelinmeyen gün kesintisi: ${p}.`);}
       if(d.absenceDeductionPerDay)t.push(`Gelinmeyen her ders günü için ${tlx(d.absenceDeductionPerDay)} kesilir.`);
       if(d.renegotiateBelowStudents)t.push(`Öğrenci sayısı ${d.renegotiateBelowStudents}'ın altına düşerse ücret taraflarca yeniden görüşülür.`);
-      if(d.daysPerWeek||d.lessonsPerWeek)t.push(`Ücret haftada ${d.daysPerWeek?d.daysPerWeek+' gün':''}${d.daysPerWeek&&d.lessonsPerWeek?', ':''}${d.lessonsPerWeek?'yaklaşık '+d.lessonsPerWeek+' ders':''} için belirlenmiştir.`);
+      if(d.model!=='ders'&&(d.daysPerWeek||d.lessonsPerWeek))t.push(`Ücret haftada ${d.daysPerWeek?d.daysPerWeek+' gün':''}${d.daysPerWeek&&d.lessonsPerWeek?', ':''}${d.lessonsPerWeek?'yaklaşık '+d.lessonsPerWeek+' ders':''} için belirlenmiştir.`);
       return t;};
     if(deals.length){
       for(const d of deals){
@@ -1741,7 +1741,7 @@ function agrRows(tid){
         else if(d.model==='haftalik'){pay=`Haftalık ${tlx(d.perWeek)} · ayda en fazla ${d.maxWeeks||4} hafta (${tlx(d.perWeek*(d.maxWeeks||4))})`;t.push('Ay içinde ders verilen (okulun açık olduğu) hafta sayısı kadar ödenir; örneğin 3 hafta için 3 haftalık ücret.');}
         else if(d.model==='aylik'){pay=`Aylık sabit ${tlx(d.monthly)}`;}
         if(d.plusInsurance)t.push('Sosyal güvenlik primleri mevzuata göre ayrıca yatırılır.');
-        rows.push(Object.assign({},base,{days:dd,pay,terms:t},d.program?{program:d.program}:{},deals.length>1&&d.lessonsPerWeek?{lessons:`haftada ~${fmtNum(d.lessonsPerWeek)} ders`}:{}));
+        rows.push(Object.assign({},base,{days:dd,pay,terms:t},d.program?{program:d.program}:{},deals.length>1&&d.lessonsPerWeek?{lessons:`haftada ${fmtNum(d.lessonsPerWeek)} ders`}:{}));
       }
     }else if(fixed){
       const note=String(fixed.note||'');if(/sigorta/i.test(note))insured=true;
@@ -1833,7 +1833,7 @@ function agrBody(tid,typeA){
   const ek1=`<h2 class="pb">EK-1 — ÜCRET ÇİZELGESİ (${fmtDMY(cfg.periodStart)} – ${fmtDMY(cfg.periodEnd)})</h2>
   <p>EĞİTMEN: <b>{{AD}}</b>. Aşağıdaki tutarlar yalnızca EĞİTMEN'e aittir ve gizlidir.</p>
   <table class="ek"><thead><tr><th>Okul / kurum</th><th>Gün</th><th>Ücret</th><th>Özel şartlar</th></tr></thead><tbody>${rows.length?rows.map(r=>`<tr><td><b>${esc(r.school)}</b>${r.program?`<br><small>${esc(r.program)}</small>`:''}</td><td>${esc(r.days)}${r.lessons?`<br><small>${esc(r.lessons)}</small>`:''}</td><td>${r.pay}</td><td>${r.terms.length?r.terms.map(x=>`<div>• ${x}</div>`).join(''):'—'}</td></tr>`).join(''):'<tr><td colspan="4">Henüz görev yeri tanımlanmadı.</td></tr>'}</tbody></table>
-  <p><small>Ders sayıları programa göre tahminidir; ödeme ${pay}. maddeye göre onaylı ders kayıtları üzerinden yapılır. Bu çizelge görev yeri veya ücret değiştikçe panel üzerinden güncellenir ve EĞİTMEN'in onayına sunulur.</small></p>`;
+  <p><small>Ödeme ${pay}. maddeye göre onaylı ders kayıtları üzerinden yapılır. Bu çizelge görev yeri veya ücret değiştikçe panel üzerinden güncellenir ve EĞİTMEN'in onayına sunulur.</small></p>`;
   const kvkk=`<h2 class="pb">EK-2 — KİŞİSEL VERİLERİN İŞLENMESİNE İLİŞKİN AYDINLATMA METNİ</h2>
   <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") m.10 uyarınca, veri sorumlusu sıfatıyla <b>${esc(cfg.company)}</b> tarafından kişisel verileriniz aşağıda açıklanan kapsamda işlenmektedir.</p>
   <p><b>İşlenen veriler:</b> Kimlik (ad soyad, T.C. kimlik no), iletişim (telefon, e-posta, adres), finans (IBAN, ödeme kayıtları), mesleki deneyim ve müsaitlik bilgileri, ders programı, ders kayıtları ve panel kullanım kayıtları (giriş ve onay zamanları).</p>
