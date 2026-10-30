@@ -132,6 +132,10 @@ table.ttm thead th:first-child{width:86px}table.ttm thead th:last-child{width:11
 .ttm-d{min-height:64px}.ttm-d.out{background:var(--bg);opacity:.45}.ttm-d.today{background:var(--accent-soft)}
 .ttm-day{display:block;font-size:11px;color:var(--muted);font-weight:600}
 .ttm-tot{white-space:nowrap}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tcard{display:flex;flex-direction:column;gap:4px;text-align:left;font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.tcard:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.06)}.tcard b{font-size:15px}
+.tdetails>summary{cursor:pointer;font-weight:600;padding:8px 0;color:var(--accent)}
 .ttmode{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface)}
 .seg .btn,.seg button{border:0;border-radius:999px;background:transparent;box-shadow:none}
@@ -1081,8 +1085,9 @@ function teachersView(){
   const rows=state.teachers.slice().sort(byName).map(t=>{const as=state.assignments.filter(a=>a.teacherId===t.id&&a.active!==false&&!(a.validTo&&a.validTo<todayISO()));const prog=as.map(a=>`${DAYS_S[Number(a.weekday)-1]} ${schoolLink(a.schoolId)}`).join(', ');const free=freeDays(t).map(wd=>DAYS_S[wd-1]).join(' ');
     return `<tr><td>${teacherLink(t.id)}${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.programConfirmedAt?' '+chip('ok','Programını onayladı'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="small"><div class="mono">${esc(t.phone||'')}</div>${t.email?`<div>${esc(t.email)}</div>`:''}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${prog||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('openTeacherPage',{id:t.id},'Programı aç','primary sm')}${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')+btn('delTeacher',{id:t.id},isScoped()?'Kurumdan çıkar':'Sil')}</td></tr>`;}).join('');
   return `<div class="pagehead"><div><h1>Öğretmenler</h1><p class="sub">Giriş için her öğretmenin bir PIN'i olur; ilk girişte hesabı otomatik bağlanır</p></div>${btn('openTeacher',{},'+ Öğretmen ekle','primary')}</div>
-  ${teachersMonthTable(state.ui.tMonth||monthKeyOf(todayISO()))}
-  <section><div class="sechead"><h2>Öğretmen listesi</h2></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ad soyad</th><th>Telefon</th><th>İkamet</th><th>Boş günleri</th><th>Haftalık program</th><th>PIN</th><th>Hesap</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Henüz öğretmen yok.</td></tr>'}</tbody></table></div>
+  ${teachersGrid()}
+  <section><details class="tdetails"><summary>Ayrıntılı liste (iletişim, boş günler, PIN)</summary><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ad soyad</th><th>Telefon</th><th>İkamet</th><th>Boş günleri</th><th>Haftalık program</th><th>PIN</th><th>Hesap</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Henüz öğretmen yok.</td></tr>'}</tbody></table></div>
+  </details>
   <p class="note">Öğretmene panel bağlantısını gönderirken claude.ai paylaşım menüsünden e-posta ile ve <b>Düzenleyen</b> yetkisiyle davet edin; herkese açık bağlantı ile paylaşırsanız öğretmenler ders onayı kaydedemez. "Panelini aç" ile öğretmenin göreceği ekranı kendiniz görebilirsiniz.</p></section>`;
 }
 const SCHOOL_KINDS=[['okul','Okul'],['anaokulu','Anaokulu'],['atolye','Atölye merkezi'],['kurum','Kurum / diğer']];
@@ -2091,6 +2096,11 @@ function ttMonth(ls,ym){
 const ttModeBar=(mode,nav,act)=>{act=act||'detailMode';return `<div class="ttmode"><div class="seg" role="tablist">${btn(act,{mode:'hafta'},'Haftalık','sm'+(mode==='hafta'?' on':''))}${btn(act,{mode:'ay'},'Aylık','sm'+(mode==='ay'?' on':''))}</div>${nav}</div>`;};
 const monthNavT=ym=>`<div class="nav-month">${btn('tlMonth',{dir:-1},'‹','ghost sm')}<b>${monthLabel(ym)}</b>${btn('tlMonth',{dir:1},'›','ghost sm')}${btn('tlMonth',{dir:0},'Bu ay','ghost sm')}</div>`;
 const monthNavD=ym=>`<div class="nav-month">${btn('detailMonth',{dir:-1},'‹','ghost sm')}<b>${monthLabel(ym)}</b>${btn('detailMonth',{dir:1},'›','ghost sm')}${btn('detailMonth',{dir:0},'Bu ay','ghost sm')}</div>`;
+function teachersGrid(){const ym=monthKeyOf(todayISO());
+  const list=state.teachers.filter(x=>x.active!==false).slice().sort(byName);
+  return `<section><div class="sechead"><h2>Tüm öğretmenler</h2><span class="muted small">${list.length} öğretmen · adına tıklayınca haftalık ve aylık ders tablosu açılır</span></div>
+  <div class="tgrid">${list.map(x=>{const sch=[...new Set(liveAssignments().filter(a=>a.teacherId===x.id).map(a=>a.schoolId))];
+    return `<button type="button" class="tcard" data-act="openTeacherPage" data-id="${esc(x.id)}"><b>${esc(x.name)}</b><span class="muted small">${sch.length?sch.map(id=>esc(ttShort(id))).join(' · '):'Program yok'}</span></button>`;}).join('')}</div></section>`;}
 function teachersMonthTable(ym){
   const [f,t]=monthRange(ym);let ws=weekStartOf(f);const weeks=[];while(ws<=t){weeks.push(ws);ws=addDays(ws,7);}
   const T={done:0,total:0,wait:0,miss:0};const wT=weeks.map(()=>({done:0,total:0}));
@@ -2155,7 +2165,7 @@ function tMonthView(){
 const ACT={
   nav(d){state.ui.view=d.view;try{history.replaceState(null,'','#'+d.view);}catch(e){}render();window.scrollTo({top:0});},
   openSchoolPage(d){if(!schoolById(d.id))return;state.ui.detailId=d.id;state.ui.view='school';state.ui.detailWeek=weekStartOf(todayISO());try{history.replaceState(null,'','#school');}catch(e){}render();window.scrollTo({top:0});},
-  openTeacherPage(d){if(!isAdmin()||!teacherById(d.id))return;state.ui.detailId=d.id;state.ui.view='teacher';state.ui.detailWeek=weekStartOf(todayISO());state.ui.detailMode='ay';state.ui.detailMonth=state.ui.tMonth||monthKeyOf(todayISO());try{history.replaceState(null,'','#teacher');}catch(e){}render();window.scrollTo({top:0});},
+  openTeacherPage(d){if(!isAdmin()||!teacherById(d.id))return;state.ui.detailId=d.id;state.ui.view='teacher';state.ui.detailWeek=weekStartOf(todayISO());state.ui.detailMode='ay';state.ui.detailMonth=monthKeyOf(todayISO());try{history.replaceState(null,'','#teacher');}catch(e){}render();window.scrollTo({top:0});},
   tlMode(d){state.ui.tlMode=d.mode==='ay'?'ay':'hafta';render();},
   tlMonth(d){const n=Number(d.dir);state.ui.tlMonth=n===0?monthKeyOf(todayISO()):addMonths(state.ui.tlMonth||monthKeyOf(todayISO()),n);render();},
   detailMode(d){state.ui.detailMode=d.mode==='hafta'?'hafta':'ay';render();},
