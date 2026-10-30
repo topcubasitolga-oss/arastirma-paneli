@@ -1224,7 +1224,7 @@ function fixedPayCard(sid,ym){
   const [f,t]=monthRange(ym);const ls=lessonsIn(f,t).filter(l=>l.schoolId===sid);
   let TP=0,TD=0,TE=0,TR=0;
   const rows=tids.map(tid=>{
-    const fx=list.find(x=>x.teacherId===tid);const mine=ls.filter(l=>l.teacherId===tid);
+    let fx=list.find(x=>x.teacherId===tid);if(fx&&fx.monthOverride&&fx.monthOverride[ym]!=null)fx=Object.assign({},fx,{monthly:Number(fx.monthOverride[ym])||0,note:(fx.monthOverrideNote&&fx.monthOverrideNote[ym])||'Bu aya özel tutar'});const mine=ls.filter(l=>l.teacherId===tid);
     const planned=mine.filter(l=>lessonStatus(l)!=='cancelled').reduce((a,l)=>a+(Number(l.plannedHours||l.hours)||0),0);
     const done=mine.filter(l=>lessonStatus(l)==='done'&&!l.trial&&!needsVerify(l)).reduce((a,l)=>a+(Number(l.hours)||0),0);
     const wk=as.filter(a=>a.teacherId===tid).reduce((a,y)=>a+(Number(y.hours)||0),0);
@@ -1253,7 +1253,7 @@ let PAYMEMO={};
 function teacherPay(ym){
   if(PAYMEMO[ym])return PAYMEMO[ym];
   const t=tariff();const [f,to]=monthRange(ym);
-  const fixed={};for(const sc of (state.raw&&state.raw.schools)||state.schools)for(const x of fixedPayOf(sc.id))fixed[sc.id+'|'+x.teacherId]=Number(x.monthly)||0;
+  const fixed={};for(const sc of (state.raw&&state.raw.schools)||state.schools)for(const x of fixedPayOf(sc.id)){const mo=x.monthOverride&&x.monthOverride[ym];fixed[sc.id+'|'+x.teacherId]=mo!=null?Number(mo)||0:Number(x.monthly)||0;}
   const dealDay={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='gunluk'){const v=Number((d.perDayByStudents&&c.students&&d.perDayByStudents[c.students])||d.perDay)||0;if(v>0)dealDay[(c.schoolId||c.id)+'|'+d.teacherId]=v;}
   const done=lessonsOfMonth(ym).filter(l=>lessonStatus(l)==='done'&&!l.trial&&!needsVerify(l)&&!fixed[l.schoolId+'|'+l.teacherId]);
   const dealWeek={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='haftalik'&&Number(d.perWeek)>0)dealWeek[(c.schoolId||c.id)+'|'+d.teacherId]={perWeek:Number(d.perWeek),maxWeeks:Number(d.maxWeeks)||4};
@@ -1979,14 +1979,14 @@ function ttInfo(l){const a=state.assignments.find(x=>x.id===l.assignmentId)||{};
   const n=Number(lessonStatus(l)==='done'?l.hours:(l.plannedHours||l.hours))||0;
   return {a,cls,stu:cls.reduce((s,c)=>s+(Number(c.students)||0),0),start,end,n,program:a.program||''};}
 function ttCard(l){IDX.lessons[l.id]=l;const st=ttState(l);const i=ttInfo(l);const today=l.date===todayISO();
-  const tag=l.substituteFor?`${tName(l.substituteFor)} yerine`:l.makeupFor?`Telafi · ${fmtDate(l.makeupDate)} yerine`:l.extra?'Ek ders':'';
+  const tag=[l.substituteFor?`${tName(l.substituteFor)} yerine girdi`:l.makeupFor?`Telafi · ${fmtDate(l.makeupDate)} dersi yerine`:l.extra?'Ek ders':'',l.replacedBy?`Yerine ${tName(l.replacedBy)} girdi`:'',l.makeupBy?(l.makeupOn?`Telafi edildi → ${fmtDate(l.makeupOn)}`:'Telafi edildi'):''].filter(Boolean).join(' · ');
   const cls=i.cls.length?i.cls.map(c=>`${esc(c.name)}${Number(c.students)?` <span class="n">${fmtNum(c.students)}</span>`:''}`).join(' · '):(i.program?esc(i.program):'');
   return `<button type="button" class="ttc ${st}${today?' today':''}" data-tt="${esc(l.id)}" aria-label="${esc(sName(l.schoolId))}, ${fmtNum(i.n)} ders, ${TT_LBL[st]}">
     <span class="ttc-sc">${esc(sName(l.schoolId))}</span>
     ${cls?`<span class="ttc-cl">${cls}</span>`:''}
     <span class="ttc-mt">${i.start?`<span>${esc(i.start)}${i.end?'–'+esc(i.end):''}</span>`:''}<span>${fmtNum(i.n)} ders × 40 dk</span>${i.stu?`<span>${fmtNum(i.stu)} öğrenci</span>`:''}</span>
     ${tag?`<span class="ttc-tag">${esc(tag)}</span>`:''}
-    <span class="ttc-st">${TT_LBL[st]}${st==='miss'&&l.reason?' · '+esc(l.reason):''}</span></button>`;}
+    <span class="ttc-st">${TT_LBL[st]}${st==='miss'&&l.reason&&!l.replacedBy?' · '+esc(l.reason):''}</span></button>`;}
 function ttTable(ls,ws,o){o=o||{};
   const days=[0,1,2,3,4,5,6].map(i=>addDays(ws,i));const tdy=todayISO();
   const rows=days.map(d=>{const dl=ls.filter(l=>l.date===d).sort((x,y)=>String(ttInfo(x).start||'99').localeCompare(String(ttInfo(y).start||'99')));
@@ -2054,9 +2054,12 @@ function tLessonsView(){
   const groups=days.map(d=>{const ls=wls.filter(l=>l.date===d);if(!ls.length&&weekdayOf(d)>=6)return '';return `<div class="daygroup"><h3 class="${d===tdy?'today':''}">${DAYS[weekdayOf(d)-1]} · ${fmtDate(d)}${d===tdy?' · bugün':''}</h3>${ls.length?ls.map(l=>lessonRow(l,{showDate:false,locked:monthLocked(tid,monthKeyOf(l.date))})).join(''):'<p class="muted small">Ders yok</p>'}</div>`;}).join('');
   const wsum=wls.reduce((a,l)=>{if(lessonStatus(l)==='done'&&!l.trial)a+=Number(l.hours)||0;return a;},0);
   const pendOld=pend.filter(l=>l.date<ws);
+  const hasProg=state.assignments.some(a=>a.teacherId===tid&&a.active!==false&&!(a.validTo&&a.validTo<tdy));
   return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">${fmtDateFull(tdy)}</p><h1>Merhaba, ${esc((t&&t.name||'').split(' ')[0])}</h1><p class="sub">${pend.length?`${pend.length} ders onayınızı bekliyor`:'Bekleyen onayınız yok'} · bu hafta ${fmtNum(wsum)} onaylı ders saati</p></div>${btn('openSub',{},'↔ Başkasının yerine girdim','primary sm')+btn('openMakeup',{},'↺ Telafi ekle','sm')+btn('openExtra',{},'+ Ek ders ekle','sm')}</div>
   ${pend.length?`<div class="banner">${pend.length} ders işaretlenmeyi bekliyor. Tablodaki turuncu kutulara dokunup “Derse girdim” ya da “Yapılmadı”yı seçin${pendOld.length?'; önceki haftalardakiler sayfanın altında':''}.</div>`:`<div class="banner ok">Bekleyen ders onayınız yok. Dersi bitirince tablodaki kutuya dokunup “Derse girdim”i seçin.</div>`}
-  <section><div class="sechead"><h2>Ders programım</h2>${weekNav(ws)}</div>${wls.length?ttTable(wls,ws):'<p class="empty">Bu hafta planlı dersiniz yok. Ders günlerinizi “Programım” sayfasından ekleyin.</p>'}</section>
+  ${!hasProg?`<div class="banner warn"><b>Önce ders programınızı oluşturun.</b> Hangi gün, hangi okulda, hangi sınıflarla dersiniz olduğunu “Programım” sayfasına bir kez girip onaylayın. Bu tablo her hafta o programdan kendiliğinden oluşur; siz yalnızca kutulara dokunarak işaretlersiniz. ${btn('nav',{view:'tprog'},'Programımı oluştur','primary sm')}</div>`:(t&&!t.programConfirmedAt?`<div class="banner warn">Ders programınız henüz onaylanmadı. Doğruysa onaylayın, yanlışsa düzeltin. ${btn('nav',{view:'tprog'},'Programımı kontrol et','primary sm')}</div>`:'')}
+  <section><div class="sechead"><h2>Ders programım</h2><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${hasProg?btn('nav',{view:'tprog'},'✎ Programı düzenle','sm'):''}${weekNav(ws)}</div></div>${wls.length?ttTable(wls,ws):`<p class="empty">${hasProg?'Bu hafta planlı dersiniz yok.':'Programınız boş. Ders günlerinizi “Programım” sayfasından ekleyin.'}</p>`}
+  ${hasProg?'<p class="muted small" style="margin-top:8px">Sabit programınız her hafta bu tabloya gelir. O hafta bir değişiklik olursa (başkasının yerine girme, telafi, ek ders, ders yapılmaması) üstteki düğmelerle ya da kutuya dokunarak işleyin; değişiklik o haftanın kutusunda okul ve kimin yerine girildiği bilgisiyle görünür. Program kalıcı olarak değiştiyse “Programı düzenle”den güncelleyin.</p>':''}</section>
   ${pendOld.length?`<section><div class="sechead"><h2>Önceki haftalarda işaretlenmemiş dersler</h2><span class="muted small">${pendOld.length} ders</span></div><div class="list">${pendOld.map(l=>lessonRow(l,{locked:monthLocked(tid,monthKeyOf(l.date))})).join('')}</div></section>`:''}`;
 }
 function tAvailView(){
