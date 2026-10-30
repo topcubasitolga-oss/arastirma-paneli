@@ -121,6 +121,21 @@ section{display:flex;flex-direction:column;gap:12px}
 .ttrow{display:flex;flex-wrap:wrap;gap:8px}
 .ttc{--c:var(--line);--b:var(--accent-soft);display:flex;flex-direction:column;gap:3px;text-align:left;font:inherit;color:var(--fg);background:var(--b);border:1.5px solid var(--c);border-radius:10px;padding:8px 10px;min-width:170px;max-width:260px;flex:1 1 170px;cursor:pointer}
 .ttc:hover{filter:brightness(.97)}.ttc:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ttc.ttmini{min-width:0;max-width:none;flex:none;width:100%;padding:3px 6px;gap:0;border-radius:7px;font-size:11.5px;line-height:1.25;margin-top:3px}
+.ttc.ttmini .ttc-sc{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttm-n{font-size:11px;color:var(--muted)}
+table.ttm{table-layout:fixed;min-width:760px}
+table.ttm th,table.ttm td{vertical-align:top;padding:6px}
+table.ttm thead th{text-align:center;font-size:12px}
+table.ttm thead th:first-child{width:86px}table.ttm thead th:last-child{width:112px}
+.ttm-wk{font-size:12px;white-space:nowrap}.ttm-wk small{display:block;font-weight:400;color:var(--muted)}
+.ttm-d{min-height:64px}.ttm-d.out{background:var(--bg);opacity:.45}.ttm-d.today{background:var(--accent-soft)}
+.ttm-day{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.ttm-tot{white-space:nowrap}
+.ttmode{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface)}
+.seg .btn,.seg button{border:0;border-radius:999px;background:transparent;box-shadow:none}
+.seg .on{background:var(--accent);color:#fff}
 .ttc.today{box-shadow:0 0 0 2px var(--accent)}
 .ttc-sc{font-weight:700;font-size:13px;line-height:1.25}
 .ttc-cl{font-size:12.5px;font-weight:600}.ttc-cl .n{font-family:var(--mono);font-weight:400;color:var(--muted)}
@@ -1066,7 +1081,8 @@ function teachersView(){
   const rows=state.teachers.slice().sort(byName).map(t=>{const as=state.assignments.filter(a=>a.teacherId===t.id&&a.active!==false&&!(a.validTo&&a.validTo<todayISO()));const prog=as.map(a=>`${DAYS_S[Number(a.weekday)-1]} ${schoolLink(a.schoolId)}`).join(', ');const free=freeDays(t).map(wd=>DAYS_S[wd-1]).join(' ');
     return `<tr><td>${teacherLink(t.id)}${t.active===false?' '+chip('bad','Pasif'):''}${t.formStatus==='EKSİK'?' '+chip('warn','Form eksik'):''}${t.programConfirmedAt?' '+chip('ok','Programını onayladı'):''}${t.note?`<div class="muted small">${esc(t.note)}</div>`:''}</td><td class="small"><div class="mono">${esc(t.phone||'')}</div>${t.email?`<div>${esc(t.email)}</div>`:''}</td><td class="small">${esc([t.district,t.semt].filter(Boolean).join(' · '))}${t.otherDistricts?`<div class="muted">${esc(t.otherDistricts)}</div>`:''}</td><td class="small">${free||'<span class="muted">—</span>'}${t.availNote?`<div class="muted">${esc(t.availNote)}</div>`:''}</td><td class="small">${prog||'<span class="muted">Program yok</span>'}</td><td class="mono">${esc(t.pin||'')}</td><td>${t.userId?chip('ok','Bağlı'):chip('','—')}</td><td class="act">${btn('openTeacherPage',{id:t.id},'Programı aç','primary sm')}${btn('impersonate',{id:t.id},'Panelini aç')}${btn('openTeacher',{id:t.id},'Düzenle')}${btn('openAvail',{id:t.id},'Müsaitlik')}${t.userId?btn('unbindTeacher',{id:t.id},'Bağı kaldır'):''}${btn('toggleTeacher',{id:t.id},t.active===false?'Aktifleştir':'Pasifleştir')+btn('delTeacher',{id:t.id},isScoped()?'Kurumdan çıkar':'Sil')}</td></tr>`;}).join('');
   return `<div class="pagehead"><div><h1>Öğretmenler</h1><p class="sub">Giriş için her öğretmenin bir PIN'i olur; ilk girişte hesabı otomatik bağlanır</p></div>${btn('openTeacher',{},'+ Öğretmen ekle','primary')}</div>
-  <section><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ad soyad</th><th>Telefon</th><th>İkamet</th><th>Boş günleri</th><th>Haftalık program</th><th>PIN</th><th>Hesap</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Henüz öğretmen yok.</td></tr>'}</tbody></table></div>
+  ${teachersMonthTable(state.ui.tMonth||monthKeyOf(todayISO()))}
+  <section><div class="sechead"><h2>Öğretmen listesi</h2></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ad soyad</th><th>Telefon</th><th>İkamet</th><th>Boş günleri</th><th>Haftalık program</th><th>PIN</th><th>Hesap</th><th></th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="muted">Henüz öğretmen yok.</td></tr>'}</tbody></table></div>
   <p class="note">Öğretmene panel bağlantısını gönderirken claude.ai paylaşım menüsünden e-posta ile ve <b>Düzenleyen</b> yetkisiyle davet edin; herkese açık bağlantı ile paylaşırsanız öğretmenler ders onayı kaydedemez. "Panelini aç" ile öğretmenin göreceği ekranı kendiniz görebilirsiniz.</p></section>`;
 }
 const SCHOOL_KINDS=[['okul','Okul'],['anaokulu','Anaokulu'],['atolye','Atölye merkezi'],['kurum','Kurum / diğer']];
@@ -1128,17 +1144,18 @@ function teacherDetailView(id){
   const schools=[...new Set(as.map(a=>a.schoolId))].map(schoolById).filter(Boolean).sort(byName);
   const ws=state.ui.detailWeek||weekStartOf(todayISO());
   const wl=lessonsIn(ws,addDays(ws,6),id);
+  const mode=state.ui.detailMode||'ay';const dym=state.ui.detailMonth||monthKeyOf(todayISO());
   const ym=monthKeyOf(todayISO());const ms=monthStats(ym,id);const m=monthDoc(id,ym);
   const weeklyHours=as.reduce((a,x)=>a+(Number(x.hours)||0),0);
   const sets=state.sets.filter(x=>x.locType==='ogretmen'&&x.locId===id);
   const sRows=schools.map(s=>{const mine=as.filter(a=>a.schoolId===s.id).sort((x,y)=>Number(x.weekday)-Number(y.weekday));return `<tr><td>${schoolLink(s.id)}<div class="muted small">${esc([kindLabel(s.kind),s.district].filter(Boolean).join(' · '))}</div></td><td>${mine.map(a=>`<span class="chip info">${DAYS_S[Number(a.weekday)-1]}${a.start?' '+esc(a.start):''} · ${fmtNum(a.hours)} ders</span>`).join(' ')}</td><td class="num">${fmtNum(mine.reduce((a,x)=>a+(Number(x.hours)||0),0))}</td></tr>`;}).join('');
   const availRow=WEEKDAYS6.map(wd=>`<tr><td>${DAYS[wd-1]}</td><td>${availCell(dayAvail(t,wd))}</td></tr>`).join('');
   return `<div class="hero"><img class="wm" src="${LOGO_W}" alt="" width="400" height="303"><div><p class="eyebrow">Öğretmen${t.district?' · '+esc(t.district):''}</p><h1>${esc(t.name)}</h1><p class="sub">${schools.length} kurum · haftada ${fmtNum(weeklyHours)} ders saati · ${monthLabel(ym)}: ${fmtNum(ms.total.done)} onaylı ders saati</p></div><div class="toolbar">${btn('nav',{view:'teachers'},'← Geri','sm')}${btn('impersonate',{id},'Panelini aç','sm')}${btn('openAssignment',{teacher:id},'+ Program satırı','sm')}${btn('openTeacher',{id},'Düzenle','primary sm')}</div></div>
+  <section><div class="sechead"><h2>Ders tablosu</h2>${ttModeBar(mode,mode==='ay'?monthNavD(dym):weekNavD(ws))}</div>${mode==='ay'?(()=>{const ml=lessonsOfMonth(dym,id);return ml.length?ttMonth(ml,dym):'<p class="empty">Bu ay ders yok.</p>';})():(wl.length?ttTable(wl,ws,{hint:'Bir derse dokunarak onaylayın, düzeltin ya da “Yapılmadı” olarak işaretleyin.'}):'<p class="empty">Bu hafta ders yok.</p>')}</section>
   <section class="tiles"><div class="card"><h3>İletişim</h3><dl class="kv"><dt>Telefon</dt><dd class="mono">${esc(t.phone||'—')}</dd><dt>E-posta</dt><dd>${esc(t.email||'—')}</dd><dt>İkamet</dt><dd>${esc([t.district,t.semt].filter(Boolean).join(' · ')||'—')}</dd><dt>Ulaşır</dt><dd>${esc(t.otherDistricts||'—')}</dd>${t.note?`<dt>Not</dt><dd>${esc(t.note)}</dd>`:''}</dl></div>
   <div class="card"><div class="sechead"><h3>Müsaitlik</h3>${btn('openAvail',{id},'Düzenle','ghost sm')}</div><div class="tbl-wrap" style="border:0;box-shadow:none"><table class="tbl"><tbody>${availRow}</tbody></table></div>${t.availNote?`<p class="muted small">${esc(t.availNote)}</p>`:''}</div></section>
   <section><div class="sechead"><h2>Haftalık program</h2><span class="muted small">Hangi gün hangi kurumda</span></div>${patternTable(as,{groupBy:'teacher',notes:true,empty:'Program satırı yok. "+ Program satırı" ile ekleyin.'})}</section>
   <section><div class="sechead"><h2>Kurumlar</h2></div>${schools.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kurum</th><th>Günler</th><th class="num">Haftalık ders</th></tr></thead><tbody>${sRows}</tbody></table></div>`:'<p class="empty">Atanmış kurum yok.</p>'}</section>
-  <section><div class="sechead"><h2>Haftalık ders programı</h2>${weekNavD(ws)}</div>${wl.length?ttTable(wl,ws,{hint:'Bir derse dokunarak onaylayın, düzeltin ya da “Yapılmadı” olarak işaretleyin.'}):'<p class="empty">Bu hafta ders yok.</p>'}</section>
   <section><div class="sechead"><h2>${monthLabel(ym)} dersleri</h2><span class="muted small">${m&&m.teacherApproved?'Öğretmen ayı onayladı':'Öğretmen ay onayı bekleniyor'}${m&&m.adminApproved?' · yönetici onayladı':''}</span></div>${ms.lessons.length?`<div class="list">${ms.lessons.slice().reverse().map(l=>lessonRow(l,{admin:true})).join('')}</div>`:'<p class="empty">Bu ayda ders yok.</p>'}</section>
   ${filesCard('teacher',id,'CV ve sözleşme dosyaları')}
   <section><div class="sechead"><h2>Zimmetli setler</h2></div>${sets.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Kod</th><th>Set</th><th class="num">Adet</th><th></th></tr></thead><tbody>${sets.map(x=>{IDX.sets[x.id]=x;return `<tr><td class="mono">${esc(x.code||'')}</td><td><b>${esc(x.name)}</b></td><td class="num">${fmtNum(x.qty||1)}</td><td class="act">${btn('openMove',{id:x.id},'Taşı')}${btn('openHistory',{id:x.id},'Geçmiş')}</td></tr>`;}).join('')}</tbody></table></div>`:'<p class="empty">Üzerinde zimmetli set yok.</p>'}</section>`;
@@ -2045,6 +2062,44 @@ document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){const m=document.getElementById('ttmenu');if(m)m.remove();}});
 window.addEventListener('scroll',()=>{const m=document.getElementById('ttmenu');if(m)m.remove();},true);
 
+/* ---- aylık ders tablosu (yönetici) ---- */
+function ttCount(ls){const per={};let done=0,plan=0,miss=0,wait=0,trial=0;
+  for(const l of ls){const st=ttState(l);const i=ttInfo(l);const r=per[l.schoolId]||(per[l.schoolId]={done:0,total:0,miss:0,trial:0,wait:0});
+    if(st!=='miss')r.total+=i.n;if(st==='done'){r.done+=i.n;done+=i.n;}else if(st==='trial'){r.trial+=i.n;trial+=i.n;}else if(st==='miss'){const m=Number(l.plannedHours||l.hours)||0;r.miss+=m;miss+=m;}else if(st==='wait'){r.wait+=i.n;wait+=i.n;}else plan+=i.n;}
+  return {per,done,plan,miss,wait,trial,total:done+trial+wait+plan};}
+const ttDur=n=>{const m=n*40;return `${Math.floor(m/60)} sa${m%60?' '+(m%60)+' dk':''}`;};
+function ttShort(id){const n=sName(id);const w=n.replace(/(İlkokulu|Ortaokulu|Anaokulu|Eğitim Kurumları|Kurumları|Belediyesi|Kreşleri|Okulları|Koleji|Lisesi)/g,'').replace(/\s+/g,' ').trim();return w.length>22?w.slice(0,21)+'…':w||n;}
+function ttMini(l){IDX.lessons[l.id]=l;const st=ttState(l);const i=ttInfo(l);const tag=l.substituteFor?'↔ ':l.makeupFor?'↺ ':l.extra?'+ ':'';
+  return `<button type="button" class="ttc ttmini ${st}" data-tt="${esc(l.id)}" title="${esc(sName(l.schoolId))} · ${fmtNum(i.n)} ders · ${TT_LBL[st]}${l.substituteFor?' · '+esc(tName(l.substituteFor))+' yerine':''}${l.replacedBy?' · yerine '+esc(tName(l.replacedBy))+' girdi':''}"><span class="ttc-sc">${tag}${esc(ttShort(l.schoolId))}</span><span class="ttm-n">${st==='miss'?'yapılmadı':fmtNum(i.n)+' ders'}</span></button>`;}
+function ttMonth(ls,ym){
+  const [f,t]=monthRange(ym);const tdy=todayISO();const showWe=ls.some(l=>weekdayOf(l.date)>=6);const nd=showWe?7:5;
+  let ws=weekStartOf(f);const weeks=[];while(ws<=t){weeks.push(ws);ws=addDays(ws,7);}
+  const head=`<tr><th></th>${DAYS_S.slice(0,nd).map(d=>`<th>${d}</th>`).join('')}<th class="num">Hafta</th></tr>`;
+  const body=weeks.map((w,wi)=>{const wl=ls.filter(l=>l.date>=w&&l.date<=addDays(w,6));const c=ttCount(wl);
+    return `<tr><th scope="row" class="ttm-wk">${wi+1}. hafta<small>${fmtDate(w<f?f:w)}</small></th>${[0,1,2,3,4,5,6].slice(0,nd).map(i=>{const d=addDays(w,i);const out=d<f||d>t;const dl=out?[]:ls.filter(l=>l.date===d).sort((x,y)=>String(ttInfo(x).start||'99').localeCompare(String(ttInfo(y).start||'99')));
+      return `<td class="ttm-d${out?' out':''}${d===tdy?' today':''}"><span class="ttm-day">${Number(d.slice(8))}</span>${dl.map(ttMini).join('')}</td>`;}).join('')}
+      <td class="num ttm-tot">${c.total||c.miss?`<b>${fmtNum(c.done)}</b><span class="muted"> / ${fmtNum(c.total)}</span><div class="muted small">girildi</div>`:'<span class="muted">—</span>'}</td></tr>`;}).join('');
+  const c=ttCount(ls);const pct=v=>c.total?Math.round(v/c.total*1000)/10:0;
+  const sch=Object.entries(c.per).sort((a,b)=>sName(a[0]).localeCompare(sName(b[0]),'tr')).map(([sid,r])=>`<div class="ttsum"><h3>${esc(sName(sid))}</h3><div class="big">${fmtNum(r.done)}<small> / ${fmtNum(r.total)} ders</small></div><div class="ttbar"><span style="width:${r.total?r.done/r.total*100:0}%;background:var(--ok)"></span></div><div class="muted small">${ttDur(r.done)}${r.wait?` · ${fmtNum(r.wait)} işaretlenmedi`:''}${r.miss?` · ${fmtNum(r.miss)} yapılmadı`:''}${r.trial?` · ${fmtNum(r.trial)} deneme`:''}</div></div>`).join('');
+  const sum=`<div class="ttsums"><div class="ttsum lead"><h3>${monthLabel(ym)} toplam</h3><div class="big">${fmtNum(c.done)}<small> / ${fmtNum(c.total)} ders</small></div>
+    <div class="ttbar"><span style="width:${pct(c.done)}%;background:var(--ok)"></span><span style="width:${pct(c.trial)}%;background:var(--tt-trial)"></span><span style="width:${pct(c.wait)}%;background:var(--warn)"></span></div>
+    <div class="muted small">${fmtNum(c.done)} girildi · ${fmtNum(c.wait)} işaretlenmedi · ${fmtNum(c.miss)} yapılmadı${c.trial?` · ${fmtNum(c.trial)} deneme`:''} · ${fmtNum(c.plan)} planlı</div>
+    <div class="muted small">Girilen süre: ${fmtNum(c.done)} ders × 40 dk = ${ttDur(c.done)}</div></div>${sch}</div>`;
+  return `${sum}<div class="ttlegend"><span><i class="plan"></i>Planlı</span><span><i class="wait"></i>İşaretlenmedi</span><span><i class="done"></i>Derse girildi</span><span><i class="miss"></i>Yapılmadı</span><span><i class="trial"></i>Deneme dersi</span><span>↔ yerine · ↺ telafi · + ek ders</span></div>
+  <div class="tbl-wrap"><table class="tbl ttm"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+  <p class="muted small">Bir derse dokunarak onaylayın, düzeltin ya da “Yapılmadı” olarak işaretleyin. Ayrıntı için “Haftalık” görünüme geçin.</p>`;}
+const ttModeBar=(mode,nav)=>`<div class="ttmode"><div class="seg" role="tablist">${btn('detailMode',{mode:'ay'},'Aylık','sm'+(mode==='ay'?' on':''))}${btn('detailMode',{mode:'hafta'},'Haftalık','sm'+(mode==='hafta'?' on':''))}</div>${nav}</div>`;
+const monthNavD=ym=>`<div class="nav-month">${btn('detailMonth',{dir:-1},'‹','ghost sm')}<b>${monthLabel(ym)}</b>${btn('detailMonth',{dir:1},'›','ghost sm')}${btn('detailMonth',{dir:0},'Bu ay','ghost sm')}</div>`;
+function teachersMonthTable(ym){
+  const [f,t]=monthRange(ym);let ws=weekStartOf(f);const weeks=[];while(ws<=t){weeks.push(ws);ws=addDays(ws,7);}
+  const T={done:0,total:0,wait:0,miss:0};const wT=weeks.map(()=>({done:0,total:0}));
+  const rows=state.teachers.filter(x=>x.active!==false).slice().sort(byName).map(x=>{const ls=lessonsOfMonth(ym,x.id);if(!ls.length)return '';const c=ttCount(ls);T.done+=c.done;T.total+=c.total;T.wait+=c.wait;T.miss+=c.miss;
+    const wc=weeks.map((w,i)=>{const k=ttCount(ls.filter(l=>l.date>=w&&l.date<=addDays(w,6)&&l.date>=f&&l.date<=t));wT[i].done+=k.done;wT[i].total+=k.total;return k.total||k.miss?`<td class="num" style="white-space:nowrap">${fmtNum(k.done)}<span class="muted small"> / ${fmtNum(k.total)}</span>${k.wait?`<div class="small" style="color:var(--warn);white-space:nowrap">${fmtNum(k.wait)} bekliyor</div>`:''}</td>`:'<td class="num muted">—</td>';}).join('');
+    return `<tr><td><a href="#teacher" class="plink" data-act="openTeacherPage" data-id="${esc(x.id)}" data-mode="ay">${esc(x.name)}</a><div class="muted small">${[...new Set(ls.map(l=>ttShort(l.schoolId)))].map(esc).join(' · ')}</div></td>${wc}<td class="num"><b>${fmtNum(c.done)}</b><span class="muted"> / ${fmtNum(c.total)}</span></td><td class="num">${ttDur(c.done)}</td><td class="num">${c.wait?chip('warn',fmtNum(c.wait)):'<span class="muted">—</span>'}</td><td class="num">${c.miss?chip('bad',fmtNum(c.miss)):'<span class="muted">—</span>'}</td></tr>`;}).join('');
+  return `<section><div class="sechead"><h2>Aylık ders saatleri</h2>${`<div class="nav-month">${btn('tMonth',{dir:-1},'‹','ghost sm')}<b>${monthLabel(ym)}</b>${btn('tMonth',{dir:1},'›','ghost sm')}${btn('tMonth',{dir:0},'Bu ay','ghost sm')}</div>`}</div>
+  <p class="muted small" style="margin:0 0 8px">Girilen / planlanan ders (1 ders = 40 dk). Öğretmenin adına tıklayınca aylık tablosu açılır.</p>
+  ${rows?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Öğretmen</th>${weeks.map((w,i)=>`<th class="num">${i+1}. hafta<div class="muted small" style="font-weight:400">${fmtDate(w<f?f:w)}</div></th>`).join('')}<th class="num">Ay toplamı</th><th class="num">Süre</th><th class="num">Bekleyen</th><th class="num">Yapılmadı</th></tr></thead><tbody>${rows}</tbody>
+  <tfoot><tr><th>Toplam</th>${wT.map(k=>`<th class="num">${fmtNum(k.done)}<span class="muted small"> / ${fmtNum(k.total)}</span></th>`).join('')}<th class="num">${fmtNum(T.done)}<span class="muted small"> / ${fmtNum(T.total)}</span></th><th class="num">${ttDur(T.done)}</th><th class="num">${fmtNum(T.wait)}</th><th class="num">${fmtNum(T.miss)}</th></tr></tfoot></table></div>`:'<p class="empty">Bu ay için ders yok.</p>'}</section>`;}
 function tLessonsView(){
   const tid=myTeacherId();const t=teacherById(tid);
   const tdy=todayISO();
@@ -2098,7 +2153,10 @@ function tMonthView(){
 const ACT={
   nav(d){state.ui.view=d.view;try{history.replaceState(null,'','#'+d.view);}catch(e){}render();window.scrollTo({top:0});},
   openSchoolPage(d){if(!schoolById(d.id))return;state.ui.detailId=d.id;state.ui.view='school';state.ui.detailWeek=weekStartOf(todayISO());try{history.replaceState(null,'','#school');}catch(e){}render();window.scrollTo({top:0});},
-  openTeacherPage(d){if(!isAdmin()||!teacherById(d.id))return;state.ui.detailId=d.id;state.ui.view='teacher';state.ui.detailWeek=weekStartOf(todayISO());try{history.replaceState(null,'','#teacher');}catch(e){}render();window.scrollTo({top:0});},
+  openTeacherPage(d){if(!isAdmin()||!teacherById(d.id))return;state.ui.detailId=d.id;state.ui.view='teacher';state.ui.detailWeek=weekStartOf(todayISO());state.ui.detailMode='ay';state.ui.detailMonth=state.ui.tMonth||monthKeyOf(todayISO());try{history.replaceState(null,'','#teacher');}catch(e){}render();window.scrollTo({top:0});},
+  detailMode(d){state.ui.detailMode=d.mode==='hafta'?'hafta':'ay';render();},
+  detailMonth(d){const n=Number(d.dir);state.ui.detailMonth=n===0?monthKeyOf(todayISO()):addMonths(state.ui.detailMonth||monthKeyOf(todayISO()),n);render();},
+  tMonth(d){const n=Number(d.dir);state.ui.tMonth=n===0?monthKeyOf(todayISO()):addMonths(state.ui.tMonth||monthKeyOf(todayISO()),n);render();},
   detailWeek(d){const n=Number(d.dir);state.ui.detailWeek=n===0?weekStartOf(todayISO()):addDays(state.ui.detailWeek||weekStartOf(todayISO()),7*n);render();},
   logout(){if(state.remote){remoteLogout();return;}if(state.session&&(state.session.via==='owner'||state.session.via==='bound')){lsSet('ttr.session',null);setSession(null,false);toast('Çıkış yapıldı. Sayfa yenilendiğinde hesabınızla otomatik girersiniz.');return;}setSession(null);},
   backAdmin(){state.session=state._adminSession||{role:'admin',via:'owner'};rescope();state.ui.view='teachers';render();},
