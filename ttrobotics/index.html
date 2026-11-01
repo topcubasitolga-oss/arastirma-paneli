@@ -1248,7 +1248,7 @@ function financeView(){
 /* ===================== fixed monthly teacher pay per school (admins + kurum sorumlusu) ===================== */
 const fixedPayOf=sid=>{const s=schoolById(sid)||(state.raw&&state.raw.schools||[]).find(x=>x.id===sid);return s&&Array.isArray(s.teacherPay)?s.teacherPay.filter(x=>x&&x.teacherId&&Number(x.monthly)>0):[];};
 function fixedPayCard(sid,ym){
-  const sc=schoolById(sid)||{};const list=fixedPayOf(sid);const ref=Number(sc.payRate)||0;const as=liveAssignments().filter(a=>a.schoolId===sid);
+  const sc=schoolById(sid)||{};const list=fixedPayOf(sid).filter(x=>!((x.from&&ym<x.from)||(x.until&&ym>x.until)));const ref=Number(sc.payRate)||0;const as=liveAssignments().filter(a=>a.schoolId===sid);
   if(!list.length&&!ref)return isScoped()||isAdmin()?`<section><div class="sechead"><h2>Öğretmen ücretleri</h2>${btn('openFixedPay',{id:sid},'Ücret gir','sm')}</div><p class="empty">Bu kurum için ücret tanımlı değil.</p></section>`:'';
   const tids=[...new Set(as.map(a=>a.teacherId).concat(list.map(x=>x.teacherId)))].filter(teacherById).sort((a,b)=>tName(a).localeCompare(tName(b),'tr'));
   const [f,t]=monthRange(ym);const ls=lessonsIn(f,t).filter(l=>l.schoolId===sid);
@@ -1283,7 +1283,7 @@ let PAYMEMO={};
 function teacherPay(ym){
   if(PAYMEMO[ym])return PAYMEMO[ym];
   const t=tariff();const [f,to]=monthRange(ym);
-  const fixed={};for(const sc of (state.raw&&state.raw.schools)||state.schools)for(const x of fixedPayOf(sc.id)){const mo=x.monthOverride&&x.monthOverride[ym];fixed[sc.id+'|'+x.teacherId]=mo!=null?Number(mo)||0:Number(x.monthly)||0;}
+  const fixed={};for(const sc of (state.raw&&state.raw.schools)||state.schools)for(const x of fixedPayOf(sc.id)){if((x.from&&ym<x.from)||(x.until&&ym>x.until))continue;const mo=x.monthOverride&&x.monthOverride[ym];fixed[sc.id+'|'+x.teacherId]=mo!=null?Number(mo)||0:Number(x.monthly)||0;}
   const dealDay={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='gunluk'){const v=Number((d.perDayByStudents&&c.students&&d.perDayByStudents[c.students])||d.perDay)||0;if(v>0)dealDay[(c.schoolId||c.id)+'|'+d.teacherId]=v;}
   const done=lessonsOfMonth(ym).filter(l=>lessonStatus(l)==='done'&&!l.trial&&!needsVerify(l)&&!fixed[l.schoolId+'|'+l.teacherId]);
   const dealWeek={};for(const c of (state.contracts||[]))for(const d of (c.teacherDeals||[]))if(d.model==='haftalik'&&Number(d.perWeek)>0)dealWeek[(c.schoolId||c.id)+'|'+d.teacherId]={perWeek:Number(d.perWeek),maxWeeks:Number(d.maxWeeks)||4};
@@ -1744,7 +1744,7 @@ function agrRows(tid){
         if(d.model==='ders'){pay=`Ders başı (40 dk) ${tlx(d.perLesson)}`;
           if(d.sharedWith)t.push(`Bu derslere ${esc(tName(d.sharedWith))} ile birlikte girilir; ders başı ücret iki eğitmen arasında eşit paylaştırılmıştır.`);}
         else if(d.model==='gunluk'){if(d.perDayByStudents){pay='Gidiş başı sabit ücret, gruptaki öğrenci sayısına göre: '+Object.entries(d.perDayByStudents).sort((a,b)=>b[0]-a[0]).map(([n,v])=>`${n} öğrenci ${tlx(v)}`).join(' · ');}
-          else pay=`Gidiş (ders günü) başı sabit ${tlx(d.perDay)}`;
+          else pay=`Gidiş (ders günü) başı sabit ${tlx(d.perDay)}${d.monthlyEquivalent&&d.days&&d.days.length?` · 4 haftada ${d.days.length*4} gün = aylık ${tlx(d.monthlyEquivalent)}`:''}`;
           t.push('Ücret fiilen gidilen her ders günü için ödenir; 5 haftalı aylarda gidilen gün sayısı kadar ödenir.');}
         else if(d.model==='haftalik'){pay=`Haftalık ${tlx(d.perWeek)} · ayda en fazla ${d.maxWeeks||4} hafta (${tlx(d.perWeek*(d.maxWeeks||4))})`;t.push('Ay içinde ders verilen (okulun açık olduğu) hafta sayısı kadar ödenir; örneğin 3 hafta için 3 haftalık ücret.');}
         else if(d.model==='aylik'){pay=`Aylık sabit ${tlx(d.monthly)}`;}
