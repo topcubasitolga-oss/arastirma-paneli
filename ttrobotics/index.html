@@ -1193,7 +1193,10 @@ const periodLabel=p=>(PERIODS.find(x=>x[0]===p)||PERIODS[0])[1];
 const contractFor=id=>state.contracts.find(c=>c.schoolId===id);
 const contractStudents=c=>{const cl=Array.isArray(c.classes)?c.classes:[];const n=cl.reduce((a,x)=>a+(Number(x.students)||0),0);return n||Number(c.students)||0;};
 const weeklyHoursOf=id=>liveAssignments().filter(a=>a.schoolId===id).reduce((a,x)=>a+(Number(x.hours)||0),0);
-function contractAmount(c){const r=contractAmountBase(c);const ex=(c.extraPrograms||[]).filter(x=>Number(x.perStudentMonthly)>0&&Number(x.students)>0);if(!ex.length)return r;
+const monthlyExtras=c=>(c&&c.monthlyExtras||[]).filter(x=>Number(x.monthly)>0);
+function contractAmount(c){const r0=contractAmountX(c);const mx=monthlyExtras(c);if(!mx.length)return r0;const add=mx.reduce((a,x)=>a+Number(x.monthly),0);
+  return Object.assign({},r0,{label:r0.label+mx.map(x=>` + ${esc(x.name)}: ${fmtTL(x.monthly)}/ay`).join(''),monthly:r0.monthly+add,perPeriod:/aylık/.test(r0.perLabel)?r0.perPeriod+add:r0.perPeriod,extraMonthly:(r0.extraMonthly||0)+add});}
+function contractAmountX(c){const r=contractAmountBase(c);const ex=(c.extraPrograms||[]).filter(x=>Number(x.perStudentMonthly)>0&&Number(x.students)>0);if(!ex.length)return r;
   const add=ex.reduce((a,x)=>a+Number(x.perStudentMonthly)*Number(x.students),0);
   return Object.assign({},r,{label:r.label+ex.map(x=>` + ${esc(x.name)}: ${fmtNum(x.students)} öğrenci × ${fmtTL(x.perStudentMonthly)}/ay`).join(''),monthly:r.monthly+add,perPeriod:r.perLabel==='aylık'||r.perLabel===periodLabel('aylik')?r.perPeriod+add:r.perPeriod,extraMonthly:add});}
 function contractAmountBase(c){
@@ -1212,7 +1215,7 @@ function realizedMonth(c,ym){
   const tdays=new Set(ls.map(l=>l.teacherId+'_'+l.date)).size;
   const dk={};for(const l of ls){const k=l.teacherId+'_'+l.date;const v=dayTypeOf(l)==='tam'?1:(Number(c.halfFactor)||0.5);dk[k]=Math.max(dk[k]||0,v);}const dunits=Object.values(dk).reduce((a,v)=>a+v,0);
   const fullD=Object.values(dk).filter(v=>v===1).length;
-  return {hours,teacherCost,tdays,fullDays:fullD,halfDays:tdays-fullD,revenue:c.model==='saat'?hours*(Number(c.price)||0):c.model==='gunluk'?dunits*(Number(c.price)||0):null};
+  return {hours,teacherCost,tdays,fullDays:fullD,halfDays:tdays-fullD,revenue:c.model==='saat'?hours*(Number(c.price)||0)+monthlyExtras(c).reduce((a,x)=>a+Number(x.monthly),0):c.model==='gunluk'?dunits*(Number(c.price)||0)+monthlyExtras(c).reduce((a,x)=>a+Number(x.monthly),0):null};
 }
 const netOf=(gross,c)=>gross*(1-(Number(c.partnerShare)||0)/100);
 function financeLockView(){
